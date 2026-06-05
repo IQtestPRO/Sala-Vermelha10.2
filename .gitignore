@@ -38,3 +38,6 @@ local.db-*
 
 # uploads locais de dev (em producao usa-se Vercel Blob)
 /public/uploads
+
+# screenshots de teste visual
+/.shots

@@ -197,7 +197,7 @@ export default function CasePage() {
 
         {/* Zona de ação por papel/estado */}
         {isResponder && !isOwner && c.status === "open" && (
-          <button className="btn btn-primary" disabled={busy} onClick={claim}>
+          <button className="btn btn-emergency" disabled={busy} onClick={claim}>
             <HandHelping size={20} /> Assumir este caso
           </button>
         )}

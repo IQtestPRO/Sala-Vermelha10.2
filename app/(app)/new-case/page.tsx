@@ -217,7 +217,7 @@ function NewCaseInner() {
               <button className="btn" onClick={() => setStep(2)}>
                 <SlidersHorizontal size={20} /> Adicionar idade, peso e vitais (opcional)
               </button>
-              <button className="btn btn-primary" disabled={!canSubmit || sending} onClick={submit}>
+              <button className="btn btn-emergency" disabled={!canSubmit || sending} onClick={submit}>
                 <Send size={20} /> {sending ? "Enviando…" : "Enviar agora"}
               </button>
             </>
@@ -319,7 +319,7 @@ function NewCaseInner() {
           </div>
         </div>
 
-        <button className="btn btn-primary" disabled={!canSubmit || sending} onClick={submit}>
+        <button className="btn btn-emergency" disabled={!canSubmit || sending} onClick={submit}>
           <Send size={20} /> {sending ? "Enviando…" : "Enviar caso"}
         </button>
       </div>

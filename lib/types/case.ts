@@ -18,7 +18,6 @@ export type QuestionMeta = {
   label: string;
   short: string;
   icon: string; // nome do icone lucide
-  // perguntas-modelo (chips) por tipo
   presets: string[];
 };
 
@@ -29,7 +28,7 @@ export const QUESTION_TYPES: QuestionMeta[] = [
     label: "Interpretar ECG",
     short: "ECG",
     icon: "Activity",
-    presets: ["Qual o ritmo/diagnostico?", "Tem supra de ST?", "Conduta para esse ECG?"],
+    presets: ["Qual o ritmo/diagnóstico?", "Tem supra de ST?", "Conduta para esse ECG?"],
   },
   {
     key: "ARRITMIA",
@@ -40,66 +39,66 @@ export const QUESTION_TYPES: QuestionMeta[] = [
   },
   {
     key: "CARDIOVERSAO",
-    label: "Cardioversao",
+    label: "Cardioversão",
     short: "CVE",
     icon: "Zap",
-    presets: ["Cardioverter? Qual energia?", "Sincronizar?", "Sedacao para o procedimento?"],
+    presets: ["Cardioverter? Qual energia?", "Sincronizar?", "Sedação para o procedimento?"],
   },
   {
     key: "PCR_ACLS",
     label: "PCR / ACLS",
     short: "PCR",
     icon: "HeartCrack",
-    presets: ["Ritmo chocavel?", "Proxima droga?", "Causas reversiveis (5H/5T)?"],
+    presets: ["Ritmo chocável?", "Próxima droga?", "Causas reversíveis (5H/5T)?"],
   },
   {
     key: "IOT_SRI",
-    label: "Via aerea / SRI",
+    label: "Via aérea / SRI",
     short: "SRI",
     icon: "Wind",
-    presets: ["Sequencia e doses (SRI)?", "Indutor no choque?", "Parametros pos-IOT?"],
+    presets: ["Sequência e doses (SRI)?", "Indutor no choque?", "Parâmetros pós-IOT?"],
   },
   {
     key: "CHOQUE_SEPSE",
     label: "Choque / Sepse",
     short: "Choque",
     icon: "Droplet",
-    presets: ["Volume e vasopressor?", "Alvo de PAM?", "ATB empirico?"],
+    presets: ["Volume e vasopressor?", "Alvo de PAM?", "ATB empírico?"],
   },
   {
     key: "NEURO_AVC",
     label: "Neuro / AVC",
     short: "Neuro",
     icon: "Brain",
-    presets: ["Janela de trombolise?", "Conduta no rebaixamento?", "Crise convulsiva?"],
+    presets: ["Janela de trombólise?", "Conduta no rebaixamento?", "Crise convulsiva?"],
   },
   {
     key: "INTOXICACAO",
-    label: "Intoxicacao",
+    label: "Intoxicação",
     short: "Intox",
     icon: "FlaskConical",
-    presets: ["Tem antidoto?", "Conduta de suporte?", "Descontaminacao?"],
+    presets: ["Tem antídoto?", "Conduta de suporte?", "Descontaminação?"],
   },
   {
     key: "TRAUMA",
     label: "Trauma grave",
     short: "Trauma",
     icon: "Bone",
-    presets: ["Controle de hemorragia?", "Transfusao macica?", "Sequencia de prioridades?"],
+    presets: ["Controle de hemorragia?", "Transfusão maciça?", "Sequência de prioridades?"],
   },
   {
     key: "IAM_DOR_TORACICA",
-    label: "IAM / Dor toracica",
+    label: "IAM / Dor torácica",
     short: "IAM",
     icon: "Heart",
-    presets: ["Supra de ST -> reperfusao?", "Carga de antiagregantes?", "Anticoagulacao?"],
+    presets: ["Supra de ST → reperfusão?", "Carga de antiagregantes?", "Anticoagulação?"],
   },
   {
     key: "OUTRO",
     label: "Outro",
     short: "Outro",
     icon: "CircleHelp",
-    presets: ["Descreva o caso e a duvida."],
+    presets: ["Descreva o caso e a dúvida."],
   },
 ];
 

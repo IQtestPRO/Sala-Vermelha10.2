@@ -41,12 +41,12 @@ export async function apiPost<T>(url: string, body?: unknown, headers?: Record<s
 export function friendlyError(code: string): string {
   const map: Record<string, string> = {
     invalid_input: "Confira os campos e tente de novo.",
-    crm_taken: "Ja existe cadastro com esse CRM.",
+    crm_taken: "Já existe cadastro com esse CRM.",
     invalid_credentials: "CRM ou senha incorretos.",
-    unauthorized: "Sessao expirada. Entre novamente.",
-    forbidden: "Voce nao tem permissao para isso.",
-    not_approved: "Seu cadastro ainda nao foi aprovado.",
-    already_claimed: "Outro plantonista ja assumiu este caso.",
+    unauthorized: "Sessão expirada. Entre novamente.",
+    forbidden: "Você não tem permissão para isso.",
+    not_approved: "Seu cadastro ainda não foi aprovado.",
+    already_claimed: "Outro plantonista já assumiu este caso.",
     disabled: "Conta desativada. Fale com o administrador.",
     internal_error: "Erro no servidor. Tente novamente.",
   };

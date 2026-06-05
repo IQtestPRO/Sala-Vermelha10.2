@@ -12,11 +12,11 @@ export type Destino =
 export const DESTINOS: { key: Destino; label: string }[] = [
   { key: "MANTER_SALA_VERMELHA", label: "Manter sala vermelha" },
   { key: "UTI", label: "UTI" },
-  { key: "HEMODINAMICA", label: "Hemodinamica" },
-  { key: "CENTRO_CIRURGICO", label: "Centro cirurgico" },
+  { key: "HEMODINAMICA", label: "Hemodinâmica" },
+  { key: "CENTRO_CIRURGICO", label: "Centro cirúrgico" },
   { key: "ENFERMARIA", label: "Enfermaria" },
-  { key: "TRANSFERENCIA", label: "Transferencia" },
-  { key: "OBSERVACAO", label: "Observacao" },
+  { key: "TRANSFERENCIA", label: "Transferência" },
+  { key: "OBSERVACAO", label: "Observação" },
 ];
 
 export type Confianca = "ALTA" | "MEDIA" | "PRECISA_MAIS_DADOS";

@@ -10,7 +10,7 @@ import type { Role } from "@/lib/db";
 
 const SPECIALTIES = [
   "Emergencista",
-  "Clinica medica",
+  "Clínica médica",
   "Cardiologia",
   "Intensivista",
   "Anestesiologia",

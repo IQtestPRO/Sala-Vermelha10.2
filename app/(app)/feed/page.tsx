@@ -20,7 +20,7 @@ export default function FeedPage() {
     <>
       <TopBar title="Meus casos" subtitle={`${me.name} • ${me.crm}`} right={<LogoutButton />} />
       <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
-        <Link href="/new-case" className="btn btn-primary" style={{ minHeight: 58, fontSize: 17 }}>
+        <Link href="/new-case" className="btn btn-emergency" style={{ minHeight: 58, fontSize: 17 }}>
           <PlusCircle size={24} /> Novo caso de emergência
         </Link>
 
