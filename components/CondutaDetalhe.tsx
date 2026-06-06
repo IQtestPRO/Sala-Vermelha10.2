@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Copy, Calculator } from "lucide-react";
+import { AlertTriangle, Copy, Calculator, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORIAS, CondutaCard } from "@/lib/condutas";
 import { calcDose } from "@/lib/doseCalculator";
@@ -104,9 +104,12 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
 
       {card.energia && card.energia.length > 0 && (
         <Section title="Energia">
-          <div className="card-2" style={{ display: "flex", flexDirection: "column", gap: 6, boxShadow: "none" }}>
+          <div className="z-sunken" style={{ display: "flex", flexDirection: "column", gap: 9, padding: "12px 14px" }}>
             {card.energia.map((e, k) => (
-              <div key={k} style={{ fontSize: 14.5, fontWeight: 600 }}>⚡ {e}</div>
+              <div key={k} style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                <Zap size={15} color="var(--red)" style={{ flex: "0 0 auto" }} />
+                <span className="data" style={{ fontSize: 15 }}>{e}</span>
+              </div>
             ))}
           </div>
         </Section>
@@ -136,20 +139,35 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
             {card.doses.map((d, k) => {
               const calc = peso ? calcDose(d, peso) : null;
               return (
-                <div key={k} className="card-2" style={{ boxShadow: "none" }}>
+                <div
+                  key={k}
+                  className="z-sunken"
+                  style={{ padding: "12px 14px", cursor: "pointer" }}
+                  title="Tocar para copiar"
+                  onClick={() => {
+                    const txt = `${d.farmaco}: ${d.dose}${d.via ? " " + d.via : ""}${calc ? ` (${peso} kg → ${calc.label})` : ""}`;
+                    navigator.clipboard?.writeText(txt).then(
+                      () => {
+                        toast.success("Dose copiada.");
+                        if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(12);
+                      },
+                      () => toast.error("Não consegui copiar.")
+                    );
+                  }}
+                >
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
                     <span style={{ fontWeight: 800 }}>{d.farmaco}</span>
-                    <span className="muted" style={{ fontSize: 13 }}>
+                    <span className="data" style={{ fontSize: 13.5, color: "var(--text-dim)" }}>
                       {d.dose}
                       {d.via ? ` · ${d.via}` : ""}
                     </span>
                   </div>
                   {calc && (
-                    <div style={{ marginTop: 6, color: "var(--primary-press)", fontWeight: 800, fontSize: 15 }}>
+                    <div className="data" style={{ marginTop: 7, color: "var(--primary-press)", fontWeight: 700, fontSize: 17 }}>
                       {peso} kg → {calc.label}
                     </div>
                   )}
-                  {d.obs && <div className="faint" style={{ fontSize: 12.5, marginTop: 5, lineHeight: 1.4 }}>{d.obs}</div>}
+                  {d.obs && <div className="faint" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.4 }}>{d.obs}</div>}
                 </div>
               );
             })}
