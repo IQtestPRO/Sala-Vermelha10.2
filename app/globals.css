@@ -371,15 +371,16 @@ select.field {
 }
 .fade-in { animation: fade-in-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* ===== Linha de ECG (marca STAT) — traçado tipo monitor ===== */
-@keyframes ecg-trace {
-  0% { stroke-dashoffset: 100; }
+/* ===== Linha de ECG (marca STAT) — traçado tipo monitor (CSS puro: funciona no Safari iOS) ===== */
+@keyframes ecg-draw {
+  0% { stroke-dashoffset: 260; }
   55% { stroke-dashoffset: 0; }
   100% { stroke-dashoffset: 0; }
 }
-.ecg-line {
-  stroke-dasharray: 100;
-  animation: ecg-trace 2.2s var(--ease-out-expo) infinite;
+.ecg-draw {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: ecg-draw 2.2s var(--ease-out-expo) infinite;
 }
 
 /* ===== Splash de abertura ===== */
@@ -438,6 +439,6 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .pulse, .spin, .fade-in { animation: none !important; }
-  .ecg-line { animation: none !important; stroke-dashoffset: 0; }
+  .ecg-draw { animation: none !important; stroke-dashoffset: 0; }
   .splash { animation: none !important; opacity: 0; visibility: hidden; }
 }
