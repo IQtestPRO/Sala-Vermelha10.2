@@ -533,7 +533,7 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .pulse, .spin, .fade-in, .sla-beat, .sla-beat-fast { animation: none !important; }
-  .ecg-draw { animation: none !important; stroke-dashoffset: 0; }
+  .ecg-draw, .vitals-ecg-line { animation: none !important; stroke-dashoffset: 0; }
   .splash { animation: none !important; opacity: 0; visibility: hidden; }
 }
 
@@ -590,6 +590,30 @@ a.list-row:active, button.list-row:active { transform: scale(0.99); background: 
 }
 .sla-beat      { border-radius: var(--r-pill); animation: sla-beat 2.2s var(--ease-out-quart) infinite; }
 .sla-beat-fast { border-radius: var(--r-pill); animation: sla-beat 1.0s var(--ease-out-quart) infinite; }
+
+/* ===== Vitals Strip (WOW): chrome navy de monitor de cabeceira ===== */
+.vitals-strip {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  height: 58px; padding: 0 16px;
+  background: var(--navy-deep); color: #eaf0fb;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+}
+.vitals-ecg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.55; z-index: 0; }
+.vitals-ecg-line {
+  fill: none; stroke: var(--red-line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 520; stroke-dashoffset: 520;
+  animation: ecg-sweep 2.6s var(--ease-out-expo) infinite;
+}
+@keyframes ecg-sweep { 0% { stroke-dashoffset: 520; } 62% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+.vitals-left { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; min-width: 0; }
+.vitals-dot { width: 9px; height: 9px; border-radius: 999px; background: var(--red); flex: 0 0 auto; }
+.vitals-label { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #cdd9ee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vitals-sla { position: relative; z-index: 1; font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 700; color: #fff; flex: 0 0 auto; }
+.vitals-sla.is-warn { color: var(--amber); }
+.vitals-sla.is-danger { color: var(--red); }
+.vitals-state { position: relative; z-index: 1; font-family: var(--font-data); font-size: 18px; font-weight: 700; color: #9fb0c9; flex: 0 0 auto; }
 
 @theme inline {
   --font-heading: var(--font-sans);

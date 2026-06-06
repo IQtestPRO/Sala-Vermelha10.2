@@ -9,6 +9,7 @@ import { useMe } from "@/components/AppShell";
 import { usePoll } from "@/lib/usePoll";
 import { apiPost, friendlyError, ApiError } from "@/lib/client";
 import SlaCountdown from "@/components/SlaCountdown";
+import VitalsStrip from "@/components/VitalsStrip";
 import VitalsGrid from "@/components/VitalsGrid";
 import EcgViewer from "@/components/EcgViewer";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
@@ -168,6 +169,8 @@ export default function CasePage() {
       />
 
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 16, paddingBottom: 24 }}>
+        <VitalsStrip expiresAt={c.sla_expires_at} serverNow={data.serverNow} status={c.status} priority={c.priority} />
+
         {c.status === "expired" && (
           <div className="card" style={{ borderColor: "var(--red)", background: "color-mix(in srgb, var(--red) 10%, var(--surface))" }}>
             <div style={{ display: "flex", gap: 8, alignItems: "center", color: "var(--red)", fontWeight: 800 }}>
@@ -176,12 +179,6 @@ export default function CasePage() {
             <div className="muted" style={{ fontSize: 13, marginTop: 6 }}>
               Ninguém respondeu em 10 minutos. Todos os plantonistas foram notificados. O caso continua respondível.
             </div>
-          </div>
-        )}
-
-        {c.priority === "urgent" && (
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: "var(--red)", fontWeight: 900, fontSize: 13, letterSpacing: "0.03em" }}>
-            <span className="brand-dot" /> CASO URGENTE
           </div>
         )}
 
