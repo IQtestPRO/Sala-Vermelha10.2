@@ -129,9 +129,10 @@ export async function requireApprovedResponder(req: NextRequest): Promise<UserRo
 
 // Admin via senha de header (mesmo padrao dos outros projetos) — sem conta/sessao.
 export function isAdminRequest(req: NextRequest): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  // .trim() nos dois lados: tolera espaco/quebra-de-linha acidental no valor da env (Vercel).
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
   if (!adminPassword) return false;
-  return req.headers.get("x-admin-password") === adminPassword;
+  return (req.headers.get("x-admin-password") || "").trim() === adminPassword;
 }
 export function requireAdmin(req: NextRequest): void {
   if (!isAdminRequest(req)) throw new AuthError(401, "unauthorized");
