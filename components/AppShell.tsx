@@ -15,7 +15,7 @@ export function useMe(): Me {
   return me;
 }
 
-const ALLOWED_WHEN_PENDING = ["/pending", "/condutas"];
+const ALLOWED_WHEN_PENDING = ["/pending", "/condutas", "/rapido"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);

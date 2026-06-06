@@ -35,11 +35,26 @@ export type Dose = {
   concentracaoPadraoMgMl?: number; // so para mg/kg -> converte em mL
 };
 
+// Passo de acao imediata (modo panico): o que fazer AGORA, com dose em ampolas.
+export type AcaoPasso = {
+  acao: string; // "Atropina 1 mg IV em bolus"
+  ampola?: string; // "4 ampolas (0,25 mg/mL · 1 mL)"
+  repetir?: string; // "Repetir 3-5 min · max 3 mg"
+};
+
+export type AcaoRapida = {
+  gatilho: string; // quando disparar ("Bradicardia COM instabilidade")
+  passos: AcaoPasso[];
+  seRefratario?: string;
+  naoFaca?: string;
+};
+
 export type CondutaCard = {
   id: string;
   titulo: string;
   categoria: CondutaCategoria;
   resumo?: string;
+  acaoRapida?: AcaoRapida;
   indicacoes: string[];
   contraindicacoes?: string[];
   passos: string[];
@@ -56,6 +71,25 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "Sequência Rápida de Intubação (SRI)",
     categoria: "VIA_AEREA",
     resumo: "7 P's, indução + bloqueio neuromuscular, pós-IOT.",
+    acaoRapida: {
+      gatilho: "Precisa de via aérea definitiva (Glasgow ≤ 8, falência respiratória, proteção de via aérea).",
+      passos: [
+        {
+          acao: "Pré-oxigenar O2 100% (3 min) + otimizar PA/SatO2 ANTES",
+          ampola: "Cabeceira 20–30° + cateter nasal 15 L/min (oxigenação apneica)",
+        },
+        {
+          acao: "Indução: etomidato 0,3 mg/kg (ou cetamina 1–2 mg/kg no choque)",
+          ampola: "Use a calculadora por peso (etomidato 2 mg/mL · cetamina 50 mg/mL)",
+        },
+        {
+          acao: "Bloqueio: succinilcolina 1–1,5 mg/kg OU rocurônio 1,2 mg/kg",
+          ampola: "Logo após o indutor · aguardar ~45–60 s para intubar",
+        },
+      ],
+      seRefratario: "Plano de resgate: dispositivo supraglótico / cricotireoidostomia. Confirmar com capnografia.",
+      naoFaca: "Propofol e cuidado no choque (hipotensão). Rocurônio dura muito: garanta sedação contínua.",
+    },
     indicacoes: [
       "Via aérea definitiva com risco de aspiração (estômago cheio)",
       "Rebaixamento do nível de consciência (Glasgow ≤ 8)",
@@ -96,6 +130,22 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "Cardioversão Elétrica Sincronizada",
     categoria: "ARRITMIA",
     resumo: "Taquiarritmia com pulso + instabilidade → choque SINCRONIZADO.",
+    acaoRapida: {
+      gatilho: "Taquiarritmia COM pulso e instável (hipotensão, dor torácica, IC aguda, rebaixamento).",
+      passos: [
+        {
+          acao: "Cardioversão SINCRONIZADA agora (ligar o modo SYNC)",
+          ampola: "FA 120–150 J · Flutter/TSV 50–100 J · TV mono 100 J (bifásico)",
+          repetir: "Não resolveu? Religar SYNC e escalonar a energia.",
+        },
+        {
+          acao: "Sedação se der tempo: etomidato 0,1–0,15 mg/kg IV",
+          ampola: "≈ 10–15 mg (etomidato 2 mg/mL) — ou cetamina 0,5–1 mg/kg",
+        },
+      ],
+      seRefratario: "Reavaliar ritmo e causa; considerar antiarrítmico (amiodarona) e suporte.",
+      naoFaca: "Sem pulso = desfibrilar (NÃO sincronizado). TV polimórfica instável: trate como FV.",
+    },
     indicacoes: [
       "Taquiarritmia COM pulso e instabilidade: hipotensão/choque, dor torácica isquêmica, IC aguda, rebaixamento",
       "FA/flutter atrial instável",
@@ -140,6 +190,30 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "ACLS / PCR — Parada Cardiorrespiratória",
     categoria: "PCR",
     resumo: "Chocável (FV/TVsp) × não-chocável (AESP/assistolia). RCP de alta qualidade.",
+    acaoRapida: {
+      gatilho: "Sem pulso / sem responsividade / respiração agônica.",
+      passos: [
+        {
+          acao: "RCP de alta qualidade já: 100–120/min, 5–6 cm, mínimas pausas",
+          repetir: "Checar ritmo a cada 2 min e trocar quem comprime.",
+        },
+        {
+          acao: "FV / TV sem pulso → DESFIBRILAR (não sincronizado)",
+          ampola: "200 J bifásico (ou máximo do aparelho) · retomar RCP imediatamente",
+        },
+        {
+          acao: "Adrenalina 1 mg IV/IO",
+          ampola: "1 ampola (1 mg/mL · 1 mL) · flush 20 mL",
+          repetir: "Repetir a cada 3–5 min (precoce no ritmo NÃO chocável).",
+        },
+        {
+          acao: "FV/TV refratária ao choque → Amiodarona 300 mg IV",
+          ampola: "2 ampolas (50 mg/mL · 3 mL) · 2ª dose 150 mg",
+        },
+      ],
+      seRefratario: "Buscar e tratar 5H/5T; via aérea avançada + capnografia (EtCO2).",
+      naoFaca: "Nunca sincronizar em FV/TVsp. Não atrasar choque/compressões por acesso ou droga.",
+    },
     indicacoes: ["Irresponsivo, sem respiração/respiração agônica, sem pulso central em ≤10 s"],
     passos: [
       "1. RCP de alta qualidade: 100–120/min, 5–6 cm, retorno total do tórax, mínimas interrupções (<10 s).",
@@ -195,6 +269,19 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "Bradiarritmia Instável",
     categoria: "ARRITMIA",
     resumo: "FC baixa + instabilidade → atropina → marca-passo / infusão.",
+    acaoRapida: {
+      gatilho: "Bradicardia (FC < 50) COM instabilidade: hipotensão, rebaixamento, dor torácica ou IC aguda.",
+      passos: [
+        {
+          acao: "Atropina 1 mg IV em bolus",
+          ampola: "4 ampolas (0,25 mg/mL · 1 mL)",
+          repetir: "Repetir a cada 3–5 min · máximo 3 mg (até 3 doses)",
+        },
+      ],
+      seRefratario:
+        "Marca-passo transcutâneo (FC 60–80, subir mA até captura com pulso) E/OU infusão: dopamina 5–20 mcg/kg/min ou adrenalina 2–10 mcg/min.",
+      naoFaca: "Não atrasar o marca-passo em BAV de alto grau (Mobitz II / BAVT) — atropina costuma falhar.",
+    },
     indicacoes: ["FC < 50 com instabilidade: hipotensão, alteração do estado mental, dor torácica, IC aguda/choque"],
     passos: [
       "1. O2, monitor, acesso venoso, ECG 12 derivações.",
@@ -249,6 +336,22 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "Sepse / Choque Séptico",
     categoria: "CHOQUE",
     resumo: "Pacote 1ª hora: culturas + ATB, cristaloide 30 mL/kg, noradrenalina (PAM ≥ 65).",
+    acaoRapida: {
+      gatilho: "Infecção suspeita + hipotensão / lactato alto / disfunção orgânica.",
+      passos: [
+        { acao: "Lactato + 2 pares de hemocultura (sem atrasar o ATB)" },
+        { acao: "Antibiótico de amplo espectro na 1ª hora" },
+        {
+          acao: "Cristaloide 30 mL/kg se hipotenso / lactato ≥ 4",
+          ampola: "≈ 2.100 mL num adulto de 70 kg · reavaliar resposta",
+        },
+        {
+          acao: "PAM < 65 após volume → Noradrenalina (1ª escolha)",
+          ampola: "0,05–0,5 mcg/kg/min em BIC · alvo PAM ≥ 65",
+        },
+      ],
+      seRefratario: "Refratário: vasopressina 0,03 U/min e hidrocortisona 200 mg/dia; controlar o foco.",
+    },
     indicacoes: ["Suspeita de infecção + disfunção orgânica / hipotensão / lactato elevado"],
     passos: [
       "1. Coletar lactato e hemoculturas (2 pares) ANTES do ATB, sem atrasar.",
@@ -275,6 +378,21 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "IAM com Supra de ST (SCACSST)",
     categoria: "CARDIOLOGIA",
     resumo: "AAS + 2º antiagregante + anticoagulação + reperfusão (tempo!).",
+    acaoRapida: {
+      gatilho: "Dor torácica isquêmica + supra de ST (ou BRE novo). ECG em ≤ 10 min.",
+      passos: [
+        {
+          acao: "AAS 200–300 mg VO (mastigar) agora",
+          ampola: "ex.: 3 comprimidos de 100 mg mastigados",
+        },
+        { acao: "2º antiagregante (ticagrelor/clopidogrel/prasugrel) + anticoagulação" },
+        {
+          acao: "Reperfusão: angioplastia primária (porta-balão ≤ 90 min)",
+          ampola: "Sem hemodinâmica em tempo → trombólise (porta-agulha ≤ 30 min, < 12 h)",
+        },
+      ],
+      naoFaca: "Nitrato é CONTRAINDICADO em hipotensão, IAM de VD e uso recente de sildenafila/tadalafila.",
+    },
     indicacoes: ["Dor torácica isquêmica + supra de ST ou BRE novo; ECG em ≤ 10 min da chegada"],
     passos: [
       "1. MOV: monitor, O2 se SatO2 < 90%, acesso venoso; ECG seriado; troponina (não atrasar reperfusão).",
@@ -328,6 +446,22 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "Anafilaxia",
     categoria: "CHOQUE",
     resumo: "Adrenalina IM imediata (vasto lateral), repetir 5–15 min; volume.",
+    acaoRapida: {
+      gatilho: "Reação alérgica grave: via aérea, dispneia/broncoespasmo, hipotensão ou pele + sintomas sistêmicos.",
+      passos: [
+        {
+          acao: "Adrenalina 0,5 mg IM na coxa (vasto lateral) AGORA",
+          ampola: "0,5 mL de 1 mg/mL (1:1.000) · criança 0,01 mg/kg (máx 0,5 mg)",
+          repetir: "Repetir a cada 5–15 min se não melhorar.",
+        },
+        {
+          acao: "O2 alto fluxo + cristaloide se hipotenso",
+          ampola: "Soro 20 mL/kg em bolus, repetir conforme resposta",
+        },
+      ],
+      seRefratario: "Refratário: adrenalina IV em infusão (ambiente monitorizado). Adjuvantes: anti-H1 + corticoide.",
+      naoFaca: "NÃO usar via SC nem trocar adrenalina por anti-histamínico/corticoide. Atenção à reação bifásica.",
+    },
     indicacoes: ["Reação alérgica grave com acometimento de via aérea, respiração, circulação ou pele+sistêmico"],
     passos: [
       "1. Adrenalina IM IMEDIATA na coxa (vasto lateral) — 1ª linha.",
@@ -355,6 +489,24 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "Estado de Mal Epiléptico",
     categoria: "NEURO",
     resumo: "Benzodiazepínico → antiepiléptico de 2ª linha → anestésico.",
+    acaoRapida: {
+      gatilho: "Crise > 5 min ou crises repetidas sem recuperar consciência.",
+      passos: [
+        {
+          acao: "Glicemia capilar (tratar se hipoglicemia) + O2 + acesso",
+        },
+        {
+          acao: "Diazepam 10 mg IV lento (0,15–0,2 mg/kg)",
+          ampola: "1 ampola (5 mg/mL · 2 mL) · pode repetir 1×",
+          repetir: "Sem acesso? Midazolam 10 mg IM.",
+        },
+        {
+          acao: "Persistiu → 2ª linha IV: fenitoína 20 mg/kg OU levetiracetam 60 mg/kg",
+        },
+      ],
+      seRefratario: "Refratário: IOT + anestésico contínuo (midazolam/propofol) em UTI + EEG.",
+      naoFaca: "Não subdosar o benzodiazepínico (causa comum de falha). Sempre checar glicemia.",
+    },
     indicacoes: ["Crise > 5 min ou crises recorrentes sem recuperação de consciência"],
     passos: [
       "1. ABC, glicemia (tratar hipoglicemia), O2, acesso venoso, tempo da crise.",
@@ -382,6 +534,24 @@ export const CONDUTAS: CondutaCard[] = [
     titulo: "Hipercalemia Grave",
     categoria: "METABOLICO",
     resumo: "Cálcio (membrana) → insulina+glicose/beta2 (shift) → remover (diálise).",
+    acaoRapida: {
+      gatilho: "K+ alto com alteração no ECG (T apiculada, QRS alargado) ou K+ > 6,5.",
+      passos: [
+        {
+          acao: "Gluconato de cálcio 10% 10–20 mL IV em 2–5 min (protege o coração)",
+          ampola: "1–2 ampolas (10 mL) · repetir se o ECG persistir",
+        },
+        {
+          acao: "Insulina regular 10 UI IV + glicose 25 g (desloca o K+)",
+          ampola: "50 mL de glicose 50% · monitorar glicemia",
+          repetir: "Associar beta-2 (salbutamol 10–20 mg nebulização).",
+        },
+        {
+          acao: "Remover: diurético / resina; DIÁLISE se grave ou renal",
+        },
+      ],
+      naoFaca: "Cálcio NÃO baixa o K+ (só protege a membrana) — sempre fazer o shift e a remoção. Insulina sem glicose causa hipoglicemia.",
+    },
     indicacoes: ["K+ elevado com alteração de ECG (T apiculada, alargamento de QRS) ou K+ > 6,5"],
     passos: [
       "1. ECG imediato (T apiculada, PR longo, QRS alargado, padrão sinusoidal).",
@@ -435,6 +605,39 @@ export const CONDUTAS: CondutaCard[] = [
 
 export function condutaById(id: string): CondutaCard | undefined {
   return CONDUTAS.find((c) => c.id === id);
+}
+
+// Situacoes do modo Acao Rapida, ordenadas por prioridade na sala vermelha.
+const ACAO_ORDER = [
+  "acls-pcr",
+  "bradi-instavel",
+  "cardioversao",
+  "anafilaxia",
+  "sri",
+  "eme",
+  "choque-sepse",
+  "iam-supra",
+  "hipercalemia",
+];
+
+export function condutasComAcao(): CondutaCard[] {
+  return CONDUTAS.filter((c) => c.acaoRapida).sort((a, b) => {
+    const ia = ACAO_ORDER.indexOf(a.id);
+    const ib = ACAO_ORDER.indexOf(b.id);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+}
+
+export function searchComAcao(query: string): CondutaCard[] {
+  const q = query.trim().toLowerCase();
+  const base = condutasComAcao();
+  if (!q) return base;
+  return base.filter((c) => {
+    const hay = [c.titulo, c.resumo ?? "", c.acaoRapida?.gatilho ?? "", ...(c.tags ?? []), ...c.doses.map((d) => d.farmaco)]
+      .join(" ")
+      .toLowerCase();
+    return hay.includes(q);
+  });
 }
 
 // Busca simples por titulo, tags, resumo e farmacos.
