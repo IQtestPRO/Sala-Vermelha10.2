@@ -13,6 +13,7 @@ export async function GET() {
       cron: !!process.env.CRON_SECRET,
       blob: !!process.env.BLOB_READ_WRITE_TOKEN,
       push: !!process.env.VAPID_PUBLIC_KEY && !!process.env.VAPID_PRIVATE_KEY,
+      ai: !!process.env.ANTHROPIC_API_KEY,
     },
     now: Date.now(),
   });
