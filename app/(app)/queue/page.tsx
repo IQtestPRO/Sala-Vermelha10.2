@@ -52,6 +52,14 @@ export default function QueuePage() {
         right={<LogoutButton />}
       />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="welcome-banner">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/hero-fila.jpg" alt="" className="welcome-banner-bg" />
+          <div className="welcome-banner-text">
+            <div className="welcome-eyebrow">Plantão</div>
+            <div className="welcome-title">Olá, {me.name}</div>
+          </div>
+        </div>
         <PushSetup />
         {isStale && (
           <div className="card-2" style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--amber)", fontSize: 13 }}>
