@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Mulish, Archivo } from "next/font/google";
+import { Mulish, Archivo, Geist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import SwRegister from "@/components/SwRegister";
 import Splash from "@/components/Splash";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const mulish = Mulish({
   variable: "--font-mulish",
@@ -55,7 +58,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${mulish.variable} ${archivo.variable}`}>
+    <html lang="pt-BR" className={cn(mulish.variable, archivo.variable, "font-sans", geist.variable)}>
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <Splash />
