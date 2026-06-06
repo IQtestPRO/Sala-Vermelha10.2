@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { PlusCircle, HeartPulse, Zap } from "lucide-react";
+import { PlusCircle, Zap } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import { useMe } from "@/components/AppShell";
 import { usePoll } from "@/lib/usePoll";
 import CaseCard from "@/components/CaseCard";
+import EmptyState from "@/components/EmptyState";
 import type { PublicCase } from "@/lib/cases";
 
 type Resp = { cases: PublicCase[]; serverNow: number };
@@ -28,15 +29,7 @@ export default function FeedPage() {
         </Link>
 
         {cases.length === 0 ? (
-          <div className="card" style={{ textAlign: "center", padding: 30 }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: "var(--red-tint)", color: "var(--red)", display: "grid", placeItems: "center", margin: "0 auto 12px" }}>
-              <HeartPulse size={28} />
-            </div>
-            <div style={{ fontWeight: 700 }}>Nenhum caso ainda</div>
-            <div className="faint" style={{ fontSize: 13, marginTop: 6, lineHeight: 1.45 }}>
-              Toque em “Novo caso” para enviar um ECG ou uma dúvida de conduta.
-            </div>
-          </div>
+          <EmptyState title="Nenhum caso ainda" subtitle="Toque em Novo caso para enviar um ECG ou uma dúvida de conduta." />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {cases.map((c) => (

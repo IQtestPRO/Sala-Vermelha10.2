@@ -2,8 +2,9 @@
 
 import { useRef } from "react";
 import { toast } from "sonner";
-import { Inbox, Wifi } from "lucide-react";
+import { Wifi } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
+import EmptyState from "@/components/EmptyState";
 import { useMe } from "@/components/AppShell";
 import { usePoll } from "@/lib/usePoll";
 import CaseCard from "@/components/CaseCard";
@@ -72,11 +73,7 @@ export default function QueuePage() {
         <div>
           <div className="label">Aguardando resposta ({open.length})</div>
           {open.length === 0 ? (
-            <div className="card" style={{ textAlign: "center", padding: 30 }}>
-              <Inbox size={30} className="faint" />
-              <div className="muted" style={{ marginTop: 8 }}>Nenhum caso na fila agora.</div>
-              <div className="faint" style={{ fontSize: 13, marginTop: 4 }}>Você será avisado quando chegar um novo.</div>
-            </div>
+            <EmptyState title="Nenhum caso na fila agora" subtitle="Você será avisado quando chegar um novo." />
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {open.map((c) => (

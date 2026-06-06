@@ -37,41 +37,42 @@ export default function RapidoPage() {
       <TopBar brand title="Ação rápida" subtitle="O que fazer agora — sala vermelha" right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ position: "relative" }}>
-          <Search size={18} className="faint" style={{ position: "absolute", left: 14, top: 17 }} />
+          <Search size={18} className="faint" style={{ position: "absolute", left: 14, top: 16 }} />
           <input
             className="field"
             placeholder="Buscar situação (ex.: bradicardia)…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ paddingLeft: 42 }}
+            style={{ paddingLeft: 42, background: "var(--surface-sunken)", boxShadow: "var(--shadow-inset)" }}
           />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {list.map((c) => (
-            <button
-              key={c.id}
-              className="card-2"
-              style={{ textAlign: "left", cursor: "pointer", display: "flex", gap: 12, alignItems: "center" }}
-              onClick={() => setSelected(c)}
-            >
-              <div style={{ flex: "0 0 44px", height: 44, borderRadius: 12, background: "var(--navy-tint)", color: "var(--navy)", display: "grid", placeItems: "center" }}>
-                {ICON[c.id] ?? <Zap size={22} />}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: 16 }}>{c.titulo}</div>
-                <div
-                  className="faint"
-                  style={{ fontSize: 12.5, marginTop: 2, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
-                >
-                  {c.acaoRapida?.gatilho}
-                </div>
-              </div>
-              <ChevronRight size={20} className="faint" />
-            </button>
-          ))}
-          {list.length === 0 && <div className="muted" style={{ textAlign: "center", padding: 20 }}>Nada encontrado.</div>}
+        <div className="eyebrow" style={{ margin: "2px 0 -4px" }}>
+          {list.length} {list.length === 1 ? "situação" : "situações"}
         </div>
+
+        {list.length === 0 ? (
+          <div className="muted" style={{ textAlign: "center", padding: 24 }}>Nada encontrado.</div>
+        ) : (
+          <div className="card" style={{ padding: "2px 14px" }}>
+            {list.map((c) => (
+              <button key={c.id} className="list-row" onClick={() => setSelected(c)}>
+                <span style={{ flex: "0 0 40px", height: 40, borderRadius: 11, background: "var(--navy-tint)", color: "var(--navy)", display: "grid", placeItems: "center" }}>
+                  {ICON[c.id] ?? <Zap size={20} />}
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: "block", fontWeight: 800, fontSize: 15.5, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {c.titulo}
+                  </span>
+                  <span className="faint" style={{ display: "block", fontSize: 12.5, marginTop: 2, lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {c.acaoRapida?.gatilho}
+                  </span>
+                </span>
+                <ChevronRight size={20} className="faint" style={{ flex: "0 0 auto" }} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
