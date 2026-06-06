@@ -21,6 +21,15 @@ export default function FeedPage() {
     <>
       <TopBar brand title="Meus casos" subtitle={`${me.name} • ${me.crm}`} right={<LogoutButton />} />
       <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+        <div className="welcome-banner">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/stat-hero.jpg" alt="" className="welcome-banner-bg" />
+          <div className="welcome-banner-text">
+            <div className="welcome-eyebrow">Sala vermelha</div>
+            <div className="welcome-title">Olá, {me.name}</div>
+          </div>
+        </div>
+
         <Link href="/new-case?mode=urgencia" className="btn btn-emergency pulse" style={{ minHeight: 60, fontSize: 17 }}>
           <Zap size={24} /> Urgência — leitura imediata
         </Link>

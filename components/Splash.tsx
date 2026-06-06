@@ -13,7 +13,9 @@ export default function Splash() {
   return (
     <div className="splash" aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/stat-logo.png" alt="STAT" style={{ width: "min(72vw, 340px)" }} />
+      <img src="/stat-hero.jpg" alt="" className="splash-bg" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/stat-logo.png" alt="STAT" className="splash-logo" />
     </div>
   );
 }
