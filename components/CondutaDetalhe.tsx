@@ -49,7 +49,7 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ image_base64: b, area: card.titulo }),
+        body: JSON.stringify({ image_base64: b, area: card.titulo, conduta_id: card.id }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 503) {

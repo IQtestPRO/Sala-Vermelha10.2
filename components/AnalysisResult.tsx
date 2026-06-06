@@ -4,12 +4,14 @@ import { Eye, ListChecks, Stethoscope, AlertTriangle } from "lucide-react";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 
 export type Analysis = {
+  condutaImediata?: string;
   resumo?: string;
   achados: string[];
   hipoteses: string[];
   conduta: string[];
   alertas: string[];
   gravidade: string;
+  fontes?: string[];
 };
 
 const GRAV: Record<string, { label: string; cls: string }> = {
@@ -48,6 +50,18 @@ export default function AnalysisResult({ a }: { a: Analysis }) {
         <span className={`badge ${grav.cls}`}>{grav.label}</span>
       </div>
       <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 12 }}>
+        {a.condutaImediata && (
+          <div
+            className="card-2"
+            style={{ boxShadow: "none", borderLeft: "4px solid var(--red)", background: "var(--red-tint)", padding: "10px 12px" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+              <Stethoscope size={15} color="var(--red)" />
+              <span style={{ fontWeight: 900, fontSize: 12, letterSpacing: "0.04em", color: "var(--red)" }}>FAZER AGORA</span>
+            </div>
+            <div style={{ fontSize: 15.5, fontWeight: 700, lineHeight: 1.45 }}>{a.condutaImediata}</div>
+          </div>
+        )}
         {a.resumo && (
           <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "var(--text)" }}>{a.resumo}</p>
         )}
@@ -55,6 +69,9 @@ export default function AnalysisResult({ a }: { a: Analysis }) {
         <Bloco icon={<ListChecks size={16} />} titulo="Hipóteses" itens={a.hipoteses} />
         <Bloco icon={<Stethoscope size={16} />} titulo="Conduta sugerida" itens={a.conduta} accent="var(--primary)" />
         <Bloco icon={<AlertTriangle size={16} />} titulo="Alertas" itens={a.alertas} accent="var(--red)" />
+        {a.fontes && a.fontes.length > 0 && (
+          <div className="faint" style={{ fontSize: 11, lineHeight: 1.5 }}>Fontes: {a.fontes.join(" · ")}</div>
+        )}
         <div className="faint" style={{ fontSize: 11, lineHeight: 1.5 }}>{DISCLAIMER_CURTO}</div>
       </div>
     </div>

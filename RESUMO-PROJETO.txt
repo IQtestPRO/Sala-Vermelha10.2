@@ -1,0 +1,179 @@
+==========================================================================
+  EMERGÊNCIA EM 10 — Resumo do Projeto (base de referência)
+==========================================================================
+
+1) O QUE É
+--------------------------------------------------------------------------
+PWA (app web instalável) de teleconsultoria de EMERGÊNCIA / SALA VERMELHA.
+- Um médico de campo envia um CASO CLÍNICO crítico (foto de ECG/monitor,
+  sinais vitais e a dúvida de conduta) e plantonistas "por trás do app"
+  respondem em ATÉ 10 MINUTOS (SLA).
+- Também funciona como REFERÊNCIA RÁPIDA de condutas (estilo Whitebook,
+  focado em sala vermelha) e tem ANÁLISE DE IMAGEM POR IA dentro de cada
+  situação clínica.
+- Mobile-first (Android e iOS), instalável na tela inicial.
+
+É APOIO À DECISÃO entre profissionais — não substitui o julgamento clínico;
+o médico assistente lê, confirma e mantém a responsabilidade. Dados de
+paciente pseudonimizados (sem nome/CPF) — LGPD.
+
+
+2) LINKS / ONDE ESTÁ
+--------------------------------------------------------------------------
+- Site (produção):  https://sala-vermelha10-2.vercel.app
+- GitHub (repo):    https://github.com/IQtestPRO/Sala-Vermelha10.2
+- Pasta local:      C:\Users\Arthu\Projeto Medicina
+- Banco (Turso):    medical-iqtestpro (libSQL na nuvem)
+- Projeto Vercel:   sala-vermelha10-2  (time arthurfonsa22dd-3869s)
+
+Deploy = push na branch `main` do GitHub → Vercel builda e publica sozinho.
+
+
+3) ACESSOS
+--------------------------------------------------------------------------
+- Login no app:  CRM = 2710   |   Senha = admin123   (plantonista aprovado)
+- Painel admin:  /admin       |   Senha = admin123    (aprova plantonistas)
+
+⚠️ admin123 é senha de TESTE. Troque por uma senha forte antes de usar com
+   pacientes reais (variáveis ADMIN_PASSWORD e o login do médico).
+
+
+4) PAPÉIS (perfis de usuário)
+--------------------------------------------------------------------------
+- SOLICITANTE  (médico de campo): cria casos, acompanha, conversa, encerra.
+                                   Entra já aprovado.
+- PLANTONISTA  (respondedor):      vê a fila, "assume" e responde casos.
+                                   Cadastra com CRM + especialidade e o
+                                   ADMIN aprova antes de poder responder.
+- ADMIN:                           aprova/rejeita plantonistas; vê todos os
+                                   casos. Acesso por senha (header), sem conta.
+
+
+5) FLUXO DO CASO (a promessa dos 10 minutos)
+--------------------------------------------------------------------------
+1. Solicitante cria o caso: tipo (ECG, cardioversão, IOT/SRI, PCR, etc.),
+   pergunta, resumo clínico, vitais (PA/FC/SatO2/FR/glicemia/Glasgow/ritmo),
+   peso (libera calculadora de dose) e foto do ECG. SEM dados que
+   identifiquem o paciente.
+2. Começa a contagem de 10 min (SLA). Push avisa os plantonistas aprovados.
+3. Plantonista vê na FILA, "assume" (claim atômico — só um pega) e responde
+   (texto + conduta estruturada: drogas/doses, energia, destino, red flags).
+4. Solicitante recebe a resposta; podem conversar (chat) e encerrar o caso.
+5. Se estourar 10 min sem resposta: o caso é marcado EXPIRADO e ESCALA
+   (push pra todos os plantonistas + o solicitante). Isso roda na "varredura
+   preguiçosa" a cada leitura da fila/feed/admin (não depende de cron).
+
+
+6) AÇÃO RÁPIDA (modo pânico — bottom-line na hora)
+--------------------------------------------------------------------------
+Aba "Ação rápida": escolhe a situação e recebe NA HORA o que fazer, com a
+dose em mg E EM AMPOLAS, repetição e "se não resolver".
+Ex.: Bradiarritmia instável → Atropina 1 mg IV = 4 ampolas (0,25 mg/mL),
+     repetir 3–5 min, máx 3 mg → se não resolver: marca-passo / dopamina.
+Situações: PCR/ACLS, Bradicardia, Cardioversão, Anafilaxia, SRI/Via aérea,
+Estado de mal epiléptico, Sepse/Choque, IAM com supra, Hipercalemia.
+
+
+7) ANÁLISE DE IMAGEM POR IA (dentro de cada situação)
+--------------------------------------------------------------------------
+Em CADA situação/conduta há o botão "Analisar ECG/monitor com IA":
+- Tira a foto na hora pelo celular (ou envia da galeria).
+- A IA (Claude) analisa AUTOMATICAMENTE, ESPECIALIZADA naquela área.
+- Devolve um RESUMO escrito como laudo (claro, mas aprofundado) +
+  achados, hipóteses, conduta sugerida, alertas e gravidade.
+- Rápido (otimizado pra emergência). O médico lê e confirma.
+Precisa da variável ANTHROPIC_API_KEY configurada (ver seção 9).
+
+
+8) CONDUTAS (referência estilo Whitebook)
+--------------------------------------------------------------------------
+Aba "Condutas": busca + categorias; cada conduta tem indicações, passos,
+doses (com CALCULADORA por peso → faixa em mg e mL), energia, alertas e
+referência. Conteúdo de sala vermelha: SRI, Cardioversão, IOT, ACLS/PCR,
+bradi/taquiarritmias, choque/sepse, IAM, AVC, anafilaxia, hipercalemia, etc.
+
+
+9) VARIÁVEIS DE AMBIENTE (Vercel → Settings → Environment Variables)
+--------------------------------------------------------------------------
+OBRIGATÓRIAS (sem elas o app não funciona em produção):
+  TURSO_DATABASE_URL   = libsql://medical-iqtestpro.aws-us-east-1.turso.io
+  TURSO_AUTH_TOKEN     = (token do Turso)
+  JWT_SECRET           = (segredo forte, >= 16 chars, p/ sessões)
+  ADMIN_PASSWORD       = (senha do painel /admin)
+
+OPCIONAIS (ligam recursos):
+  ANTHROPIC_API_KEY    = (sk-ant-...) → LIGA a análise de ECG por IA
+  ANALYZE_MODEL        = claude-opus-4-8  (ou claude-sonnet-4-6 p/ + rápido/barato)
+  BLOB_READ_WRITE_TOKEN= (Vercel Storage → Blob) → foto de ECG no "Novo caso"
+  VAPID_PUBLIC_KEY / NEXT_PUBLIC_VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY /
+  VAPID_SUBJECT        = notificações push
+  CRON_SECRET          = (só se usar um agendador externo p/ /api/cron/sla)
+  NEXT_PUBLIC_SITE_URL = https://sala-vermelha10-2.vercel.app
+  SEED_RESPONDER_CRM / SEED_RESPONDER_PASSWORD / SEED_RESPONDER_NAME =
+                         cria um plantonista aprovado fixo automaticamente
+
+⚠️ NUNCA deixe espaço/quebra-de-linha no VALOR das variáveis (já quebrou o
+   build e o login antes). Cole sem espaços.
+
+
+10) RODAR LOCAL (na máquina)
+--------------------------------------------------------------------------
+- Pasta: C:\Users\Arthu\Projeto Medicina
+- `npm install` (uma vez) e `npm run dev` → http://localhost:3000
+- Sem TURSO_DATABASE_URL ele usa um arquivo SQLite local (local.db) sozinho.
+- O .env.local (não vai pro git) já tem valores de dev + o login 2710.
+- `npm run build` = build de produção (checa tipos).
+
+
+11) STACK TÉCNICA
+--------------------------------------------------------------------------
+- Next.js 16.2.6 (App Router, Turbopack) + React 19 + TypeScript + Tailwind v4
+- Banco: Turso / libSQL (@libsql/client) — SQL parametrizado, tabelas
+  criadas de forma idempotente (ensureTables).
+- Auth: JWT (jose) em cookie httpOnly + senhas com bcryptjs.
+- IA: @anthropic-ai/sdk — Claude Opus 4.8 (visão) com saída estruturada (JSON).
+- Push: web-push (VAPID). Upload de foto: @vercel/blob.
+- UI: sonner (toasts), lucide-react (ícones), framer-motion.
+- PWA: manifest + service worker (instalável Android/iOS).
+- Next 16: o "middleware" se chama proxy.ts; rotas dinâmicas usam params
+  como Promise (await).
+
+
+12) DESIGN
+--------------------------------------------------------------------------
+Tema CLARO e limpo, inspirado no Whitebook:
+- Fundo claro, cards brancos com sombra sutil.
+- TEAL  = cor de sistema (botões, navegação, foco).
+- VERMELHO = urgência/emergência (novo caso, assumir, contador de SLA).
+- NAVY  = blocos clínicos/IA (Ação Imediata, Leitura da IA).
+- Viewport travado, safe-area (iOS), números tabulares, micro-interações.
+
+
+13) ARMADILHAS DE DEPLOY (já resolvidas — anote)
+--------------------------------------------------------------------------
+- Framework do projeto na Vercel TEM que ser "Next.js". Se ficar vazio,
+  a Vercel serve como SITE ESTÁTICO → 404 em todas as rotas (ícones
+  aparecem, login/rotas não).
+- Variáveis sensíveis com ESPAÇO no valor quebram (build do cron, 500 do
+  Turso, 401 do admin). Cole sem espaços.
+- vercel.json fica VAZIO ({}): cron de 1 min exige plano Pro e a validação
+  do CRON_SECRET quebra o build no Hobby. O SLA roda pela varredura
+  preguiçosa. Para cron de verdade, use agendador externo de 1 min.
+- Deployment Protection (Vercel Authentication) bloqueia o público (401).
+  Deixe DESLIGADA p/ o app ser acessível.
+- Use 1 projeto só (já foram apagadas as duplicatas).
+
+
+14) PENDÊNCIAS / PRÓXIMOS PASSOS
+--------------------------------------------------------------------------
+[ ] Adicionar ANTHROPIC_API_KEY na Vercel → liga a análise por IA.
+[ ] Conectar Vercel Blob → liga a foto de ECG no "Novo caso".
+[ ] (Opcional) Notificações push: gerar/configurar as chaves VAPID.
+[ ] Trocar admin123 e o login do médico por senhas fortes.
+[ ] (Opcional) Agendador externo de 1 min p/ /api/cron/sla (cobrir casos
+    que ninguém abre a fila).
+[ ] Domínio próprio (em vez do *.vercel.app), se quiser.
+
+==========================================================================
+Gerado como base de referência. Mantenha junto ao projeto.
+==========================================================================
