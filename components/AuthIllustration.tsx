@@ -3,12 +3,16 @@
 export default function AuthIllustration() {
   return (
     <div className="auth-illus" style={{ background: "#04060c" }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/stat-auth.jpg"
-        alt=""
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="/stat-auth.jpg"
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0 }}
-      />
+      >
+        <source src="/stat-hero.mp4" type="video/mp4" />
+      </video>
       {/* scrim de baixo p/ cima (legibilidade do depoimento) */}
       <div
         style={{
