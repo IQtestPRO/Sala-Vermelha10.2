@@ -4,6 +4,7 @@ import { Eye, ListChecks, Stethoscope, AlertTriangle } from "lucide-react";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 
 export type Analysis = {
+  resumo?: string;
   achados: string[];
   hipoteses: string[];
   conduta: string[];
@@ -47,6 +48,9 @@ export default function AnalysisResult({ a }: { a: Analysis }) {
         <span className={`badge ${grav.cls}`}>{grav.label}</span>
       </div>
       <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 12 }}>
+        {a.resumo && (
+          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "var(--text)" }}>{a.resumo}</p>
+        )}
         <Bloco icon={<Eye size={16} />} titulo="Achados" itens={a.achados} />
         <Bloco icon={<ListChecks size={16} />} titulo="Hipóteses" itens={a.hipoteses} />
         <Bloco icon={<Stethoscope size={16} />} titulo="Conduta sugerida" itens={a.conduta} accent="var(--primary)" />
