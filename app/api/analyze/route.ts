@@ -35,7 +35,7 @@ ${acao ? `\nAÇÃO PRIORITÁRIA: ${acao}` : ""}
 REGRAS:
 - Leia APENAS o que está visível (não invente dados; aponte sensor solto/artefato/PA não aferida).
 - Doses/energias são valores de REFERÊNCIA — o médico confere e aprova.
-- Fundamente as recomendações nas diretrizes acima. NÃO cite URLs nem invente referências; em "fontes" liste só nomes de diretrizes usadas (ex.: ${fontes || "AHA/ACLS 2020, SBC"}).
+- Fundamente as recomendações na EVIDÊNCIA acima e em LITERATURA/ESTUDOS DE REFERÊNCIA RENOMADOS e em padrões de CASOS REAIS consolidados (ex.: critérios de Sgarbossa/Smith, de Winter, Wellens, Brugada; grandes ensaios e diretrizes de sociedades). NÃO cite URLs nem invente referências; em "fontes" liste só nomes de diretrizes/estudos usados (ex.: ${fontes || "AHA/ACLS 2020, SBC"}).
 - Isto é APOIO À DECISÃO; o médico assistente lê, confirma e aprova.
 
 Responda em português, em JSON:

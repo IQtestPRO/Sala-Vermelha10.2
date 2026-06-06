@@ -21,7 +21,9 @@ import {
 } from "lucide-react";
 import TopBar from "@/components/TopBar";
 import ImageUpload, { UploadedImage } from "@/components/ImageUpload";
+import ImageAnalyzer from "@/components/ImageAnalyzer";
 import { apiPost } from "@/lib/client";
+import { specialistIdForQuestionType } from "@/lib/specialists";
 import {
   QUESTION_TYPES,
   questionMeta,
@@ -178,6 +180,12 @@ function NewCaseInner() {
                   Trocar
                 </button>
               </div>
+
+              <ImageAnalyzer
+                condutaId={specialistIdForQuestionType(qtype)}
+                area={meta?.label ?? "emergência"}
+                title="Analisar agora com IA"
+              />
 
               <div>
                 <label className="label">Foto do ECG / monitor</label>

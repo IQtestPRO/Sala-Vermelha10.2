@@ -951,3 +951,338 @@ export function resolveSpecialist(condutaId: string): SpecialistConfig | null {
   if (card) return fallbackSpecialist(card);
   return null;
 }
+
+// Mapa: tipo do caso (Novo caso) -> id do agente especialista.
+// OUTRO e tipos sem especialista próprio caem no agente "geral".
+export const QUESTION_TYPE_TO_SPECIALIST: Record<string, string> = {
+  INTERPRETAR_ECG: "interpretar-ecg",
+  ARRITMIA: "arritmia",
+  CARDIOVERSAO: "cardioversao",
+  PCR_ACLS: "acls-pcr",
+  IOT_SRI: "sri",
+  CHOQUE_SEPSE: "choque-sepse",
+  NEURO_AVC: "avc-isquemico",
+  INTOXICACAO: "intoxicacoes",
+  TRAUMA: "trauma",
+  IAM_DOR_TORACICA: "iam-supra",
+  OUTRO: "geral",
+};
+
+export function specialistIdForQuestionType(qtype: string): string {
+  return QUESTION_TYPE_TO_SPECIALIST[qtype] || "geral";
+}
+
+
+// Especialistas dos tipos de Novo caso — pesquisados + VERIFICADOS (adversarial) com
+// literatura/estudos de referencia (Sgarbossa/Smith, de Winter, Wellens, Brugada, CRASH-2/3, PROPPR, ATLS 10th, Surviving Sepsis, AHA/ASA).
+Object.assign(SPECIALISTS, {
+  "interpretar-ecg": {
+    "condutaId": "interpretar-ecg",
+    "papel": "Emergencista/intensivista que le foto de ECG de 12 derivacoes ou monitor na sala vermelha e da leitura rapida e fundamentada (FC, ritmo, eixo, intervalos, isquemia/STEMI e STEMI-equivalentes), aplicando criterios nomeados e ja indicando a conduta.",
+    "evidencias": [
+      {
+        "fato": "STEMI por elevacao do ST no ponto J em 2 derivacoes contiguas: ≥1 mm em qualquer derivacao, EXCETO V2-V3, onde o limiar e ≥2 mm (homem ≥40a), ≥2,5 mm (homem <40a) e ≥1,5 mm (mulher, qualquer idade) — na ausencia de HVE/BRE. Com clinica compativel, ativar hemodinamica.",
+        "fonte": "ESC 2023 Guidelines for the management of Acute Coronary Syndromes; 4th Universal Definition of MI"
+      },
+      {
+        "fato": "Smith-modified Sgarbossa (BRE ou ritmo de marcapasso ventricular), positivo se QUALQUER um: ST concordante ≥1 mm; OU infra de ST concordante ≥1 mm em V1-V3; OU razao ST/S ≤ -0,25 (supra discordante ≥25% da profundidade da onda S precedente). Na validacao de Meyers 2015: sensib ~80%, espec ~99% — STEMI-equivalente, ativar cath.",
+        "fonte": "Smith et al, Ann Emerg Med 2012; validacao Meyers et al, Ann Emerg Med 2015"
+      },
+      {
+        "fato": "Sgarbossa original (BRE): ST concordante ≥1 mm = 5 pts; infra de ST concordante ≥1 mm em V1-V3 = 3 pts; supra discordante ≥5 mm = 2 pts. Score ≥3 = espec ~90% para IAM, mas sensib baixa (~36%) — por isso prefira a versao Smith-modificada.",
+        "fonte": "Sgarbossa et al, NEJM 1996"
+      },
+      {
+        "fato": "Padrao de de Winter (STEMI-equivalente de oclusao proximal de DA): infra de ST ascendente de 1-3 mm no ponto J em V1-V6, continuando em ondas T altas e simetricas, com leve supra (1-2 mm) em aVR e QRS estreito. Tratar como STEMI/oclusao aguda.",
+        "fonte": "de Winter et al, NEJM 2008"
+      },
+      {
+        "fato": "Sindrome de Wellens (estenose critica de DA proximal): T bifasica com negatividade terminal (tipo A, ~25%) ou T profundamente invertida e simetrica (tipo B, ~75%) em V2-V3, tipicamente em fase SEM dor, com ST iso/minimo e R preservada (sem onda Q). Risco de IAM anterior extenso: NAO fazer teste de esforco; encaminhar a angiografia.",
+        "fonte": "de Zwaan/Wellens et al, Am Heart J 1982; LITFL ECG Library"
+      },
+      {
+        "fato": "Supra de ST em aVR ≥1 mm com infra difuso de ST (≥6 derivacoes) reflete isquemia subendocardica circunferencial (tronco/DA proximal ou doenca multiarterial grave) — geralmente NOMI por demanda/estenose grave, NAO oclusao total. NAO e STEMI-equivalente formal: limiar baixo para angiografia urgente, sempre com correlacao clinica.",
+        "fonte": "2022 ACC Expert Consensus Decision Pathway (NOMI/STEMI-equivalentes); LITFL ST elevation in aVR"
+      },
+      {
+        "fato": "Hipercalemia, progressao ECG tipica (correlacao com o nivel de K e fraca/variavel): T apiculadas de base estreita → PR longo e achatamento/perda da onda P → alargamento do QRS → onda sinusoidal precedendo FV/assistolia. Estabilizar o miocardio com gluconato de calcio 10% (ou cloreto de calcio) IV imediatamente, antes mesmo da confirmacao laboratorial.",
+        "fonte": "AHA ACLS (toxidromes/eletrolitos); LITFL Hyperkalaemia ECG"
+      },
+      {
+        "fato": "IAM posterior: supra ≥0,5 mm em V7-V8-V9 (suspeitar quando ha infra ≥0,5 mm em V1-V3 com R alta e T terminal positiva = imagem em espelho). IAM de VD: supra em V3R-V4R, sobretudo no IAM inferior (V4R e a derivacao-chave) — evitar nitrato/morfina/diuretico e fazer reposicao de volume.",
+        "fonte": "ESC 2023 / 4th Universal Definition of MI; LITFL Posterior/RV MI"
+      },
+      {
+        "fato": "Brugada tipo 1 (unico padrao diagnostico): supra de ST coved (tipo I) ≥2 mm seguido de T negativa em ≥1 derivacao precordial direita (V1-V2), espontaneo ou apos teste com bloqueador de Na. Buscar/tratar deflagradores (febre, bloqueadores de Na, disturbio eletrolitico).",
+        "fonte": "Consenso HRS/EHRA/APHRS 2013 (Inherited Primary Arrhythmia Syndromes); Shanghai score 2016"
+      },
+      {
+        "fato": "Taqui INSTAVEL: cardioversao SINCRONIZADA — estreita regular ~50-100 J, FA/estreita irregular ~120-200 J, TV monomorfica regular ~100 J (valores de referencia; siga a energia recomendada do seu desfibrilador). TV polimorfica/irregular = desfibrilar (NAO sincronizar). PCR chocavel (FV/TVSP): choque + epinefrina 1 mg IV cada 3-5 min + amiodarona 300 mg em bolus (segunda dose 150 mg).",
+        "fonte": "AHA ACLS 2020 (Cardiac Arrest e Tachycardia algorithms)"
+      },
+      {
+        "fato": "Bradi INSTAVEL: atropina 1 mg IV cada 3-5 min ate max 3 mg; se refrataria ou bloqueio de alto grau (Mobitz II/BAVT), marcapasso transcutaneo e/ou infusao de dopamina (5-20 mcg/kg/min) ou epinefrina (2-10 mcg/min).",
+        "fonte": "AHA ACLS 2020 (Bradycardia algorithm)"
+      },
+      {
+        "fato": "Intervalos de referencia: PR normal 120-200 ms; QRS estreito <120 ms; QTc prolongado se >450 ms (H) / >460-470 ms (M); QTc ≥500 ms = alto risco de Torsades — suspender drogas que prolongam QT e repor Mg/K.",
+        "fonte": "AHA/ACCF/HRS Recommendations for Standardization and Interpretation of the ECG (2009)"
+      }
+    ],
+    "oQueLer": [
+      "Calibracao/velocidade: 25 mm/s e 10 mm/mV (1 mm = 0,04 s; quadrado grande = 0,2 s); confira o ganho antes de medir amplitudes.",
+      "FC e ritmo: P antes de cada QRS, regularidade do RR; estreito vs largo; identificar FA, flutter, TV, BAV.",
+      "Eixo (I e aVF) e progressao de R nas precordiais (perda de R sugere isquemia anterior/posterior).",
+      "Intervalos: PR, largura do QRS (BRE/BRD/marcapasso muda a regra de isquemia), QT/QTc.",
+      "ST no ponto J em 2 contiguas: supra (com limiares por sexo/idade e por derivacao) e INFRA reciproco (II/III/aVF vs I/aVL; V1-V3 = espelho posterior).",
+      "Morfologia de T: apiculada (K+), bifasica/invertida em V2-V3 (Wellens), T altas com infra ascendente (de Winter), coved em V1-V2 (Brugada).",
+      "Em BRE/marcapasso: aplicar Smith-modified Sgarbossa (concordancia e razao ST/S ≤ -0,25).",
+      "Pedir derivacoes extras quando indicado: V7-V9 (posterior) e V3R-V4R (VD), sobretudo em IAM inferior ou infra isolado de V1-V3."
+    ],
+    "redFlags": [
+      "Supra de ST que bate criterio em 2 contiguas, OU qualquer STEMI-equivalente (de Winter, Wellens, posterior V7-V9, Smith-modified Sgarbossa+) com clinica compativel = ativar hemodinamica AGORA.",
+      "Supra em aVR + infra difuso = isquemia subendocardica grave (tronco/multiarterial/NOMI): NAO e STEMI-equivalente formal, mas exige angiografia urgente e correlacao clinica.",
+      "QRS largo/sinusoidal com T apiculadas e P ausente = hipercalemia grave: calcio IV imediato antes de confirmar o laboratorio.",
+      "TV polimorfica sustentada ou QTc ≥500 ms com TV polimorfica = risco de Torsades/FV: Mg IV, cardioversao/desfibrilacao.",
+      "Instabilidade (hipotensao, dor toracica, IC, alteracao de consciencia) com taqui ou bradi = cardioversao sincronizada / atropina-pacing sem esperar.",
+      "IAM inferior com hipotensao + supra em V4R (VD) = NAO dar nitrato/morfina/diuretico; fazer volume.",
+      "Brugada tipo 1 espontaneo, BAV avancado/Mobitz II ou pausas longas = risco de morte subita / necessidade de pacing."
+    ],
+    "acaoPrioritaria": "Identifique STEMI ou STEMI-equivalente (de Winter, Wellens, posterior V7-V9, Smith-modified Sgarbossa) e, se presente com clinica compativel, ative a hemodinamica imediatamente; trate aVR+infra difuso como isquemia subendocardica grave que exige angiografia urgente com correlacao clinica. Em paralelo, trate instabilidade do ritmo (cardioversao sincronizada / desfibrilacao ou atropina/pacing) e hipercalemia grave (calcio IV) sem aguardar exames.",
+    "fontes": [
+      "ESC 2023 Guidelines for the management of Acute Coronary Syndromes",
+      "4th Universal Definition of Myocardial Infarction (ESC/ACC/AHA/WHF)",
+      "Sgarbossa et al, NEJM 1996",
+      "Smith et al, Ann Emerg Med 2012 (Smith-modified Sgarbossa); validacao Meyers et al, Ann Emerg Med 2015",
+      "de Winter et al, NEJM 2008",
+      "de Zwaan / Wellens et al, Am Heart J 1982 (sindrome de Wellens)",
+      "2022 ACC Expert Consensus Decision Pathway (STEMI-equivalentes / OMI-NOMI)",
+      "Consenso HRS/EHRA/APHRS 2013 sobre Brugada; Shanghai score 2016",
+      "AHA ACLS 2020 (Cardiac Arrest, Tachycardia e Bradycardia algorithms)",
+      "AHA/ACCF/HRS Recommendations for Standardization and Interpretation of the ECG (2009)",
+      "LITFL ECG Library (Hyperkalaemia, ST elevation in aVR, Posterior MI)"
+    ]
+  },
+  "arritmia": {
+    "condutaId": "arritmia",
+    "papel": "Emergencista/intensivista que le foto de ECG/monitor em sala vermelha e classifica bradi/taquiarritmia como ESTAVEL ou INSTAVEL, indicando conduta imediata (eletrica x farmacologica) com dose/energia fundamentada.",
+    "evidencias": [
+      {
+        "fato": "Instabilidade = hipotensao/choque, dor toracica isquemica, dispneia/IC aguda (edema agudo) ou rebaixamento do nivel de consciencia ATRIBUIVEIS a arritmia. Se INSTAVEL, a conduta e ELETRICA imediata (nao perder tempo com droga), independente de QRS estreito ou largo: cardioversao sincronizada na taqui com pulso; marcapasso/atropina na bradi.",
+        "fonte": "AHA/ACLS 2020 (Adult Tachycardia & Bradycardia With a Pulse Algorithms)"
+      },
+      {
+        "fato": "Bradicardia sintomatica (FC tipicamente <50): atropina 1 mg IV em bolus, repetir a cada 3-5 min ate maximo total de 3 mg. Se ineficaz: marcapasso transcutaneo OU dopamina 5-20 mcg/kg/min OU adrenalina 2-10 mcg/min em infusao.",
+        "fonte": "AHA/ACLS 2020 (dose unica de atropina elevada de 0,5 para 1 mg)"
+      },
+      {
+        "fato": "BAV 2o grau Mobitz II e BAVT (3o grau): atropina costuma ser INEFICAZ (bloqueio infranodal/abaixo do No AV) -> marcapasso transcutaneo de primeira linha + preparar transvenoso; considerar dopamina/adrenalina enquanto prepara o pacing.",
+        "fonte": "AHA/ACLS 2020 (Adult Bradycardia Algorithm)"
+      },
+      {
+        "fato": "Taquicardia INSTAVEL: cardioversao SINCRONIZADA imediata. Energias de REFERENCIA (use sempre a recomendada pelo aparelho): estreita regular (TSV/flutter) 50-100 J; estreita irregular (FA com RVR) 120-200 J bifasico; larga regular (TV monomorfica) 100 J. Sedacao/analgesia se o paciente permitir.",
+        "fonte": "AHA/ACLS 2020 (Adult Tachycardia Algorithm; energia conforme o desfibrilador)"
+      },
+      {
+        "fato": "Taquicardia INSTAVEL com QRS largo IRREGULAR e ritmo desorganizado (ex.: FA pre-excitada de QRS muito variavel, TV polimorfica) ou se houver duvida sobre captura do sincronizador: tratar como FV -> desfibrilacao NAO sincronizada (energia alta: ~200 J bifasico / 360 J monofasico).",
+        "fonte": "AHA/ACLS 2020 (Adult Tachycardia & Cardiac Arrest Algorithms)"
+      },
+      {
+        "fato": "TSV estreita regular ESTAVEL: manobras vagais; se falha, adenosina 6 mg IV em push rapido com flush de 20 mL e elevacao do braco, seguida de 12 mg se necessario. TV monomorfica regular ESTAVEL: amiodarona 150 mg IV em 10 min (alternativas: procainamida ou sotalol).",
+        "fonte": "AHA/ACLS 2020 (Adult Tachycardia Algorithm)"
+      },
+      {
+        "fato": "FA PRE-EXCITADA / WPW (QRS largo, irregular, FC muito alta frequentemente >200, largura/morfologia variavel): NUNCA usar bloqueadores do No AV (adenosina, diltiazem, verapamil, beta-bloqueador, digoxina E amiodarona IV) -> risco de acelerar a via acessoria e degenerar em FV. Conduta: se INSTAVEL, cardioverter (eletrica); se ESTAVEL, procainamida ou ibutilida IV.",
+        "fonte": "ESC 2019 Guidelines for Supraventricular Tachycardia (amiodarona IV e bloqueadores do No AV = Classe III/nocivos em FA pre-excitada); AHA/ACLS 2020"
+      },
+      {
+        "fato": "TV polimorfica / Torsades de Pointes COM pulso e QT longo: sulfato de magnesio 1-2 g IV/IO diluido (~10 mL D5W) em 5-20 min (em parada/instabilidade extrema pode ser em bolus mais rapido) + corrigir K/Mg e suspender drogas que prolongam QT. SEM pulso ou instavel -> desfibrilacao NAO sincronizada.",
+        "fonte": "AHA/ACLS 2020; Tzivoni et al., Circulation 1988 (magnesio em torsades)"
+      },
+      {
+        "fato": "STEMI-equivalentes que exigem reperfusao urgente mesmo sem supra classico: de Winter (infra ascendente de 1-3 mm no ponto J + onda T apiculada/simetrica alta em V1-V6 = oclusao proximal de DA); Wellens (T bifasica V2-V3 [tipo A] ou T invertida profunda [tipo B] = estenose critica proximal de DA); BRE novo ou ritmo de marcapasso -> Sgarbossa modificado de Smith (supra concordante >=1 mm; infra concordante >=1 mm em V1-V3; OU supra discordante >=1 mm com razao ST/S <= -0,25, i.e. >=25% da profundidade da S precedente).",
+        "fonte": "de Winter & Wellens, NEJM 2008 (sinal de oclusao proximal de DA); de Zwaan/Wellens, Am Heart J 1982 (sindrome de Wellens); Smith et al., Ann Emerg Med 2012 (Sgarbossa modificado)"
+      }
+    ],
+    "oQueLer": [
+      "Velocidade do papel/escala (25 mm/s, 10 mm/mV) e numero de derivacoes (12D x tira de monitor) antes de medir qualquer intervalo.",
+      "FC e regularidade: contar QRS, R-R regular x irregular; classificar bradi (<50-60) x taqui (>100; relevante para conduta geralmente >150).",
+      "Largura do QRS: estreito (<0,12 s / <3 quadradinhos) x largo (>=0,12 s) -> define o ramo do algoritmo.",
+      "Relacao P-QRS: presenca/ausencia de onda P; PR fixo x progressivo (Wenckebach/Mobitz I) x dissociacao AV (favorece TV); ondas F serrilhadas de flutter; ausencia de P na FA.",
+      "Em QRS largo: criterios de TV (dissociacao AV, batimentos de captura/fusao, concordancia precordial, R-S inicial >100 ms - criterio de Brugada); irregular + muito rapido + largura variavel = suspeitar FA pre-excitada/WPW.",
+      "Segmento ST/onda T para STEMI e equivalentes: supra >=1 mm em 2 derivacoes contiguas; infra ascendente + T apiculada (de Winter); T bifasica/invertida profunda em V2-V3 (Wellens); QT/QTc longo (risco de torsades); Sgarbossa modificado em BRE/marcapasso.",
+      "Sinais de captura de marcapasso (espiculas) e se ha captura ventricular efetiva (QRS apos cada espicula) quando o paciente esta em pacing."
+    ],
+    "redFlags": [
+      "Qualquer sinal de instabilidade (PAS <90/hipoperfusao, dor isquemica, dispneia/edema agudo, rebaixamento) atribuivel a arritmia -> pular para conduta ELETRICA imediata.",
+      "QRS largo, irregular e muito rapido (FC frequentemente >200, largura/morfologia variavel) = FA pre-excitada/WPW -> NAO dar adenosina/bloqueador do No AV NEM amiodarona IV (risco de FV).",
+      "BAV Mobitz II ou BAVT, ou bradicardia com QRS largo de escape -> alto risco de assistolia: marcapasso e prioridade, atropina pouco util.",
+      "QT/QTc longo + extrassistoles R-sobre-T ou surtos de TV polimorfica = torsades iminente -> magnesio IV e corrigir K/Mg.",
+      "TV monomorfica sustentada x TSV com aberrancia: na duvida, em paciente cardiopata/IAM previo, tratar como TV.",
+      "ST elevado / de Winter / Wellens / Sgarbossa modificado positivo = oclusao coronariana -> acionar hemodinamica/reperfusao mesmo que a arritmia seja o achado mais chamativo.",
+      "Bradi/taqui refrataria as primeiras medidas, ou deterioracao para FV/assistolia/TV sem pulso -> iniciar protocolo de PCR (ACLS)."
+    ],
+    "acaoPrioritaria": "Primeiro decida ESTAVEL x INSTAVEL: se instavel, terapia ELETRICA imediata (cardioversao sincronizada na taqui com pulso; marcapasso/atropina na bradi). Se estavel, classifique QRS estreito x largo e regular x irregular para escolher a droga certa - e NUNCA dê bloqueador do No AV nem amiodarona IV em FA pre-excitada/WPW. Sempre cheque ST/T para STEMI-equivalentes (de Winter, Wellens, Sgarbossa modificado) e acione reperfusao se positivos.",
+    "fontes": [
+      "AHA/ACLS 2020 (Adult Bradycardia & Tachycardia With a Pulse Algorithms)",
+      "ESC 2019 Guidelines for the Management of Patients with Supraventricular Tachycardia",
+      "ESC 2022 Guidelines for the Management of Patients with Ventricular Arrhythmias and the Prevention of Sudden Cardiac Death",
+      "Brugada et al. 1991 (criterios de taquicardia de QRS largo)",
+      "Smith et al., Ann Emerg Med 2012 (criterios de Sgarbossa modificados)",
+      "Sgarbossa et al., NEJM 1996 (criterios originais de Sgarbossa)",
+      "de Winter & Wellens, NEJM 2008 (sinal de oclusao proximal de DA)",
+      "de Zwaan/Wellens, Am Heart J 1982 (sindrome de Wellens)",
+      "Tzivoni et al., Circulation 1988 (magnesio para torsades de pointes)"
+    ]
+  },
+  "trauma": {
+    "condutaId": "trauma",
+    "papel": "Emergencista/intensivista senior que le foto de ECG/monitor em sala vermelha de trauma e da leitura rapida + conduta de ressuscitacao C-ABCDE fundamentada em ATLS 10th/11th e estudos landmark.",
+    "evidencias": [
+      {
+        "fato": "Trauma: priorize controle da hemorragia EXANGUINANTE (torniquete/compressao direta/packing) ANTES ou em paralelo a via aerea — abordagem C-ABCDE (ATLS 10th); o ATLS 11th (2025) formalizou como xABCDE, com 'x' = hemorragia exsanguinante antes do A. Choque no trauma e hemorragico ate prova em contrario.",
+        "fonte": "ATLS 10th ed / ATLS 11th ed (American College of Surgeons, 2025)"
+      },
+      {
+        "fato": "Classes de choque hemorragico (adulto ~70 kg, ~5 L): I <15% (ate ~750 mL, FC <100, PA e pressao de pulso normais); II 15-30% (750-1500 mL, FC 100-120, pressao de pulso ESTREITA, PAS ainda preservada); III 30-40% (1500-2000 mL, FC 120-140, HIPOTENSAO + confusao); IV >40% (FC >140, PAS muito baixa, pressao de pulso minima/<25 mmHg, letargia). Obs: a propria ATLS 10th alerta que esses parametros isolados sao pouco sensiveis em idosos, betabloqueados, gestantes e atletas.",
+        "fonte": "ATLS 10th ed"
+      },
+      {
+        "fato": "Hipotensao permissiva (sem TCE): alvo PAS 80-90 mmHg / PAM 50-60 mmHg ate controle do sangramento; pulso radial palpavel sugere PAS ~80-90, apenas pulso central palpavel sugere PAS ~60. Recomendacao 1C, restrita a pacientes SEM TCE.",
+        "fonte": "European guideline on management of major bleeding in trauma, 6th ed (Crit Care 2023) / ATLS 10th ed"
+      },
+      {
+        "fato": "Transfusao balanceada 1:1:1 (plasma:plaquetas:hemacias): comparado a 1:1:2, MAIS pacientes atingiram hemostasia e MENOS morreram por exsanguinacao em 24 h; mortalidade global em 24 h e 30 dias NAO foi estatisticamente diferente. Ative o protocolo de transfusao macica precocemente.",
+        "fonte": "PROPPR (Holcomb et al., JAMA 2015)"
+      },
+      {
+        "fato": "Acido tranexamico (TXA) PRECOCE: 1 g IV em 10 min + 1 g IV em infusao por 8 h; reduz mortalidade por sangramento somente se iniciado <3 h da lesao; iniciado apos 3 h pode AUMENTAR a mortalidade por sangramento — nao administre tardiamente.",
+        "fonte": "CRASH-2 (Lancet 2010 / Lancet 2011 analise de tempo)"
+      },
+      {
+        "fato": "TXA no TCE (mesma dose 1 g em 10 min + 1 g em 8 h): reduz morte relacionada a lesao craniana no TCE LEVE-MODERADO (GCS 9-15) quando dado <3 h; sem beneficio claro no TCE grave (GCS 3-8).",
+        "fonte": "CRASH-3 (Lancet 2019)"
+      },
+      {
+        "fato": "Triade letal: hipotermia (<35 C), acidose (pH <7,35; grave <7,2) e coagulopatia (ex.: INR >1,5) formam ciclo vicioso — aqueca ativamente, corrija acidose, reponha calcio e use hemoderivados; mortalidade varia de ~15% (precoce) ate ~48% quando as 3 coexistem de forma grave.",
+        "fonte": "Trauma triad of death (Mikhail, AACN Clin Issues 1999 / JEMS / StatPearls)"
+      },
+      {
+        "fato": "Em TCE evite hipotensao: PAS <90 mmHg deve ser evitada; considere meta PAS >=110 mmHg (15-49 anos e >70 anos) ou >=100 mmHg (50-69 anos); CPP alvo 60-70 mmHg. Neste cenario NAO use hipotensao permissiva.",
+        "fonte": "Brain Trauma Foundation, Guidelines for the Management of Severe TBI, 4th ed (Neurosurgery 2017)"
+      },
+      {
+        "fato": "Se PCR no monitor: ritmo CHOCAVEL (FV/TVsp) -> desfibrile bifasico na dose do fabricante (tipicamente 120-200 J; depois igual ou maior) + RCP de alta qualidade; epinefrina 1 mg IV/IO a cada 3-5 min, iniciada apos o 1o choque ineficaz. Em ritmo NAO chocavel (assistolia/AESP), epinefrina o mais precoce possivel.",
+        "fonte": "AHA Guidelines for CPR and ECC 2020 (ACLS)"
+      }
+    ],
+    "oQueLer": [
+      "Ritmo e FC: taquicardia sinusal (compensacao do choque, classe II-IV) vs bradicardia paradoxal (sangramento avancado / pre-PCR) vs FV/TVsp/assistolia/AESP. Cuidado: betabloqueado/idoso pode nao taquicardizar mesmo em choque.",
+      "PAS e pressao de pulso no monitor: pressao de pulso ESTREITA e sinal precoce de choque (classe II) e costuma aparecer ANTES da queda da PAS.",
+      "SpO2 e onda pletismografica: pleti achatada/ausente sugere ma perfusao/PA baixa; dessaturacao -> avalie via aerea/torax (pneumotorax/hemotorax).",
+      "Padrao QRS/ST se ECG de 12 derivacoes: STEMI ou STEMI-equivalentes que mudam a prioridade — de Winter (infra de ST ascendente no ponto J em V1-V6 + T apiculada simetrica, +/- supra leve em aVR = oclusao proximal de DA); Sgarbossa modificado por Smith em BRE/marca-passo (razao ST/S <= -0,25 em >=1 derivacao); Wellens em V2-V3 (T bifasica ou profundamente invertida = estenose critica de DA).",
+      "ETCO2/capnografia se disponivel: queda do ETCO2 acompanha queda do debito cardiaco/perfusao e ajuda a guiar qualidade da RCP (alvo geralmente >10 mmHg; subida abrupta sugere RCE).",
+      "Temperatura exibida: <35 C confirma hipotermia da triade letal."
+    ],
+    "redFlags": [
+      "FC >140 com PAS baixa e pressao de pulso minima = choque classe IV / sangramento nao controlado -> sala de cirurgia / controle de dano + transfusao macica JA.",
+      "Bradicardia em paciente que sangra = sinal pre-terminal (descompensacao), NAO 'estabilidade'.",
+      "PAS que cai apos resposta transitoria a cristaloide = 'transient/non-responder' -> hemorragia ativa, leve ao controle cirurgico/angioembolizacao.",
+      "Hipotensao em paciente com TCE (PAS <90) -> aumenta acentuadamente a mortalidade; corrija a PA mesmo abandonando a hipotensao permissiva.",
+      "Temperatura <35 C, pH <7,2 ou sangramento difuso (coagulopatia) = triade letal instalada -> controle de dano, aquecer, hemoderivados, corrigir calcio e acidose.",
+      "ECG com de Winter / Sgarbossa-Smith positivo / Wellens = oclusao coronaria critica disfarcada -> ativar hemodinamica mesmo sem supra de ST classico.",
+      "FV/TVsp no monitor = desfibrilar IMEDIATO; AESP/assistolia em trauma -> pense em causas reversiveis (hipovolemia, pneumotorax hipertensivo, tamponamento; considere toracotomia de reanimacao se indicado)."
+    ],
+    "acaoPrioritaria": "Pare a hemorragia primeiro (controle de hemorragia exsanguinante do C-/xABCDE), ative transfusao 1:1:1 + TXA 1 g em 10 min se <3 h da lesao (e 1 g em 8 h), mantenha hipotensao permissiva (PAS 80-90 / PAM 50-60) SALVO em TCE, e previna a triade letal aquecendo e corrigindo acidose/calcio/coagulopatia.",
+    "fontes": [
+      "ATLS 10th ed e ATLS 11th ed (American College of Surgeons, 2025)",
+      "PROPPR — Holcomb et al. (JAMA 2015)",
+      "CRASH-2 (Lancet 2010; analise de tempo Lancet 2011)",
+      "CRASH-3 (Lancet 2019)",
+      "AHA Guidelines for CPR and ECC 2020 (ACLS)",
+      "Brain Trauma Foundation, Severe TBI Guidelines 4th ed (Neurosurgery 2017)",
+      "European guideline on management of major bleeding and coagulopathy in trauma, 6th ed (Critical Care 2023)",
+      "Smith-modified Sgarbossa criteria — Smith et al. (Ann Emerg Med 2012)",
+      "de Winter et al. (NEJM 2008)",
+      "Wellens syndrome — de Zwaan/Wellens (Am Heart J 1982)",
+      "Trauma triad of death / lethal triad (Mikhail, AACN Clin Issues 1999)"
+    ]
+  },
+  "geral": {
+    "condutaId": "geral",
+    "papel": "Emergencista/intensivista senior em sala vermelha: abordagem do paciente critico indiferenciado (ABCDE), reconhecimento de choque, leitura de monitor/ECG, sepse, PCR/ACLS, AVC e causas reversiveis, dando leitura rapida e fundamentada a partir de foto de ECG/monitor.",
+    "evidencias": [
+      {
+        "fato": "PCR em FV/TVsp: desfibrilar IMEDIATAMENTE (bifasico conforme fabricante, tipicamente 120-200 J; se desconhecido, usar a maior energia disponivel; monofasico 360 J), RCP 30:2 (ou continua se via aerea avancada) com minima interrupcao, epinefrina 1 mg IV/IO a cada 3-5 min DEPOIS dos choques iniciais. Em ritmo nao-chocavel (AESP/assistolia): epinefrina 1 mg o quanto antes. Acesso IV de preferencia sobre IO.",
+        "fonte": "AHA Guidelines ACLS 2025 (Part 9, Circulation)"
+      },
+      {
+        "fato": "PCR refrataria (apos 1o/2o choque sem resposta): amiodarona 300 mg IV/IO em bolus (2a dose 150 mg) OU lidocaina 1-1,5 mg/kg (2a dose 0,5-0,75 mg/kg) quando amiodarona indisponivel/contraindicada. Desfibrilacao precoce e determinante: cada minuto de FV sem RCP nem desfibrilacao reduz a sobrevida em ~7-10%; com RCP de qualidade essa queda cai para ~3-4%/min.",
+        "fonte": "AHA Guidelines ACLS 2025; cadeia de sobrevivencia AHA"
+      },
+      {
+        "fato": "Sempre buscar e tratar causas reversiveis (5H/5T): Hipovolemia, Hipoxia, H+ (acidose), Hipo/Hipercalemia, Hipotermia; Tensao (pneumotorax hipertensivo), Tamponamento cardiaco, Toxinas, Trombose coronaria (IAM), Trombose pulmonar (TEP).",
+        "fonte": "AHA Guidelines ACLS 2025"
+      },
+      {
+        "fato": "Choque septico (Sepsis-3): vasopressor necessario para MAP >=65 mmHg + lactato >2 mmol/L apos ressuscitacao volemica adequada; mortalidade hospitalar ~42%. Cristaloide balanceado >=30 mL/kg nas primeiras 3h (recomendacao FRACA/condicional na SSC 2021, individualizar e reavaliar resposta), lactato seriado, e antibiotico de amplo espectro IMEDIATO (<1h no choque septico).",
+        "fonte": "Sepsis-3 (Singer, JAMA 2016) + Surviving Sepsis Campaign 2021"
+      },
+      {
+        "fato": "Vasopressor de 1a linha na sepse/choque septico = noradrenalina, alvo MAP >=65 mmHg; nao aguardar acesso central para iniciar (pode correr em veia periferica calibrosa por curto periodo). Vasopressina como 2a droga; nao usar dopamina de rotina.",
+        "fonte": "Surviving Sepsis Campaign 2021"
+      },
+      {
+        "fato": "AVC isquemico: trombolise IV com tenecteplase 0,25 mg/kg (max 25 mg, em bolus) OU alteplase 0,9 mg/kg (max 90 mg) ate 4,5h do inicio; o guideline AHA/ASA 2026 endossa tenecteplase (preferida pela administracao em bolus unico) e estende a possibilidade de trombolise e trombectomia ate 24h em pacientes selecionados por neuroimagem com tecido salvavel. Meta porta-agulha <=60 min.",
+        "fonte": "AHA/ASA Stroke Guideline 2019 + atualizacao AHA/ASA 2026"
+      },
+      {
+        "fato": "Equivalentes de STEMI (acionar hemodinamica, nao apenas 'ST elevado'): em BRE/marca-passo usar Sgarbossa modificado de Smith = STE concordante >=1 mm, IST concordante >=1 mm em V1-V3, OU STE discordante com razao ST/S <=-0,25 (sens ~80%, esp ~99% vs sens ~20% do escore original).",
+        "fonte": "Smith-modified Sgarbossa (Meyers/Smith, Ann Emerg Med 2012)"
+      },
+      {
+        "fato": "Padrao de de Winter (IST ascendente 1-3 mm no ponto J com ondas T altas e simetricas em V1-V6, supra de ST em aVR, sem supra precordial) = oclusao proximal de DA, equivalente de STEMI -> reperfusao emergencial. Wellens (T bifasica tipo A ou T invertida profunda tipo B em V2-V3, paciente sem dor, sem perda de R) = estenose critica proximal de DA, alto risco de IAM anterior se nao revascularizado; evitar teste de esforco.",
+        "fonte": "de Winter (NEJM 2008) + Wellens (de Zwaan 1982; LITFL/StatPearls)"
+      },
+      {
+        "fato": "Taqui instavel (hipotensao, rebaixamento, dor isquemica, ICC aguda) -> cardioversao sincronizada imediata; TPSV regular estavel -> manobra vagal e adenosina 6 mg IV em push rapido (2a dose 12 mg). Bradi sintomatica -> atropina 1 mg IV a cada 3-5 min (max 3 mg); se refrataria, marca-passo transcutaneo OU dopamina/epinefrina em infusao.",
+        "fonte": "AHA Guidelines ACLS 2025"
+      },
+      {
+        "fato": "Trauma com sangramento: acido tranexamico 1 g IV em 10 min + 1 g em 8h, idealmente <3h da lesao (apos 3h pode aumentar mortalidade). No TCE (CRASH-3) o beneficio em mortalidade por TCE concentra-se em lesao leve a moderada (GCS 9-15) tratada precocemente. Em hemorragia macica transfundir em razao proxima de 1:1:1 (plasma:plaquetas:hemacias).",
+        "fonte": "CRASH-2 (Lancet 2010) / CRASH-3 (Lancet 2019) / PROPPR (JAMA 2015) / ATLS 10th"
+      }
+    ],
+    "oQueLer": [
+      "Antes do ECG, olhar o MONITOR: FC, ritmo (sinusal/irregular), PA e MAP (<65 = choque), SpO2 (<90% = hipoxemia), curva de capnografia/EtCO2 (em RCP <10 mmHg = RCP ineficaz ou prognostico ruim; subida abrupta para 35-45 mmHg = provavel retorno de circulacao).",
+      "Identificar o ritmo de PCR: chocavel (FV/TVsp) x nao-chocavel (AESP = linha organizada sem pulso / assistolia = linha reta - confirmar em 2 derivacoes e checar ganho/cabos antes de assumir assistolia).",
+      "Conferir calibracao do ECG (10 mm/mV, 25 mm/s) e qualidade/artefato antes de interpretar; tremor/movimento simula FV ou arritmia.",
+      "Eixo, FC, regularidade, largura do QRS (estreito <120 ms x largo >=120 ms -> diferenciar TV de TSV com aberrancia), intervalo PR e QT.",
+      "Supra de ST (>=1 mm em 2 derivacoes contiguas; >=2 mm em V2-V3 homens / >=1,5 mm mulheres) e infra reciproca; em DII-DIII-aVF (inferior) checar V3R-V4R p/ VD e supra em aVR (oclusao de tronco/multiarterial).",
+      "Equivalentes/imitadores de STEMI: BRE/MP com Sgarbossa-Smith, de Winter, Wellens, T hiperaguda, aVR com infra difusa; sinais de hipercalemia (T apiculada, QRS alargado, onda sinusoidal); QT longo (risco de Torsades)."
+    ],
+    "redFlags": [
+      "MAP <65 mmHg, lactato >2 mmol/L, PAS <90, shock index >0,9, oliguria, pele moteada ou rebaixamento -> choque; escalar para vasopressor/UTI.",
+      "Supra de ST, equivalente de STEMI (de Winter / Sgarbossa-Smith), aVR com infra difusa, ou BRE novo com dor -> ativar hemodinamica/cateterismo JA.",
+      "QRS largo + T apiculada/onda sinusoidal (hipercalemia) -> gluconato de calcio imediato; QT longo + TV polimorfica (Torsades) -> sulfato de magnesio IV.",
+      "EtCO2 persistente <10 mmHg durante RCP, ou ritmo nao-chocavel sem causa reversivel corrigida -> revisar 5H/5T e qualidade da RCP.",
+      "Deficit neurologico focal subito com janela <24h -> codigo AVC, TC/neuroimagem imediata, glicemia capilar; nao atrasar trombolise/trombectomia.",
+      "Hipotensao + turgencia jugular + bulhas abafadas (tamponamento) ou hipersonoridade/MV abolido + desvio de traqueia (pneumotorax hipertensivo) -> descompressao/pericardiocentese; instabilidade em trauma = hemorragia ate prova em contrario.",
+      "Taqui ou bradi com sinais de instabilidade (hipotensao, sincope, dor isquemica, ICC aguda) -> cardioversao sincronizada ou marca-passo sem demora."
+    ],
+    "acaoPrioritaria": "Aplicar ABCDE em paralelo: garantir via aerea/oxigenacao, reconhecer choque pelo MAP/lactato e o ritmo no monitor/ECG, e disparar a intervencao tempo-dependente imediata (desfibrilar FV/TVsp, antibiotico + noradrenalina na sepse, reperfusao no STEMI/equivalente, codigo AVC, corrigir 5H/5T) enquanto escala precocemente.",
+    "fontes": [
+      "AHA Guidelines for CPR and ECC (ACLS) 2025 - Part 9, Circulation",
+      "Surviving Sepsis Campaign 2021 (Evans et al., Crit Care Med / Intensive Care Med)",
+      "Sepsis-3 (Singer et al., JAMA 2016)",
+      "AHA/ASA Acute Ischemic Stroke Guideline 2019 + atualizacao 2026",
+      "Smith-modified Sgarbossa (Meyers/Smith, Ann Emerg Med 2012)",
+      "de Winter et al. (NEJM 2008)",
+      "Wellens syndrome (de Zwaan 1982; LITFL/StatPearls)",
+      "CRASH-2 (Lancet 2010)",
+      "CRASH-3 (Lancet 2019)",
+      "PROPPR (Holcomb et al., JAMA 2015)",
+      "ATLS 10th edition (ACS)"
+    ]
+  }
+});
