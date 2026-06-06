@@ -161,4 +161,7 @@ export type NewCaseInput = {
   patient_weight_kg?: number;
   vitals?: Vitais;
   image_urls?: { url: string; kind: "ecg" | "other" }[];
+  ai_analysis?: unknown; // leitura preliminar da IA (estruturada)
+  ai_message?: string; // mensagem clinica pro plantonista (editavel)
+  priority?: "critical" | "urgent";
 };

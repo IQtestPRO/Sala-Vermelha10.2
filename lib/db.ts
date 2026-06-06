@@ -18,6 +18,15 @@ export function getDb(): Client {
   return cachedClient;
 }
 
+// Adiciona uma coluna se ela ainda nao existir (SQLite nao tem ADD COLUMN IF NOT EXISTS).
+async function addColumnIfMissing(db: Client, table: string, col: string, type: string) {
+  try {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`);
+  } catch {
+    /* coluna ja existe — ok */
+  }
+}
+
 // Cria todas as tabelas de forma idempotente. Chamado no inicio de cada rota.
 export async function ensureTables() {
   if (tableReady) return;
@@ -79,6 +88,10 @@ export async function ensureTables() {
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_cases_status_created ON cases(status, created_at DESC)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_cases_requester ON cases(requester_id, created_at DESC)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_cases_sla ON cases(status, sla_expires_at)`);
+
+  // Leitura preliminar da IA (anexada ao criar o caso) — idempotente.
+  await addColumnIfMissing(db, "cases", "ai_analysis", "TEXT");
+  await addColumnIfMissing(db, "cases", "ai_message", "TEXT");
 
   // ---- CASE IMAGES (ECG etc.) ----
   await db.execute(`
@@ -204,6 +217,8 @@ export type CaseRow = {
   claimed_at: number | null;
   answered_at: number | null;
   closed_at: number | null;
+  ai_analysis: string | null;
+  ai_message: string | null;
 };
 
 export type CaseImageRow = {

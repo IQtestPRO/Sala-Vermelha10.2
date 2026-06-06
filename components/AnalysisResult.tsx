@@ -12,6 +12,8 @@ export type Analysis = {
   alertas: string[];
   gravidade: string;
   fontes?: string[];
+  mensagemPlantonista?: string;
+  perguntas?: { pergunta: string; opcoes: string[] }[];
 };
 
 const GRAV: Record<string, { label: string; cls: string }> = {

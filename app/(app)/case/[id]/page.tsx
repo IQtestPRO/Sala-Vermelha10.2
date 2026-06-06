@@ -11,6 +11,7 @@ import { apiPost, friendlyError, ApiError } from "@/lib/client";
 import SlaCountdown from "@/components/SlaCountdown";
 import VitalsGrid from "@/components/VitalsGrid";
 import EcgViewer from "@/components/EcgViewer";
+import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
 import ConductForm from "@/components/ConductForm";
 import ChatThread from "@/components/ChatThread";
 import type { PublicCase, PublicResponse } from "@/lib/cases";
@@ -178,9 +179,22 @@ export default function CasePage() {
           </div>
         )}
 
+        {c.priority === "urgent" && (
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: "var(--red)", fontWeight: 900, fontSize: 13, letterSpacing: "0.03em" }}>
+            <span className="brand-dot" /> CASO URGENTE
+          </div>
+        )}
+
         {c.vitals && <VitalsGrid v={c.vitals} />}
 
         <EcgViewer images={data.images} />
+
+        {c.ai_analysis && (
+          <div>
+            <div className="faint" style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>LEITURA PRELIMINAR (à beira-leito)</div>
+            <AnalysisResult a={c.ai_analysis as unknown as Analysis} />
+          </div>
+        )}
 
         <div className="card">
           <div className="faint" style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>PERGUNTA</div>

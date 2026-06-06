@@ -38,13 +38,20 @@ export async function insertEvent(
 }
 
 // ===== Shapes publicos (para o cliente) =====
-export type PublicCase = Omit<CaseRow, "vitals"> & { vitals: Vitais | null };
+export type PublicCase = Omit<CaseRow, "vitals" | "ai_analysis"> & {
+  vitals: Vitais | null;
+  ai_analysis: Record<string, unknown> | null;
+};
 export type PublicResponse = Omit<ResponseRow, "structured_conduct"> & {
   structured_conduct: StructuredConduct | null;
 };
 
 export function toPublicCase(row: CaseRow): PublicCase {
-  return { ...row, vitals: jparse<Vitais>(row.vitals) };
+  return {
+    ...row,
+    vitals: jparse<Vitais>(row.vitals),
+    ai_analysis: jparse<Record<string, unknown>>(row.ai_analysis),
+  };
 }
 export function toPublicResponse(row: ResponseRow): PublicResponse {
   return { ...row, structured_conduct: jparse<StructuredConduct>(row.structured_conduct) };

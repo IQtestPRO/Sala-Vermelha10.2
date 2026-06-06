@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser(req);
+    await ensureTables();
     const db = getDb();
     const body = (await req.json()) as NewCaseInput;
 
@@ -28,9 +29,15 @@ export async function POST(req: NextRequest) {
     const wN = body.patient_weight_kg != null ? Number(body.patient_weight_kg) : NaN;
     const patient_weight_kg = Number.isFinite(wN) && wN > 0 && wN <= 500 ? wN : null;
 
-    if (!question_text && !clinical_summary && !(body.image_urls && body.image_urls.length)) {
+    const priority = body.priority === "urgent" ? "urgent" : "critical";
+    const ai_message = body.ai_message ? String(body.ai_message).trim().slice(0, 4000) : null;
+    const ai_analysis = body.ai_analysis ? jstr(body.ai_analysis) : null;
+
+    if (!ai_message && !question_text && !clinical_summary && !(body.image_urls && body.image_urls.length)) {
       return NextResponse.json({ error: "invalid_input" }, { status: 400 });
     }
+    // A mensagem ao plantonista (editada) vira o texto do caso; senao, o resumo/pergunta.
+    const finalQuestionText = (ai_message || question_text || clinical_summary || "Avaliação de caso").slice(0, 4000);
 
     const id = newId("c");
     const now = Date.now();
@@ -41,11 +48,11 @@ export async function POST(req: NextRequest) {
       {
         sql: `INSERT INTO cases
           (id, requester_id, status, priority, clinical_summary, question_type, question_text,
-           patient_ref, patient_age, patient_sex, patient_weight_kg, vitals, created_at, sla_expires_at)
-          VALUES (?, ?, 'open', 'critical', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           patient_ref, patient_age, patient_sex, patient_weight_kg, vitals, created_at, sla_expires_at, ai_analysis, ai_message)
+          VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         args: [
-          id, user.id, clinical_summary || question_text, question_type, question_text || clinical_summary,
-          patient_ref, patient_age, patient_sex, patient_weight_kg, jstr(body.vitals), now, sla,
+          id, user.id, priority, clinical_summary || finalQuestionText, question_type, finalQuestionText,
+          patient_ref, patient_age, patient_sex, patient_weight_kg, jstr(body.vitals), now, sla, ai_analysis, ai_message,
         ],
       },
     ];
@@ -68,8 +75,8 @@ export async function POST(req: NextRequest) {
     try {
       const meta = questionMeta(question_type);
       await sendToApprovedResponders(db, {
-        title: `Novo caso — ${meta.label}`,
-        body: `${clinical_summary || question_text || "Caso de emergência"} • responda em até 10 min`,
+        title: `${priority === "urgent" ? "🚨 URGENTE" : "Novo caso"} — ${meta.label}`,
+        body: `${clinical_summary || finalQuestionText || "Caso de emergência"} • responda em até 10 min`,
         caseId: id,
         url: `/case/${id}`,
       });
