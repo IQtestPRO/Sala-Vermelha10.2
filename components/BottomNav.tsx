@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PlusCircle, BookOpenText, Inbox, Zap } from "lucide-react";
+import { IcRapida, IcFila, IcCasos, IcNovo, IcCondutas } from "@/components/icons/StatIcons";
 import type { Role } from "@/lib/db";
 
 type Item = { href: string; label: string; icon: React.ReactNode };
 
-const RAPIDO: Item = { href: "/rapido", label: "Rápida", icon: <Zap size={22} /> };
+const RAPIDO: Item = { href: "/rapido", label: "Rápida", icon: <IcRapida size={23} /> };
 
 export default function BottomNav({ role }: { role: Role }) {
   const pathname = usePathname();
@@ -16,16 +16,16 @@ export default function BottomNav({ role }: { role: Role }) {
     role === "responder"
       ? [
           RAPIDO,
-          { href: "/queue", label: "Fila", icon: <Inbox size={22} /> },
-          { href: "/feed", label: "Casos", icon: <Home size={22} /> },
-          { href: "/new-case", label: "Novo", icon: <PlusCircle size={22} /> },
-          { href: "/condutas", label: "Condutas", icon: <BookOpenText size={22} /> },
+          { href: "/queue", label: "Fila", icon: <IcFila size={23} /> },
+          { href: "/feed", label: "Casos", icon: <IcCasos size={23} /> },
+          { href: "/new-case", label: "Novo", icon: <IcNovo size={23} /> },
+          { href: "/condutas", label: "Condutas", icon: <IcCondutas size={23} /> },
         ]
       : [
           RAPIDO,
-          { href: "/feed", label: "Casos", icon: <Home size={22} /> },
-          { href: "/new-case", label: "Novo", icon: <PlusCircle size={22} /> },
-          { href: "/condutas", label: "Condutas", icon: <BookOpenText size={22} /> },
+          { href: "/feed", label: "Casos", icon: <IcCasos size={23} /> },
+          { href: "/new-case", label: "Novo", icon: <IcNovo size={23} /> },
+          { href: "/condutas", label: "Condutas", icon: <IcCondutas size={23} /> },
         ];
 
   return (

@@ -384,7 +384,8 @@ select.field {
   text-decoration: none;
 }
 .nav-item-on { color: var(--text); }
-.nav-item-on .nav-ic { color: var(--primary); }
+.nav-ic { display: grid; place-items: center; width: 48px; height: 30px; border-radius: 11px; transition: background 0.18s var(--ease-out-quart); }
+.nav-item-on .nav-ic { color: var(--primary); background: var(--primary-tint); }
 .nav-item span { white-space: nowrap; }
 
 /* ===== Contador SLA ===== */
