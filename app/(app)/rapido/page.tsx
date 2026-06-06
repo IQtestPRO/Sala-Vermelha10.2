@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Zap, Search, ChevronRight, HeartCrack, HeartPulse, Heart, Wind, Brain, Droplet, FlaskConical } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import CondutaDetalhe from "@/components/CondutaDetalhe";
+import ScreenHero from "@/components/ScreenHero";
 import { searchComAcao, CondutaCard } from "@/lib/condutas";
 import HfIcon from "@/components/icons/HfIcon";
 
@@ -27,7 +28,7 @@ export default function RapidoPage() {
   if (selected) {
     return (
       <>
-        <TopBar title={selected.titulo} subtitle="Ação imediata" onBack={() => setSelected(null)} />
+        <ScreenHero title={selected.titulo} subtitle="Ação imediata" onBack={() => setSelected(null)} />
         <CondutaDetalhe card={selected} />
       </>
     );

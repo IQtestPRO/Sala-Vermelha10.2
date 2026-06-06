@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Search, ChevronRight, AlertTriangle, Zap, Activity } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import CondutaDetalhe, { categoriaLabel } from "@/components/CondutaDetalhe";
+import ScreenHero from "@/components/ScreenHero";
 import {
   CONDUTAS,
   CATEGORIAS,
@@ -41,7 +42,7 @@ function CondutasInner() {
   if (selected) {
     return (
       <>
-        <TopBar title={selected.titulo} subtitle={categoriaLabel(selected)} onBack={() => setSelected(null)} />
+        <ScreenHero title={selected.titulo} subtitle={categoriaLabel(selected) ?? undefined} onBack={() => setSelected(null)} />
         <CondutaDetalhe card={selected} />
       </>
     );
