@@ -17,6 +17,7 @@ const page = await ctx.newPage();
 
 await page.goto(base + "/login", { waitUntil: "domcontentloaded" });
 await page.waitForSelector("input.auth-field", { timeout: 20000 });
+await page.waitForTimeout(1500); // splash cobre a tela ~1.1s; espera sumir antes de clicar
 const inputs = await page.$$("input.auth-field");
 await inputs[0].fill(crm);
 await inputs[1].fill(senha);
