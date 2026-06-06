@@ -35,11 +35,12 @@ Veja `.env.local.example`. Para push: `npx web-push generate-vapid-keys`.
    (`TURSO_*`, `JWT_SECRET`, `ADMIN_PASSWORD`, `CRON_SECRET`, `VAPID_*`, `NEXT_PUBLIC_SITE_URL`).
 4. **Turso:** crie um banco novo (`turso db create`) e use a URL + token.
 5. **Blob (fotos):** *Storage → Create → Blob* (injeta `BLOB_READ_WRITE_TOKEN`).
-6. **Cron de SLA:** o `vercel.json` agenda `/api/cron/sla` **1×/dia** (compatível com o plano
-   Hobby grátis). A expiração de casos em tempo real já funciona pela **varredura preguiçosa**
-   (`expireOverdueOpenCases`) a cada leitura da fila/feed/admin — o cron diário é só um backstop.
-   No plano Pro, dá para mudar para `* * * * *` (a cada minuto) se quiser expiração também para
-   casos que ninguém abriu.
+6. **SLA / expiração:** não há cron na Vercel (`vercel.json` vazio — evita a validação do
+   `CRON_SECRET` que quebrava o build no Hobby). A expiração dos casos vencidos **e o push de
+   escalonamento** (plantonistas + solicitante) acontecem pela **varredura preguiçosa**
+   (`expireOverdueOpenCases` + `escalateExpiredCases`) a cada leitura da fila/feed/admin. Se quiser
+   também cobrir casos que ninguém abre, agende `/api/cron/sla` por um agendador externo de 1 min
+   (cron-job.org, GitHub Actions) enviando `Authorization: Bearer <CRON_SECRET>` — sem espaços no valor.
 7. Cada `git push` na branch principal = deploy automático.
 
 ## Instalação no celular (PWA)

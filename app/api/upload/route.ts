@@ -33,7 +33,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: result.url });
     }
 
-    // Fallback local (apenas dev — em producao o FS da Vercel e somente leitura).
+    // Sem Blob configurado: em producao o FS da Vercel e somente-leitura -> nao grava em disco.
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json({ error: "blob_not_configured" }, { status: 503 });
+    }
+    // Fallback local apenas em desenvolvimento.
     const { writeFile, mkdir } = await import("fs/promises");
     const path = await import("path");
     const dir = path.join(process.cwd(), "public", "uploads");

@@ -44,8 +44,9 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const base64 = String(body.image_base64 || "");
-    const context = String(body.context || "").trim();
+    const context = String(body.context || "").trim().slice(0, 600);
     if (!base64) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+    if (base64.length > 9_000_000) return NextResponse.json({ error: "too_large" }, { status: 413 });
 
     const client = new Anthropic();
     const userText =
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     const resp = await client.messages.create({
       model: MODEL,
-      max_tokens: 12000,
+      max_tokens: 8000,
       thinking: { type: "adaptive" },
       output_config: {
         effort: "medium",
@@ -74,11 +75,15 @@ export async function POST(req: NextRequest) {
 
     const textBlock = resp.content.find((b) => b.type === "text");
     const text = textBlock && "text" in textBlock ? textBlock.text : "";
+    if (!text.trim()) {
+      // Sem saida util (max_tokens/refusal/stop_reason). Nao vaza conteudo bruto (PHI).
+      return NextResponse.json({ error: "ai_no_output" }, { status: 502 });
+    }
     let analysis;
     try {
       analysis = JSON.parse(text);
     } catch {
-      return NextResponse.json({ error: "parse_error", raw: text }, { status: 502 });
+      return NextResponse.json({ error: "parse_error" }, { status: 502 });
     }
 
     return NextResponse.json({ analysis, model: MODEL });

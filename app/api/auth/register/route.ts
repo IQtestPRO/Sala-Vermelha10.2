@@ -36,11 +36,19 @@ export async function POST(req: NextRequest) {
     const status: UserStatus = role === "responder" ? "pending" : "approved";
     const password_hash = await hashPassword(password);
 
-    await db.execute({
-      sql: `INSERT INTO users (id, name, crm, specialty, role, status, password_hash, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [id, name, crm, specialty, role, status, password_hash, now, now],
-    });
+    try {
+      await db.execute({
+        sql: `INSERT INTO users (id, name, crm, specialty, role, status, password_hash, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [id, name, crm, specialty, role, status, password_hash, now, now],
+      });
+    } catch (e) {
+      // Corrida no CRM unico (dois cadastros simultaneos): devolve erro claro, nao 500.
+      if (/unique|constraint/i.test(String((e as Error)?.message || ""))) {
+        return NextResponse.json({ error: "crm_taken" }, { status: 409 });
+      }
+      throw e;
+    }
 
     const token = await signSession({ sub: id, role, name });
     const res = NextResponse.json({ id, role, status });

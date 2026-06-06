@@ -1,5 +1,6 @@
 import webpush from "web-push";
 import { Client } from "@libsql/client";
+import type { CaseRow } from "./db";
 
 export type PushPayload = {
   title: string;
@@ -79,4 +80,30 @@ export async function sendToUser(db: Client, userId: string, payload: PushPayloa
     args: [userId],
   });
   await sendToRows(db, r.rows as unknown as SubRow[], payload);
+}
+
+// Escalonamento de SLA: para casos que acabaram de expirar (10 min sem resposta),
+// avisa todos os plantonistas aprovados + o solicitante. Chamado pela varredura
+// preguicosa (expireOverdueOpenCases retorna apenas os casos recem-expirados, entao
+// cada caso e escalonado uma unica vez).
+export async function escalateExpiredCases(db: Client, expired: CaseRow[]) {
+  if (!ensureConfigured() || expired.length === 0) return;
+  for (const c of expired) {
+    try {
+      await sendToApprovedResponders(db, {
+        title: "SLA EXPIRADO — caso sem resposta",
+        body: "Um caso passou de 10 min sem resposta. Abra a fila agora.",
+        caseId: c.id,
+        url: `/case/${c.id}`,
+      });
+      await sendToUser(db, c.requester_id, {
+        title: "Caso escalonado",
+        body: "Seu caso passou de 10 min — escalonado para todos os plantonistas.",
+        caseId: c.id,
+        url: `/case/${c.id}`,
+      });
+    } catch (e) {
+      console.error("[escalate]", e);
+    }
+  }
 }

@@ -24,6 +24,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 
     // So o plantonista que assumiu responde.
     if (caseRow.claimed_by !== me.id) throw new AuthError(403, "forbidden");
+    // Nao aceita resposta em caso ja encerrado (evitaria insert sem mudar status — no-op silencioso).
+    if (caseRow.status === "closed") {
+      return NextResponse.json({ error: "case_closed" }, { status: 409 });
+    }
 
     const now = Date.now();
     const respId = newId("r");

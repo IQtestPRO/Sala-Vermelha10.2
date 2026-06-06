@@ -36,7 +36,14 @@ export function errorResponse(err: unknown): NextResponse {
 }
 
 function secretKey(): Uint8Array {
-  const secret = process.env.JWT_SECRET || "dev-insecure-secret-troque-em-producao";
+  const secret = process.env.JWT_SECRET?.trim();
+  if (!secret || secret.length < 16) {
+    // Fail-closed: nunca assinar/validar sessao com segredo fraco em producao.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("JWT_SECRET ausente ou fraco (>=16 chars) em producao");
+    }
+    return new TextEncoder().encode("dev-insecure-secret-troque-em-producao");
+  }
   return new TextEncoder().encode(secret);
 }
 

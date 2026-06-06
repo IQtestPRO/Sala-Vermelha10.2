@@ -21,13 +21,16 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     }
 
     const now = Date.now();
-    await db.execute({
-      sql: `UPDATE cases SET status='closed', closed_at=? WHERE id=?`,
+    // Idempotente: nao re-fecha um caso ja 'closed' (evita evento duplicado / no-op silencioso).
+    const res = await db.execute({
+      sql: `UPDATE cases SET status='closed', closed_at=? WHERE id=? AND status != 'closed'`,
       args: [now, id],
     });
-    await insertEvent(db, id, user.id, "closed");
+    if (res.rowsAffected === 1) {
+      await insertEvent(db, id, user.id, "closed");
+    }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, alreadyClosed: res.rowsAffected === 0 });
   } catch (err) {
     return errorResponse(err);
   }

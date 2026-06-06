@@ -9,9 +9,11 @@ export function getDb(): Client {
   const authToken = process.env.TURSO_AUTH_TOKEN;
   if (url) {
     cachedClient = createClient({ url, authToken });
-  } else {
-    // Fallback local para desenvolvimento (sem Turso na nuvem): arquivo SQLite no projeto.
+  } else if (process.env.NODE_ENV !== "production") {
+    // Fallback local APENAS em desenvolvimento (na Vercel o FS e somente-leitura).
     cachedClient = createClient({ url: "file:local.db" });
+  } else {
+    throw new Error("TURSO_DATABASE_URL nao configurada em producao");
   }
   return cachedClient;
 }

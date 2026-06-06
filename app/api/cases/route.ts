@@ -4,7 +4,7 @@ import { requireUser, requireApprovedResponder, errorResponse } from "@/lib/auth
 import { newId } from "@/lib/ids";
 import { computeSlaExpiry } from "@/lib/sla";
 import { insertEvent, jstr, toPublicCase, expireOverdueOpenCases } from "@/lib/cases";
-import { sendToApprovedResponders } from "@/lib/push";
+import { sendToApprovedResponders, escalateExpiredCases } from "@/lib/push";
 import { NewCaseInput, questionMeta } from "@/lib/types/case";
 
 export const runtime = "nodejs";
@@ -17,9 +17,16 @@ export async function POST(req: NextRequest) {
     const db = getDb();
     const body = (await req.json()) as NewCaseInput;
 
-    const question_type = String(body.question_type || "OUTRO");
-    const question_text = String(body.question_text || "").trim();
-    const clinical_summary = String(body.clinical_summary || "").trim();
+    // Validacao/saneamento server-side (limites de tamanho e faixas; nao confiar no cliente).
+    const question_type = String(body.question_type || "OUTRO").slice(0, 40);
+    const question_text = String(body.question_text || "").trim().slice(0, 4000);
+    const clinical_summary = String(body.clinical_summary || "").trim().slice(0, 4000);
+    const patient_ref = body.patient_ref ? String(body.patient_ref).trim().slice(0, 120) : null;
+    const ageN = body.patient_age != null ? Number(body.patient_age) : NaN;
+    const patient_age = Number.isFinite(ageN) && ageN >= 0 && ageN <= 130 ? Math.round(ageN) : null;
+    const patient_sex = body.patient_sex === "M" || body.patient_sex === "F" || body.patient_sex === "O" ? body.patient_sex : null;
+    const wN = body.patient_weight_kg != null ? Number(body.patient_weight_kg) : NaN;
+    const patient_weight_kg = Number.isFinite(wN) && wN > 0 && wN <= 500 ? wN : null;
 
     if (!question_text && !clinical_summary && !(body.image_urls && body.image_urls.length)) {
       return NextResponse.json({ error: "invalid_input" }, { status: 400 });
@@ -29,39 +36,33 @@ export async function POST(req: NextRequest) {
     const now = Date.now();
     const sla = computeSlaExpiry(now);
 
-    await db.execute({
-      sql: `INSERT INTO cases
-        (id, requester_id, status, priority, clinical_summary, question_type, question_text,
-         patient_ref, patient_age, patient_sex, patient_weight_kg, vitals, created_at, sla_expires_at)
-        VALUES (?, ?, 'open', 'critical', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [
-        id,
-        user.id,
-        clinical_summary || question_text,
-        question_type,
-        question_text || clinical_summary,
-        body.patient_ref ?? null,
-        body.patient_age ?? null,
-        body.patient_sex ?? null,
-        body.patient_weight_kg ?? null,
-        jstr(body.vitals),
-        now,
-        sla,
-      ],
-    });
-
-    // Imagens (ECG etc.)
+    // Insercao atomica: caso + imagens + evento numa unica transacao (sem caso "orfao" de imagens).
+    const stmts: { sql: string; args: (string | number | null)[] }[] = [
+      {
+        sql: `INSERT INTO cases
+          (id, requester_id, status, priority, clinical_summary, question_type, question_text,
+           patient_ref, patient_age, patient_sex, patient_weight_kg, vitals, created_at, sla_expires_at)
+          VALUES (?, ?, 'open', 'critical', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          id, user.id, clinical_summary || question_text, question_type, question_text || clinical_summary,
+          patient_ref, patient_age, patient_sex, patient_weight_kg, jstr(body.vitals), now, sla,
+        ],
+      },
+    ];
     if (Array.isArray(body.image_urls)) {
-      for (const img of body.image_urls) {
-        if (!img?.url) continue;
-        await db.execute({
+      for (const img of body.image_urls.slice(0, 6)) {
+        if (!img?.url || typeof img.url !== "string") continue;
+        stmts.push({
           sql: `INSERT INTO case_images (id, case_id, blob_url, kind, created_at) VALUES (?, ?, ?, ?, ?)`,
-          args: [newId("img"), id, img.url, img.kind === "other" ? "other" : "ecg", now],
+          args: [newId("img"), id, img.url.slice(0, 2000), img.kind === "other" ? "other" : "ecg", now],
         });
       }
     }
-
-    await insertEvent(db, id, user.id, "created", { question_type });
+    stmts.push({
+      sql: `INSERT INTO case_events (id, case_id, actor_id, event_type, payload, created_at) VALUES (?, ?, ?, 'created', ?, ?)`,
+      args: [newId("ev"), id, user.id, jstr({ question_type }), now],
+    });
+    await db.batch(stmts);
 
     // Fan-out push para plantonistas aprovados (best-effort).
     try {
@@ -89,8 +90,10 @@ export async function GET(req: NextRequest) {
     await ensureTables();
     const db = getDb();
 
-    // Varredura preguicosa do SLA (garante expiracao mesmo sem cron de 1 min).
-    await expireOverdueOpenCases(db);
+    // Varredura preguicosa do SLA (garante expiracao mesmo sem cron). Os casos que
+    // acabaram de expirar disparam o push de escalonamento (plantonistas + solicitante).
+    const expired = await expireOverdueOpenCases(db);
+    await escalateExpiredCases(db, expired);
 
     const open = await db.execute(
       `SELECT * FROM cases WHERE status = 'open' ORDER BY created_at ASC LIMIT 100`

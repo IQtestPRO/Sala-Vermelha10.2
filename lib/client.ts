@@ -47,6 +47,11 @@ export function friendlyError(code: string): string {
     forbidden: "Você não tem permissão para isso.",
     not_approved: "Seu cadastro ainda não foi aprovado.",
     already_claimed: "Outro plantonista já assumiu este caso.",
+    case_closed: "Este caso já foi encerrado.",
+    too_large: "Imagem muito grande. Tente outra foto.",
+    blob_not_configured: "Envio de foto ainda não configurado no servidor.",
+    ai_not_configured: "Análise por IA ainda não configurada.",
+    ai_no_output: "A IA não retornou um resultado. Tente novamente.",
     disabled: "Conta desativada. Fale com o administrador.",
     internal_error: "Erro no servidor. Tente novamente.",
   };
