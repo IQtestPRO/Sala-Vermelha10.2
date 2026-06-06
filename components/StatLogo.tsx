@@ -1,6 +1,12 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 type Tone = "onNavy" | "onLight";
 
-// Wordmark "STAT" + linha de ECG vermelha cruzando (do logo da marca).
+// Wordmark "STAT" + linha de ECG vermelha animada (traçado de monitor).
+// A animação usa Web Animations API + getTotalLength (robusto no Safari iOS/Android),
+// em vez de pathLength/non-scaling-stroke (que não animam no Safari).
 export default function StatLogo({
   size = 44,
   tone = "onLight",
@@ -12,10 +18,49 @@ export default function StatLogo({
   animated?: boolean;
   tagline?: boolean;
 }) {
+  const pathRef = useRef<SVGPathElement>(null);
   const ink = tone === "onNavy" ? "oklch(0.99 0.005 255)" : "var(--logo-ink)";
   const sub = tone === "onNavy" ? "oklch(0.84 0.02 255)" : "var(--text-dim)";
-  const lineW = Math.max(2, size * 0.075);
   const overhang = size * 0.3;
+
+  useEffect(() => {
+    const el = pathRef.current;
+    if (!el) return;
+    let len = 0;
+    try {
+      len = el.getTotalLength();
+    } catch {
+      len = 320;
+    }
+    if (!len || !Number.isFinite(len)) len = 320;
+    el.style.strokeDasharray = `${len}`;
+
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!animated || reduce) {
+      el.style.strokeDashoffset = "0"; // linha completa, estática
+      return;
+    }
+
+    el.style.strokeDashoffset = `${len}`;
+    let anim: Animation | undefined;
+    if (typeof el.animate === "function") {
+      anim = el.animate(
+        [
+          { strokeDashoffset: len, offset: 0 }, // escondida
+          { strokeDashoffset: 0, offset: 0.55 }, // traça
+          { strokeDashoffset: 0, offset: 1 }, // segura
+        ],
+        { duration: 2200, iterations: Infinity, easing: "cubic-bezier(0.16, 1, 0.3, 1)" }
+      );
+    } else {
+      el.style.strokeDashoffset = "0"; // fallback: linha completa
+    }
+    return () => anim?.cancel();
+  }, [animated, size]);
 
   return (
     <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: Math.round(size * 0.16) }}>
@@ -34,7 +79,7 @@ export default function StatLogo({
           STAT
         </span>
         <svg
-          viewBox="0 0 120 40"
+          viewBox="0 0 200 38"
           preserveAspectRatio="none"
           aria-hidden="true"
           style={{
@@ -42,22 +87,21 @@ export default function StatLogo({
             top: "57%",
             left: `${-overhang}px`,
             width: `calc(100% + ${overhang * 2}px)`,
-            height: size * 0.62,
+            height: size * 0.6,
             transform: "translateY(-50%)",
             overflow: "visible",
             pointerEvents: "none",
           }}
         >
-          <polyline
-            className={animated ? "ecg-line" : ""}
-            pathLength={100}
-            points="0,20 46,20 53,20 59,9 64,31 69,12 74,22 81,20 120,20"
+          <path
+            ref={pathRef}
+            d="M0 19 H80 L90 19 L98 5 L106 33 L114 11 L122 21 L130 19 H200"
             fill="none"
             stroke="var(--red)"
-            strokeWidth={lineW}
+            strokeWidth={5}
             strokeLinecap="round"
             strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
+            style={animated ? { strokeDasharray: 9999, strokeDashoffset: 9999 } : undefined}
           />
         </svg>
       </span>
