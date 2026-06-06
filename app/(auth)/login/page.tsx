@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Stethoscope, Lock, Eye, EyeOff } from "lucide-react";
 import { apiPost, friendlyError, ApiError, Me } from "@/lib/client";
-import StatLogo from "@/components/StatLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,26 +33,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 18, paddingBottom: 40 }}>
-      {/* Hero da marca (branco no navy, como o logo) */}
-      <div
-        style={{
-          background: "var(--navy)",
-          borderRadius: 24,
-          padding: "36px 20px 30px",
-          display: "flex",
-          justifyContent: "center",
-          boxShadow: "var(--shadow-md)",
-        }}
-      >
-        <StatLogo size={60} tone="onNavy" animated tagline />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 18, padding: "26px 0 40px" }}>
+      {/* Hero da marca: gradiente navy + logo exata */}
+      <div className="login-hero" style={{ padding: "32px 22px" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/stat-logo.png" alt="STAT" style={{ width: "82%", maxWidth: 360, display: "block", margin: "0 auto" }} />
       </div>
 
-      {/* Card de acesso */}
-      <form onSubmit={submit} className="card" style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
-        <div style={{ textAlign: "center", marginBottom: 2 }}>
-          <div style={{ fontWeight: 800, fontSize: 17 }}>Entrar</div>
-          <div className="faint" style={{ fontSize: 12.5, marginTop: 2 }}>Acesso para médicos</div>
+      {/* Acesso */}
+      <form onSubmit={submit} className="card" style={{ display: "flex", flexDirection: "column", gap: 16, padding: 22 }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900, letterSpacing: "-0.01em" }}>Bem-vindo de volta</h1>
+          <p className="faint" style={{ margin: "5px 0 0", fontSize: 13, lineHeight: 1.45 }}>
+            Sala vermelha: análise de ECG por IA e resposta de plantonistas em até 10 minutos.
+          </p>
         </div>
 
         <div>

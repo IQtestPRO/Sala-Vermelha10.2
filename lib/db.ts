@@ -93,6 +93,9 @@ export async function ensureTables() {
   await addColumnIfMissing(db, "cases", "ai_analysis", "TEXT");
   await addColumnIfMissing(db, "cases", "ai_message", "TEXT");
 
+  // Telefone do cadastro — idempotente.
+  await addColumnIfMissing(db, "users", "phone", "TEXT");
+
   // ---- CASE IMAGES (ECG etc.) ----
   await db.execute(`
     CREATE TABLE IF NOT EXISTS case_images (
@@ -189,6 +192,7 @@ export type UserRow = {
   name: string;
   crm: string;
   specialty: string;
+  phone: string | null;
   role: Role;
   status: UserStatus;
   password_hash: string;

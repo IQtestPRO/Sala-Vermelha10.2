@@ -15,10 +15,11 @@ export async function POST(req: NextRequest) {
     const name = String(body.name ?? "").trim();
     const crm = String(body.crm ?? "").trim();
     const specialty = String(body.specialty ?? "").trim();
+    const phone = String(body.phone ?? "").trim();
     const password = String(body.password ?? "");
     const role: Role = body.role === "responder" ? "responder" : "requester";
 
-    if (name.length < 2 || crm.length < 2 || specialty.length < 2 || password.length < 6) {
+    if (name.length < 2 || crm.length < 2 || specialty.length < 2 || phone.length < 8 || password.length < 6) {
       return NextResponse.json({ error: "invalid_input" }, { status: 400 });
     }
 
@@ -38,9 +39,9 @@ export async function POST(req: NextRequest) {
 
     try {
       await db.execute({
-        sql: `INSERT INTO users (id, name, crm, specialty, role, status, password_hash, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [id, name, crm, specialty, role, status, password_hash, now, now],
+        sql: `INSERT INTO users (id, name, crm, specialty, phone, role, status, password_hash, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [id, name, crm, specialty, phone, role, status, password_hash, now, now],
       });
     } catch (e) {
       // Corrida no CRM unico (dois cadastros simultaneos): devolve erro claro, nao 500.

@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import StatLogo from "./StatLogo";
 
-// Abertura curta com a marca STAT + linha de ECG. Some sozinha (~1,1s).
+// Abertura curta com a marca STAT (logo exata). Some sozinha (~1,1s).
 export default function Splash() {
   const [gone, setGone] = useState(false);
   useEffect(() => {
@@ -13,7 +12,8 @@ export default function Splash() {
   if (gone) return null;
   return (
     <div className="splash" aria-hidden="true">
-      <StatLogo size={68} tone="onNavy" animated tagline />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/stat-logo.png" alt="STAT" style={{ width: "min(72vw, 340px)" }} />
     </div>
   );
 }

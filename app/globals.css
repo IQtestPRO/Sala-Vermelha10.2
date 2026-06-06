@@ -383,6 +383,27 @@ select.field {
   animation: ecg-draw 2.2s var(--ease-out-expo) infinite;
 }
 
+/* ===== Login premium — hero navy com gradiente da marca (drift sutil) ===== */
+@keyframes hero-drift {
+  0% { background-position: 0% 0%, 100% 0%, 50% 100%; }
+  50% { background-position: 28% 18%, 72% 8%, 42% 88%; }
+  100% { background-position: 0% 0%, 100% 0%, 50% 100%; }
+}
+.login-hero {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  background-color: #112138;
+  background-image:
+    radial-gradient(60% 85% at 16% 10%, oklch(0.45 0.10 258 / 0.55), transparent 60%),
+    radial-gradient(48% 70% at 90% 16%, oklch(0.55 0.20 25 / 0.30), transparent 60%),
+    radial-gradient(75% 95% at 60% 102%, oklch(0.36 0.09 255 / 0.55), transparent 62%);
+  background-size: 180% 180%, 165% 165%, 200% 200%;
+  box-shadow: var(--shadow-md);
+  animation: hero-drift 16s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .login-hero { animation: none; } }
+
 /* ===== Splash de abertura ===== */
 @keyframes splash-out {
   0%, 70% { opacity: 1; }
