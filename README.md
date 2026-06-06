@@ -35,8 +35,11 @@ Veja `.env.local.example`. Para push: `npx web-push generate-vapid-keys`.
    (`TURSO_*`, `JWT_SECRET`, `ADMIN_PASSWORD`, `CRON_SECRET`, `VAPID_*`, `NEXT_PUBLIC_SITE_URL`).
 4. **Turso:** crie um banco novo (`turso db create`) e use a URL + token.
 5. **Blob (fotos):** *Storage → Create → Blob* (injeta `BLOB_READ_WRITE_TOKEN`).
-6. **Cron de SLA:** o `vercel.json` agenda `/api/cron/sla` a cada minuto (requer plano Pro;
-   no Hobby a expiração ainda funciona pela varredura preguiçosa a cada leitura da fila).
+6. **Cron de SLA:** o `vercel.json` agenda `/api/cron/sla` **1×/dia** (compatível com o plano
+   Hobby grátis). A expiração de casos em tempo real já funciona pela **varredura preguiçosa**
+   (`expireOverdueOpenCases`) a cada leitura da fila/feed/admin — o cron diário é só um backstop.
+   No plano Pro, dá para mudar para `* * * * *` (a cada minuto) se quiser expiração também para
+   casos que ninguém abriu.
 7. Cada `git push` na branch principal = deploy automático.
 
 ## Instalação no celular (PWA)
