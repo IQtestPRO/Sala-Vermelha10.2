@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IcRapida, IcFila, IcCasos, IcNovo, IcCondutas } from "@/components/icons/StatIcons";
+import HfIcon from "@/components/icons/HfIcon";
 import type { Role } from "@/lib/db";
 
 type Item = { href: string; label: string; icon: React.ReactNode };
 
-const RAPIDO: Item = { href: "/rapido", label: "Rápida", icon: <IcRapida size={23} /> };
+const RAPIDO: Item = { href: "/rapido", label: "Rápida", icon: <HfIcon name="nav-rapida" size={26} /> };
 
 export default function BottomNav({ role }: { role: Role }) {
   const pathname = usePathname();
@@ -16,16 +16,16 @@ export default function BottomNav({ role }: { role: Role }) {
     role === "responder"
       ? [
           RAPIDO,
-          { href: "/queue", label: "Fila", icon: <IcFila size={23} /> },
-          { href: "/feed", label: "Casos", icon: <IcCasos size={23} /> },
-          { href: "/new-case", label: "Novo", icon: <IcNovo size={23} /> },
-          { href: "/condutas", label: "Condutas", icon: <IcCondutas size={23} /> },
+          { href: "/queue", label: "Fila", icon: <HfIcon name="nav-fila" size={26} /> },
+          { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
+          { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
+          { href: "/condutas", label: "Condutas", icon: <HfIcon name="nav-condutas" size={26} /> },
         ]
       : [
           RAPIDO,
-          { href: "/feed", label: "Casos", icon: <IcCasos size={23} /> },
-          { href: "/new-case", label: "Novo", icon: <IcNovo size={23} /> },
-          { href: "/condutas", label: "Condutas", icon: <IcCondutas size={23} /> },
+          { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
+          { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
+          { href: "/condutas", label: "Condutas", icon: <HfIcon name="nav-condutas" size={26} /> },
         ];
 
   return (

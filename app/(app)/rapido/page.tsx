@@ -5,17 +5,18 @@ import { Zap, Search, ChevronRight, HeartCrack, HeartPulse, Heart, Wind, Brain, 
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import CondutaDetalhe from "@/components/CondutaDetalhe";
 import { searchComAcao, CondutaCard } from "@/lib/condutas";
+import HfIcon from "@/components/icons/HfIcon";
 
 const ICON: Record<string, React.ReactNode> = {
-  "acls-pcr": <HeartCrack size={22} />,
-  "bradi-instavel": <HeartPulse size={22} />,
-  cardioversao: <Zap size={22} />,
-  anafilaxia: <Droplet size={22} />,
-  sri: <Wind size={22} />,
-  eme: <Brain size={22} />,
-  "choque-sepse": <Droplet size={22} />,
-  "iam-supra": <Heart size={22} />,
-  hipercalemia: <FlaskConical size={22} />,
+  "acls-pcr": <HfIcon name="pcr" size={24} />,
+  "bradi-instavel": <HfIcon name="arritmia" size={24} />,
+  cardioversao: <HfIcon name="bolt" size={24} />,
+  anafilaxia: <HfIcon name="fluid" size={24} />,
+  sri: <HfIcon name="airway" size={24} />,
+  eme: <HfIcon name="brain" size={24} />,
+  "choque-sepse": <HfIcon name="fluid" size={24} />,
+  "iam-supra": <HfIcon name="heart" size={24} />,
+  hipercalemia: <HfIcon name="tox" size={24} />,
 };
 
 export default function RapidoPage() {
@@ -58,7 +59,7 @@ export default function RapidoPage() {
             {list.map((c) => (
               <button key={c.id} className="list-row" onClick={() => setSelected(c)}>
                 <span style={{ flex: "0 0 40px", height: 40, borderRadius: 11, background: "var(--navy-tint)", color: "var(--navy)", display: "grid", placeItems: "center" }}>
-                  {ICON[c.id] ?? <Zap size={20} />}
+                  {ICON[c.id] ?? <HfIcon name="nav-rapida" size={22} />}
                 </span>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "block", fontWeight: 800, fontSize: 15.5, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

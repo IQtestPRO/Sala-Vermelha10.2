@@ -14,6 +14,7 @@ import {
   searchCondutas,
 } from "@/lib/condutas";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
+import HfIcon from "@/components/icons/HfIcon";
 
 function DisclaimerBar() {
   return (
@@ -92,7 +93,7 @@ function CondutasInner() {
                     color: c.acaoRapida ? "var(--red)" : "var(--navy)",
                   }}
                 >
-                  {c.acaoRapida ? <Zap size={18} /> : <Activity size={18} />}
+                  {c.acaoRapida ? <HfIcon name="nav-rapida" size={20} /> : <HfIcon name="ecg" size={20} />}
                 </span>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "block", fontWeight: 800, fontSize: 15, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

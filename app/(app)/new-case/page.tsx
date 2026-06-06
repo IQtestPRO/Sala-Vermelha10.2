@@ -30,19 +30,20 @@ import { apiPost } from "@/lib/client";
 import { QUESTION_TYPES, questionMeta, QuestionType, RITMOS, RitmoMonitor, Sexo, Vitais } from "@/lib/types/case";
 import { specialistIdForQuestionType } from "@/lib/specialists";
 import { LGPD_NOTA } from "@/lib/legal/disclaimer";
+import HfIcon from "@/components/icons/HfIcon";
 
 const ICONS: Record<string, React.ReactNode> = {
-  Activity: <Activity size={24} />,
-  HeartPulse: <HeartPulse size={24} />,
-  Zap: <Zap size={24} />,
-  HeartCrack: <HeartCrack size={24} />,
-  Wind: <Wind size={24} />,
-  Droplet: <Droplet size={24} />,
-  Brain: <Brain size={24} />,
-  FlaskConical: <FlaskConical size={24} />,
-  Bone: <Bone size={24} />,
-  Heart: <Heart size={24} />,
-  CircleHelp: <CircleHelp size={24} />,
+  Activity: <HfIcon name="ecg" size={26} />,
+  HeartPulse: <HfIcon name="arritmia" size={26} />,
+  Zap: <HfIcon name="bolt" size={26} />,
+  HeartCrack: <HfIcon name="pcr" size={26} />,
+  Wind: <HfIcon name="airway" size={26} />,
+  Droplet: <HfIcon name="fluid" size={26} />,
+  Brain: <HfIcon name="brain" size={26} />,
+  FlaskConical: <HfIcon name="tox" size={26} />,
+  Bone: <HfIcon name="trauma" size={26} />,
+  Heart: <HfIcon name="heart" size={26} />,
+  CircleHelp: <HfIcon name="help" size={26} />,
 };
 
 function NumField({

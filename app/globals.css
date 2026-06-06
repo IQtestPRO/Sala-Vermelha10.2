@@ -388,6 +388,12 @@ select.field {
 .nav-item-on .nav-ic { color: var(--primary); background: var(--primary-tint); }
 .nav-item span { white-space: nowrap; }
 
+/* Icones Higgsfield (raster navy transparente) — adaptam ao dark mode */
+.hf-icon { display: block; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+[data-theme="dark"] .hf-icon { filter: brightness(0) invert(0.82); }
+.bottom-nav .hf-icon { opacity: 0.55; transition: opacity 0.15s ease; }
+.nav-item-on .hf-icon { opacity: 1; }
+
 /* ===== Contador SLA ===== */
 .sla {
   font-variant-numeric: tabular-nums;
