@@ -333,6 +333,44 @@ select.field {
 }
 .fade-in { animation: fade-in-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* ===== Polimento: tipografia + micro-interacoes (afeta o app todo) ===== */
+h1, h2, h3 {
+  letter-spacing: -0.015em;
+}
+h1 { line-height: 1.1; }
+
+/* Feedback de toque nativo nos cards interativos (links/botoes), nao nos estaticos */
+a.card,
+button.card,
+a.card-2,
+button.card-2 {
+  transition: transform 0.07s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+a.card:active,
+button.card:active,
+a.card-2:active,
+button.card-2:active {
+  transform: scale(0.988);
+}
+a.card-2:hover,
+button.card-2:hover {
+  border-color: var(--border-strong);
+}
+
+/* Inputs e selects herdam a fonte do app */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+}
+
+/* Numeros sempre tabulares em badges/contadores para alinhamento */
+.badge,
+.sla {
+  font-variant-numeric: tabular-nums;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pulse, .spin, .fade-in { animation: none !important; }
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Zap, Search, ChevronRight, HeartCrack, HeartPulse, Heart, Wind, Brain, Droplet, FlaskConical } from "lucide-react";
+import Link from "next/link";
+import { Zap, Search, ChevronRight, HeartCrack, HeartPulse, Heart, Wind, Brain, Droplet, FlaskConical, Camera, Sparkles } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import CondutaDetalhe from "@/components/CondutaDetalhe";
 import { searchComAcao, CondutaCard } from "@/lib/condutas";
@@ -36,6 +37,23 @@ export default function RapidoPage() {
     <>
       <TopBar title="Ação rápida" subtitle="O que fazer agora — sala vermelha" right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
+        <Link
+          href="/analisar"
+          className="card"
+          style={{ display: "flex", alignItems: "center", gap: 12, borderColor: "var(--navy)", background: "linear-gradient(180deg, var(--navy-tint), var(--surface))" }}
+        >
+          <div style={{ flex: "0 0 46px", height: 46, borderRadius: 13, background: "var(--navy)", color: "#fff", display: "grid", placeItems: "center" }}>
+            <Camera size={24} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 800, fontSize: 16, display: "flex", alignItems: "center", gap: 6 }}>
+              Analisar ECG / monitor <Sparkles size={15} color="var(--navy)" />
+            </div>
+            <div className="faint" style={{ fontSize: 12.5, marginTop: 2 }}>A IA lê a foto e interpreta este paciente</div>
+          </div>
+          <ChevronRight size={20} className="faint" />
+        </Link>
+
         <div style={{ position: "relative" }}>
           <Search size={18} className="faint" style={{ position: "absolute", left: 14, top: 17 }} />
           <input
