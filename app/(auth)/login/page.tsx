@@ -45,12 +45,12 @@ export default function LoginPage() {
             <div className="login-flip">
               <LayoutTextFlip
                 text="STAT:"
-                words={["leitura de ECG", "plantonista em 10 min", "conduta na hora", "sala vermelha"]}
+                words={["Leitura de ECG por IA", "Plantonista em 10 minutos", "Conduta com evidência", "Apoio na sala vermelha"]}
                 duration={2600}
               />
             </div>
             <p className="auth-sub" style={{ marginTop: 16 }}>
-              Bem-vindo de volta. Análise de ECG por IA e a confirmação de um plantonista em até 10 minutos.
+              Bem-vindo de volta. Da foto do ECG à confirmação de um plantonista, em até 10 minutos.
             </p>
 
             <form onSubmit={submit} style={{ marginTop: 26, display: "flex", flexDirection: "column", gap: 18, maxWidth: 460 }}>
