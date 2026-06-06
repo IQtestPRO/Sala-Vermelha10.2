@@ -59,7 +59,7 @@ export default function InstallPrompt() {
           {ios ? (
             <>Instale o app: <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>.</>
           ) : (
-            <>Instale o Emergência em 10 na tela inicial.</>
+            <>Instale o STAT na tela inicial.</>
           )}
         </div>
         {!ios && (

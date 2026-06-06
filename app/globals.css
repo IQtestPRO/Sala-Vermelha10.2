@@ -1,26 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  /* Superficie clara estilo Whitebook */
-  --bg: #eaeef2;
-  --surface: #ffffff;
-  --surface-2: #f5f8fa;
-  --border: #e6ebef;
-  --border-strong: #d3dbe2;
+  color-scheme: light;
+  /* STAT — neutros claros tintos de navy (OKLCH, sem #fff/#000 puro) */
+  --bg: oklch(0.95 0.008 255);
+  --surface: oklch(0.99 0.004 255);
+  --surface-2: oklch(0.975 0.006 255);
+  --border: oklch(0.91 0.009 255);
+  --border-strong: oklch(0.86 0.011 255);
 
-  --text: #16222c;
-  --text-dim: #5a6873;
-  --text-faint: #8b98a3;
+  --text: oklch(0.27 0.02 258);
+  --text-dim: oklch(0.48 0.02 258);
+  --text-faint: oklch(0.62 0.015 258);
 
-  /* Primaria teal (sistema) */
-  --primary: #0ea391;
-  --primary-press: #0b8678;
-  --primary-tint: #e1f4f0;
+  /* Primaria NAVY (marca/sistema) — substitui o teal */
+  --primary: oklch(0.38 0.09 258);
+  --primary-press: oklch(0.32 0.08 258);
+  --primary-tint: oklch(0.95 0.02 258);
 
-  /* Vermelho de urgencia / sala vermelha (essencia) */
-  --red: #e23b4e;
-  --red-press: #c52f41;
-  --red-tint: #fdecee;
+  /* ECG vermelho — UNICO acento (urgencia / SLA / emergencia), do logo */
+  --red: oklch(0.58 0.22 25);
+  --red-press: oklch(0.52 0.21 25);
+  --red-tint: oklch(0.95 0.04 25);
 
   --amber: #c9831a;
   --amber-tint: #fbefd8;
@@ -28,12 +29,48 @@
   --green-tint: #e4f6ec;
   --blue: #2f7ff0;
   --blue-tint: #e8f1fe;
-  --navy: #21306b;
-  --navy-tint: #eaecf7;
+  --navy: oklch(0.28 0.06 258);
+  --navy-tint: oklch(0.95 0.02 258);
+  --logo-ink: oklch(0.28 0.06 258); /* wordmark STAT — navy no claro */
 
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.05);
-  --shadow-md: 0 6px 20px rgba(16, 24, 40, 0.08);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --shadow-sm: 0 1px 2px oklch(0.28 0.06 258 / 0.07), 0 1px 3px oklch(0.28 0.06 258 / 0.06);
+  --shadow-md: 0 6px 20px oklch(0.28 0.06 258 / 0.10);
 }
+
+/* ===== Tema escuro (toggle) — superficies navy do logo ===== */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(0.20 0.03 258);
+  --surface: oklch(0.255 0.035 258);
+  --surface-2: oklch(0.30 0.035 258);
+  --border: oklch(0.36 0.03 258);
+  --border-strong: oklch(0.43 0.03 258);
+
+  --text: oklch(0.96 0.006 255);
+  --text-dim: oklch(0.74 0.02 255);
+  --text-faint: oklch(0.60 0.02 255);
+
+  --primary: oklch(0.72 0.12 250);
+  --primary-press: oklch(0.66 0.12 250);
+  --primary-tint: oklch(0.34 0.06 255);
+
+  --red: oklch(0.64 0.21 25);
+  --red-press: oklch(0.58 0.21 25);
+  --red-tint: oklch(0.34 0.08 25);
+
+  --navy: oklch(0.30 0.05 258);
+  --navy-tint: oklch(0.34 0.05 258);
+  --logo-ink: oklch(0.96 0.006 255); /* wordmark STAT — branco no escuro */
+
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.40), 0 1px 3px oklch(0 0 0 / 0.30);
+  --shadow-md: 0 8px 24px oklch(0 0 0 / 0.45);
+}
+
+/* Botao primario no escuro: texto escuro sobre o azul claro (contraste) */
+[data-theme="dark"] .btn-primary { color: oklch(0.18 0.03 258); }
 
 * {
   box-sizing: border-box;
@@ -333,6 +370,33 @@ select.field {
 }
 .fade-in { animation: fade-in-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* ===== Linha de ECG (marca STAT) — traçado tipo monitor ===== */
+@keyframes ecg-trace {
+  0% { stroke-dashoffset: 100; }
+  55% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; }
+}
+.ecg-line {
+  stroke-dasharray: 100;
+  animation: ecg-trace 2.2s var(--ease-out-expo) infinite;
+}
+
+/* ===== Splash de abertura ===== */
+@keyframes splash-out {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy);
+  animation: splash-out 1.1s var(--ease-out-quart) forwards;
+}
+
 /* ===== Polimento: tipografia + micro-interacoes (afeta o app todo) ===== */
 h1, h2, h3 {
   letter-spacing: -0.015em;
@@ -373,4 +437,6 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .pulse, .spin, .fade-in { animation: none !important; }
+  .ecg-line { animation: none !important; stroke-dashoffset: 0; }
+  .splash { animation: none !important; opacity: 0; visibility: hidden; }
 }

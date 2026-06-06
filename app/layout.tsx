@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Mulish } from "next/font/google";
+import { Mulish, Archivo } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import SwRegister from "@/components/SwRegister";
+import Splash from "@/components/Splash";
 
 const mulish = Mulish({
   variable: "--font-mulish",
@@ -11,17 +12,25 @@ const mulish = Mulish({
   display: "swap",
 });
 
+// Fonte display condensada — usada SÓ na wordmark STAT (lib/StatLogo).
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  weight: ["700", "800", "900"],
+  display: "swap",
+});
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = {
-  applicationName: "Emergência em 10",
-  title: "Emergência em 10 — Casos de sala vermelha em até 10 min",
+  applicationName: "STAT",
+  title: "STAT — Emergência em 10",
   description:
-    "Teleconsultoria de emergência: envie o caso crítico (ECG, vitais, conduta) e receba resposta de plantonistas em até 10 minutos. Condutas de sala vermelha à mão.",
+    "STAT: teleconsultoria de sala vermelha. Fotografe o ECG/monitor e receba análise por IA fundamentada em diretrizes e resposta de plantonistas em até 10 minutos.",
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   appleWebApp: {
     capable: true,
-    title: "Emergência em 10",
+    title: "STAT",
     statusBarStyle: "default",
   },
   icons: {
@@ -31,7 +40,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#15294C",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -39,12 +48,17 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// Aplica o tema antes do paint (evita flash). Default = claro; escolha em localStorage.
+const themeInit = `(function(){try{var t=localStorage.getItem('stat_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${mulish.variable}`}>
+    <html lang="pt-BR" className={`${mulish.variable} ${archivo.variable}`}>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <Splash />
         {children}
         <SwRegister />
         <Toaster

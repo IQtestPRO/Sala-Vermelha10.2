@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Activity } from "lucide-react";
 import { apiPost, friendlyError, ApiError, Me } from "@/lib/client";
+import StatLogo from "@/components/StatLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,14 +33,8 @@ export default function LoginPage() {
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", paddingBottom: 40 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-        <div style={{ width: 46, height: 46, borderRadius: 13, background: "var(--red)", display: "grid", placeItems: "center" }}>
-          <Activity size={26} color="white" />
-        </div>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900 }}>Emergência em 10</h1>
-          <p className="faint" style={{ margin: 0, fontSize: 13 }}>Sala vermelha • resposta em até 10 min</p>
-        </div>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
+        <StatLogo size={58} tone="onLight" animated tagline />
       </div>
 
       <form onSubmit={submit} className="card" style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
@@ -73,7 +67,7 @@ export default function LoginPage() {
 
       <p className="muted" style={{ textAlign: "center", marginTop: 18, fontSize: 14 }}>
         Não tem conta?{" "}
-        <Link href="/register" style={{ color: "var(--blue)", fontWeight: 700 }}>
+        <Link href="/register" style={{ color: "var(--primary)", fontWeight: 700 }}>
           Cadastre-se
         </Link>
       </p>

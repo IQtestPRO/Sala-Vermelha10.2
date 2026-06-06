@@ -1,4 +1,4 @@
-# Emergência em 10
+# STAT — Emergência em 10
 
 App (PWA) de teleconsultoria de emergência — **sala vermelha**. Um médico de campo envia um caso
 crítico (foto de ECG, sinais vitais e a pergunta de conduta) e plantonistas respondem em **até 10

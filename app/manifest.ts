@@ -2,16 +2,16 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Emergência em 10",
-    short_name: "Emerg10",
-    description: "Casos clínicos de sala vermelha com resposta de plantonistas em até 10 minutos.",
+    name: "STAT — Emergência em 10",
+    short_name: "STAT",
+    description: "STAT: sala vermelha com análise de ECG por IA e resposta de plantonistas em até 10 minutos.",
     id: "/",
     start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#ffffff",
-    theme_color: "#ffffff",
+    background_color: "#15294C",
+    theme_color: "#15294C",
     lang: "pt-BR",
     dir: "ltr",
     categories: ["medical", "health"],

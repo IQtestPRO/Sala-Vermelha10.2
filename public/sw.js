@@ -1,5 +1,5 @@
-// Service worker do Emergência em 10 — cache do shell + recebimento de Web Push.
-const CACHE = "emerg10-shell-v1";
+// Service worker do STAT — cache do shell + recebimento de Web Push.
+const CACHE = "stat-shell-v2";
 const SHELL = ["/", "/queue", "/feed", "/condutas", "/offline"];
 
 self.addEventListener("install", (event) => {

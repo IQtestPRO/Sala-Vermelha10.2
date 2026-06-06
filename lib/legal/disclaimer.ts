@@ -5,7 +5,7 @@ export const DISCLAIMER_CURTO =
   "A responsabilidade pela conduta é do médico assistente.";
 
 export const DISCLAIMER_LONGO =
-  "O Emergência em 10 é uma ferramenta de apoio à decisão clínica e de teleconsultoria " +
+  "O STAT é uma ferramenta de apoio à decisão clínica e de teleconsultoria " +
   "profissional-a-profissional (segunda opinião entre médicos). NÃO substitui o julgamento " +
   "clínico, o exame do paciente nem os protocolos institucionais locais, e NÃO realiza " +
   "diagnóstico ao paciente. As doses e condutas são valores de referência e devem ser " +

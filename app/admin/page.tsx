@@ -123,7 +123,7 @@ export default function AdminPage() {
       <header className="topbar">
         <div className="topbar-inner">
           <ShieldCheck size={20} color="var(--red)" />
-          <div style={{ flex: 1, fontWeight: 900 }}>Admin — Emergência em 10</div>
+          <div style={{ flex: 1, fontWeight: 900 }}>Admin — STAT</div>
           <button
             className="chip"
             style={{ minHeight: 36 }}

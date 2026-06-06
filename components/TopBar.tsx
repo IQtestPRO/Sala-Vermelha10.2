@@ -3,6 +3,7 @@
 import { LogOut, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/client";
+import ThemeToggle from "./ThemeToggle";
 
 export default function TopBar({
   title,
@@ -33,6 +34,7 @@ export default function TopBar({
             </div>
           )}
         </div>
+        <ThemeToggle />
         {right}
       </div>
     </header>

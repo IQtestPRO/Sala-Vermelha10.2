@@ -53,7 +53,7 @@ export default function AnalysisResult({ a }: { a: Analysis }) {
         {a.condutaImediata && (
           <div
             className="card-2"
-            style={{ boxShadow: "none", borderLeft: "4px solid var(--red)", background: "var(--red-tint)", padding: "10px 12px" }}
+            style={{ boxShadow: "none", border: "1px solid color-mix(in srgb, var(--red) 38%, var(--border))", background: "var(--red-tint)", padding: "11px 13px" }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
               <Stethoscope size={15} color="var(--red)" />
