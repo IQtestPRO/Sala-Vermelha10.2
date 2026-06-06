@@ -128,7 +128,41 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_case_events_case ON case_events(case_id, created_at)`);
 
+  await maybeSeedResponder(db);
   tableReady = true;
+}
+
+// Cria um plantonista APROVADO a partir de variaveis de ambiente (opcional).
+// Permite ter um login fixo em qualquer ambiente (local + Vercel) sem expor a senha no codigo.
+let ownerSeeded = false;
+async function maybeSeedResponder(db: Client) {
+  if (ownerSeeded) return;
+  ownerSeeded = true;
+  const crm = process.env.SEED_RESPONDER_CRM?.trim();
+  const password = process.env.SEED_RESPONDER_PASSWORD;
+  if (!crm || !password) return;
+  try {
+    const existing = await db.execute({ sql: "SELECT id FROM users WHERE crm = ? LIMIT 1", args: [crm] });
+    if (existing.rows.length > 0) return;
+    const bcrypt = (await import("bcryptjs")).default;
+    const hash = await bcrypt.hash(password, 10);
+    const now = Date.now();
+    await db.execute({
+      sql: `INSERT INTO users (id, name, crm, specialty, role, status, password_hash, created_at, updated_at)
+            VALUES (?, ?, ?, ?, 'responder', 'approved', ?, ?, ?)`,
+      args: [
+        "u_seed_" + crm.replace(/\W/g, ""),
+        process.env.SEED_RESPONDER_NAME || "Médico",
+        crm,
+        process.env.SEED_RESPONDER_SPECIALTY || "Emergencista",
+        hash,
+        now,
+        now,
+      ],
+    });
+  } catch (e) {
+    console.error("[seed responder]", e);
+  }
 }
 
 // ===== Tipos de linha =====
