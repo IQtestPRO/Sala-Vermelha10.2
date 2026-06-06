@@ -373,13 +373,13 @@ select.field {
 
 /* ===== Linha de ECG (marca STAT) — traçado tipo monitor (CSS puro: funciona no Safari iOS) ===== */
 @keyframes ecg-draw {
-  0% { stroke-dashoffset: 260; }
+  0% { stroke-dashoffset: 255; }
   55% { stroke-dashoffset: 0; }
   100% { stroke-dashoffset: 0; }
 }
 .ecg-draw {
-  stroke-dasharray: 260;
-  stroke-dashoffset: 260;
+  stroke-dasharray: 255;
+  stroke-dashoffset: 255;
   animation: ecg-draw 2.2s var(--ease-out-expo) infinite;
 }
 

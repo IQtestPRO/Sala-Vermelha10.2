@@ -25,9 +25,9 @@ export default function StatLogo({
         <span
           style={{
             fontFamily: "var(--font-archivo), var(--font-mulish), system-ui, sans-serif",
-            fontWeight: 800,
+            fontWeight: 900,
             fontSize: size,
-            letterSpacing: "-0.045em",
+            letterSpacing: "-0.05em",
             color: ink,
             lineHeight: 1,
             display: "block",
@@ -52,10 +52,10 @@ export default function StatLogo({
         >
           <path
             className={animated ? "ecg-draw" : undefined}
-            d="M0 19 H80 L90 19 L98 5 L106 33 L114 11 L122 21 L130 19 H200"
+            d="M0 19 H86 L94 16 L100 22 L106 6 L114 33 L121 16 L128 20 L150 20 L157 16 L163 21 L169 19 H200"
             fill="none"
             stroke="var(--red)"
-            strokeWidth={5}
+            strokeWidth={5.5}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
