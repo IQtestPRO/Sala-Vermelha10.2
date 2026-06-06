@@ -4,18 +4,35 @@ import { LogOut, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/client";
 import ThemeToggle from "./ThemeToggle";
+import StatLogo from "./StatLogo";
 
 export default function TopBar({
   title,
   subtitle,
   right,
   onBack,
+  brand,
 }: {
   title: string;
   subtitle?: string;
   right?: React.ReactNode;
   onBack?: () => void;
+  brand?: boolean;
 }) {
+  // Telas de aba: a marca STAT no lugar do título.
+  if (brand) {
+    return (
+      <header className="topbar" aria-label={title}>
+        <div className="topbar-inner">
+          <StatLogo size={22} tone="onLight" animated={false} />
+          <div style={{ flex: 1 }} />
+          <ThemeToggle />
+          {right}
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="topbar">
       <div className="topbar-inner">

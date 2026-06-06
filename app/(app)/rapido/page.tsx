@@ -34,7 +34,7 @@ export default function RapidoPage() {
 
   return (
     <>
-      <TopBar title="Ação rápida" subtitle="O que fazer agora — sala vermelha" right={<LogoutButton />} />
+      <TopBar brand title="Ação rápida" subtitle="O que fazer agora — sala vermelha" right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ position: "relative" }}>
           <Search size={18} className="faint" style={{ position: "absolute", left: 14, top: 17 }} />

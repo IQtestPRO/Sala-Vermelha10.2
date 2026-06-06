@@ -7,7 +7,7 @@ import type { Role } from "@/lib/db";
 
 type Item = { href: string; label: string; icon: React.ReactNode };
 
-const RAPIDO: Item = { href: "/rapido", label: "Ação rápida", icon: <Zap size={22} /> };
+const RAPIDO: Item = { href: "/rapido", label: "Rápida", icon: <Zap size={22} /> };
 
 export default function BottomNav({ role }: { role: Role }) {
   const pathname = usePathname();
@@ -17,6 +17,8 @@ export default function BottomNav({ role }: { role: Role }) {
       ? [
           RAPIDO,
           { href: "/queue", label: "Fila", icon: <Inbox size={22} /> },
+          { href: "/feed", label: "Casos", icon: <Home size={22} /> },
+          { href: "/new-case", label: "Novo", icon: <PlusCircle size={22} /> },
           { href: "/condutas", label: "Condutas", icon: <BookOpenText size={22} /> },
         ]
       : [

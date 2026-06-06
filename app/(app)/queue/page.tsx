@@ -45,6 +45,7 @@ export default function QueuePage() {
   return (
     <>
       <TopBar
+        brand
         title="Fila de casos"
         subtitle={`${me.name} • plantonista`}
         right={<LogoutButton />}
