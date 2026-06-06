@@ -22,7 +22,7 @@ import {
   Loader2,
   Stethoscope,
 } from "lucide-react";
-import TopBar from "@/components/TopBar";
+import ScreenHero from "@/components/ScreenHero";
 import PhotoCapture, { CapturedPhoto } from "@/components/PhotoCapture";
 import AiFunnel from "@/components/AiFunnel";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
@@ -212,7 +212,7 @@ function NewCaseInner() {
   if (urgente) {
     return (
       <>
-        <TopBar
+        <ScreenHero
           title="Urgência"
           subtitle="Leitura imediata pela imagem"
           onBack={() => {
@@ -262,11 +262,11 @@ function NewCaseInner() {
     if (!qtype) {
       return (
         <>
-          <TopBar
+          <ScreenHero
             title="Novo caso"
             subtitle="Sala vermelha • resposta em 10 min"
             right={
-              <button className="chip" style={{ minHeight: 38 }} onClick={() => router.back()}>
+              <button className="hero-btn-text" onClick={() => router.back()}>
                 <ChevronLeft size={16} /> Sair
               </button>
             }
@@ -303,11 +303,11 @@ function NewCaseInner() {
 
     return (
       <>
-        <TopBar
-          title="Novo caso"
-          subtitle={meta?.label}
+        <ScreenHero
+          title={meta?.label ?? "Novo caso"}
+          subtitle="Registrar caso"
           right={
-            <button className="chip" style={{ minHeight: 38 }} onClick={() => router.back()}>
+            <button className="hero-btn-text" onClick={() => router.back()}>
               <ChevronLeft size={16} /> Sair
             </button>
           }
@@ -358,11 +358,11 @@ function NewCaseInner() {
   // ============ PASSO 2 (vitais) ============
   return (
     <>
-      <TopBar
+      <ScreenHero
         title="Dados do paciente"
         subtitle="Tudo opcional — peso libera doses"
         right={
-          <button className="chip" style={{ minHeight: 38 }} onClick={() => setStep(1)}>
+          <button className="hero-btn-text" onClick={() => setStep(1)}>
             <ChevronLeft size={16} /> Voltar
           </button>
         }
