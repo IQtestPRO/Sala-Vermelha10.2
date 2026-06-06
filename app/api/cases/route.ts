@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       const meta = questionMeta(question_type);
       await sendToApprovedResponders(db, {
         title: `${priority === "urgent" ? "🚨 URGENTE" : "Novo caso"} — ${meta.label}`,
-        body: `${clinical_summary || finalQuestionText || "Caso de emergência"} • responda em até 10 min`,
+        body: `${clinical_summary || finalQuestionText || "Caso de emergência"} • responda o quanto antes`,
         caseId: id,
         url: `/case/${id}`,
       });

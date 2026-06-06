@@ -28,11 +28,11 @@ export default function AuthIllustration() {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <span className="auth-tag">Sala vermelha</span>
           <span className="auth-tag">ECG por IA</span>
-          <span className="auth-tag">Resposta em 10 min</span>
+          <span className="auth-tag">Resultado em &lt; 2 min</span>
         </div>
         <div className="auth-quote">
           <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#f1f6ff", fontWeight: 600 }}>
-            “Mandei a foto do monitor e, em minutos, tive a leitura do ECG e a confirmação de conduta de um plantonista. Numa
+            “Mandei a foto do monitor e, em menos de dois minutos, tive a leitura do ECG e a conduta sugerida. Numa
             sala vermelha, isso é a diferença entre decidir com segurança ou no escuro.”
           </p>
           <p style={{ margin: "14px 0 0", fontSize: 13.5, color: "#aebbd2", fontWeight: 700 }}>Dra. Marina Alves</p>

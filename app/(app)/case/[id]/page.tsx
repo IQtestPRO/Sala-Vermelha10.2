@@ -177,7 +177,7 @@ export default function CasePage() {
               <AlertTriangle size={18} /> SLA expirado — escalonado
             </div>
             <div className="muted" style={{ fontSize: 13, marginTop: 6 }}>
-              Ninguém respondeu em 10 minutos. Todos os plantonistas foram notificados. O caso continua respondível.
+              Ninguém respondeu no prazo. Todos os plantonistas foram notificados. O caso continua respondível.
             </div>
           </div>
         )}

@@ -71,7 +71,7 @@ export default function StatLogo({
             color: sub,
           }}
         >
-          Emergência em 10
+          Sala vermelha
         </span>
       )}
     </span>

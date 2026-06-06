@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "STAT — Emergência em 10",
+    name: "STAT — Sala vermelha",
     short_name: "STAT",
-    description: "STAT: sala vermelha com análise de ECG por IA e resposta de plantonistas em até 10 minutos.",
+    description: "STAT: sala vermelha com análise de ECG por IA em menos de 2 minutos e a confirmação de um plantonista.",
     id: "/",
     start_url: "/?source=pwa",
     scope: "/",

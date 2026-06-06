@@ -28,9 +28,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = {
   applicationName: "STAT",
-  title: "STAT — Emergência em 10",
+  title: "STAT — Sala vermelha",
   description:
-    "STAT: teleconsultoria de sala vermelha. Fotografe o ECG/monitor e receba análise por IA fundamentada em diretrizes e resposta de plantonistas em até 10 minutos.",
+    "STAT: teleconsultoria de sala vermelha. Fotografe o ECG/monitor e receba análise por IA fundamentada em diretrizes em menos de 2 minutos, com a confirmação de um plantonista.",
   ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
   appleWebApp: {
     capable: true,

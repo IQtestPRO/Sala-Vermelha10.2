@@ -92,13 +92,13 @@ export async function escalateExpiredCases(db: Client, expired: CaseRow[]) {
     try {
       await sendToApprovedResponders(db, {
         title: "SLA EXPIRADO — caso sem resposta",
-        body: "Um caso passou de 10 min sem resposta. Abra a fila agora.",
+        body: "Um caso está sem resposta. Abra a fila agora.",
         caseId: c.id,
         url: `/case/${c.id}`,
       });
       await sendToUser(db, c.requester_id, {
         title: "Caso escalonado",
-        body: "Seu caso passou de 10 min — escalonado para todos os plantonistas.",
+        body: "Seu caso foi escalonado para todos os plantonistas.",
         caseId: c.id,
         url: `/case/${c.id}`,
       });

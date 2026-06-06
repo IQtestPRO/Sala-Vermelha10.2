@@ -264,7 +264,7 @@ function NewCaseInner() {
         <>
           <ScreenHero
             title="Novo caso"
-            subtitle="Sala vermelha • resposta em 10 min"
+            subtitle="Sala vermelha • resultado em menos de 2 min"
             right={
               <button className="hero-btn-text" onClick={() => router.back()}>
                 <ChevronLeft size={16} /> Sair

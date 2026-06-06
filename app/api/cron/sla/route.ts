@@ -21,13 +21,13 @@ export async function GET(req: NextRequest) {
       try {
         await sendToApprovedResponders(db, {
           title: "SLA EXPIRADO — caso sem resposta",
-          body: "Caso de emergência sem resposta há 10 min. Avalie agora.",
+          body: "Caso de emergência sem resposta. Avalie agora.",
           caseId: c.id,
           url: `/case/${c.id}`,
         });
         await sendToUser(db, c.requester_id, {
           title: "Caso escalonado",
-          body: "Sem resposta em 10 min — todos os plantonistas foram avisados.",
+          body: "Sem resposta — todos os plantonistas foram avisados.",
           caseId: c.id,
           url: `/case/${c.id}`,
         });
