@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
     const specialty = String(body.specialty ?? "").trim();
     const phone = String(body.phone ?? "").trim();
     const password = String(body.password ?? "");
-    const role: Role = body.role === "responder" ? "responder" : "requester";
+    // Cadastro ÚNICO: todo médico cadastrado acessa a plataforma (cria e responde casos), aprovado na hora.
+    const role: Role = "responder";
 
     if (name.length < 2 || crm.length < 2 || specialty.length < 2 || phone.length < 8 || password.length < 6) {
       return NextResponse.json({ error: "invalid_input" }, { status: 400 });
@@ -33,8 +34,8 @@ export async function POST(req: NextRequest) {
 
     const id = newId("u");
     const now = Date.now();
-    // Solicitante entra aprovado; respondedor fica pendente de aprovacao do admin.
-    const status: UserStatus = role === "responder" ? "pending" : "approved";
+    // Cadastro unico aprovado na hora (sem fila de aprovacao).
+    const status: UserStatus = "approved";
     const password_hash = await hashPassword(password);
 
     try {

@@ -4,9 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { User, Phone, Stethoscope, Lock, Eye, EyeOff, Radio } from "lucide-react";
+import { User, Phone, Stethoscope, Lock, Eye, EyeOff } from "lucide-react";
 import { apiPost, friendlyError, ApiError } from "@/lib/client";
-import type { Role } from "@/lib/db";
 import AuthIllustration from "@/components/AuthIllustration";
 
 const SPECIALTIES = [
@@ -26,7 +25,6 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [crm, setCrm] = useState("");
   const [specialty, setSpecialty] = useState("Emergencista");
-  const [role, setRole] = useState<Role>("requester");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,21 +33,9 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const r = await apiPost<{ role: Role; status: string }>("/api/auth/register", {
-        name,
-        phone,
-        crm,
-        specialty,
-        role,
-        password,
-      });
-      if (r.role === "responder") {
-        toast.success("Cadastro enviado! Aguarde aprovação do administrador.");
-        router.replace("/pending");
-      } else {
-        toast.success("Conta criada!");
-        router.replace("/feed");
-      }
+      await apiPost("/api/auth/register", { name, phone, crm, specialty, password });
+      toast.success("Conta criada!");
+      router.replace("/rapido");
     } catch (err) {
       toast.error(friendlyError(err instanceof ApiError ? err.code : "internal_error"));
     } finally {
@@ -66,23 +52,9 @@ export default function RegisterPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/stat-logo.png" alt="STAT" style={{ height: 46, width: "auto", display: "block" }} />
             <h1 className="auth-h1" style={{ fontSize: "clamp(28px, 5vw, 40px)" }}>Criar conta</h1>
-            <p className="auth-sub">Para profissionais de saúde habilitados. Acesso pelo seu CRM.</p>
+            <p className="auth-sub">Para médicos. Um único cadastro para acessar a plataforma.</p>
 
             <form onSubmit={submit} style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 16, maxWidth: 480 }}>
-              {/* Papel */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <button type="button" onClick={() => setRole("requester")} className={`auth-role ${role === "requester" ? "auth-role-red" : ""}`}>
-                  <Stethoscope size={19} color="var(--red)" />
-                  <div style={{ fontWeight: 800, marginTop: 6, fontSize: 14 }}>Solicitante</div>
-                  <div style={{ fontSize: 11.5, lineHeight: 1.35, color: "#8294b0" }}>Envio casos da sala vermelha</div>
-                </button>
-                <button type="button" onClick={() => setRole("responder")} className={`auth-role ${role === "responder" ? "auth-role-blue" : ""}`}>
-                  <Radio size={19} color="#5b8def" />
-                  <div style={{ fontWeight: 800, marginTop: 6, fontSize: 14 }}>Plantonista</div>
-                  <div style={{ fontSize: 11.5, lineHeight: 1.35, color: "#8294b0" }}>Respondo casos (precisa aprovação)</div>
-                </button>
-              </div>
-
               <div>
                 <label className="auth-label">Nome completo</label>
                 <div style={{ position: "relative", marginTop: 8 }}>
@@ -92,18 +64,18 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="auth-label">Telefone (WhatsApp)</label>
-                <div style={{ position: "relative", marginTop: 8 }}>
-                  <Phone size={18} className="auth-ic" />
-                  <input className="auth-field" type="tel" inputMode="tel" placeholder="(11) 99999-9999" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" required />
-                </div>
-              </div>
-
-              <div>
                 <label className="auth-label">CRM</label>
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <Stethoscope size={18} className="auth-ic" />
                   <input className="auth-field" placeholder="CRM/UF 123456" value={crm} onChange={(e) => setCrm(e.target.value)} autoCapitalize="characters" required />
+                </div>
+              </div>
+
+              <div>
+                <label className="auth-label">Telefone (WhatsApp)</label>
+                <div style={{ position: "relative", marginTop: 8 }}>
+                  <Phone size={18} className="auth-ic" />
+                  <input className="auth-field" type="tel" inputMode="tel" placeholder="(11) 99999-9999" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" required />
                 </div>
               </div>
 
