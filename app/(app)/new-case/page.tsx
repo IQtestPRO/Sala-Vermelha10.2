@@ -213,6 +213,7 @@ function NewCaseInner() {
     return (
       <>
         <ScreenHero
+          bg="/hero-rapida.jpg"
           title="Urgência"
           subtitle="Leitura imediata pela imagem"
           onBack={() => {
@@ -263,6 +264,7 @@ function NewCaseInner() {
       return (
         <>
           <ScreenHero
+            bg="/hero-novocaso.jpg"
             title="Novo caso"
             subtitle="Sala vermelha • resultado em menos de 2 min"
             right={
@@ -304,6 +306,7 @@ function NewCaseInner() {
     return (
       <>
         <ScreenHero
+          bg="/hero-novocaso.jpg"
           title={meta?.label ?? "Novo caso"}
           subtitle="Registrar caso"
           right={
@@ -359,6 +362,7 @@ function NewCaseInner() {
   return (
     <>
       <ScreenHero
+        bg="/hero-novocaso.jpg"
         title="Dados do paciente"
         subtitle="Tudo opcional — peso libera doses"
         right={

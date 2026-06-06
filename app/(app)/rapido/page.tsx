@@ -28,7 +28,7 @@ export default function RapidoPage() {
   if (selected) {
     return (
       <>
-        <ScreenHero title={selected.titulo} subtitle="Ação imediata" onBack={() => setSelected(null)} />
+        <ScreenHero bg="/hero-rapida.jpg" title={selected.titulo} subtitle="Ação imediata" onBack={() => setSelected(null)} />
         <CondutaDetalhe card={selected} />
       </>
     );

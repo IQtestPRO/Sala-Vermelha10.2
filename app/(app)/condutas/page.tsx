@@ -42,7 +42,7 @@ function CondutasInner() {
   if (selected) {
     return (
       <>
-        <ScreenHero title={selected.titulo} subtitle={categoriaLabel(selected) ?? undefined} onBack={() => setSelected(null)} />
+        <ScreenHero bg="/hero-condutas.jpg" title={selected.titulo} subtitle={categoriaLabel(selected) ?? undefined} onBack={() => setSelected(null)} />
         <CondutaDetalhe card={selected} />
       </>
     );

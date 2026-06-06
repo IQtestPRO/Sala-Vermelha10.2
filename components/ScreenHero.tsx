@@ -10,16 +10,18 @@ export default function ScreenHero({
   subtitle,
   onBack,
   right,
+  bg = "/stat-hero.jpg",
 }: {
   title: string;
   subtitle?: string;
   onBack?: () => void;
   right?: React.ReactNode;
+  bg?: string;
 }) {
   return (
     <header className="screen-hero">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/stat-hero.jpg" alt="" className="screen-hero-bg" />
+      <img src={bg} alt="" className="screen-hero-bg" />
       <div className="screen-hero-top">
         {onBack ? (
           <button className="hero-btn" onClick={onBack} aria-label="Voltar">
