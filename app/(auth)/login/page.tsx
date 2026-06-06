@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Stethoscope, Lock, Eye, EyeOff } from "lucide-react";
 import { apiPost, friendlyError, ApiError, Me } from "@/lib/client";
 import AuthIllustration from "@/components/AuthIllustration";
+import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,9 +42,15 @@ export default function LoginPage() {
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/stat-logo.png" alt="STAT" style={{ height: 50, width: "auto", display: "block" }} />
-            <h1 className="auth-h1">Bem-vindo de volta</h1>
-            <p className="auth-sub">
-              Sala vermelha: análise de ECG por IA e a confirmação de um plantonista em até 10 minutos.
+            <div className="login-flip">
+              <LayoutTextFlip
+                text="STAT:"
+                words={["leitura de ECG", "plantonista em 10 min", "conduta na hora", "sala vermelha"]}
+                duration={2600}
+              />
+            </div>
+            <p className="auth-sub" style={{ marginTop: 16 }}>
+              Bem-vindo de volta. Análise de ECG por IA e a confirmação de um plantonista em até 10 minutos.
             </p>
 
             <form onSubmit={submit} style={{ marginTop: 26, display: "flex", flexDirection: "column", gap: 18, maxWidth: 460 }}>

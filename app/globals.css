@@ -464,6 +464,7 @@ select.field {
 
 .auth-h1 { margin: 20px 0 0; font-family: var(--font-archivo), var(--font-mulish), system-ui, sans-serif; font-size: clamp(30px, 5.5vw, 46px); font-weight: 900; letter-spacing: -0.02em; line-height: 1.04; color: #f6f9ff; }
 .auth-sub { margin: 14px 0 0; font-size: 15px; line-height: 1.55; color: #9bacc6; max-width: 460px; }
+.login-flip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; color: #f6f9ff; }
 .auth-label { font-size: 13px; font-weight: 700; color: #c4d0e4; }
 .auth-field { width: 100%; height: 52px; border-radius: 13px; background: #101a2c; border: 1px solid #243149; color: #eef2f8; padding: 0 14px 0 44px; font-size: 15px; outline: none; transition: border-color .15s, box-shadow .15s; }
 .auth-field::placeholder { color: #6f7f99; }
