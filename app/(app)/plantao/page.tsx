@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarClock, CalendarDays, List, ClipboardList, Plus, ChevronLeft, ChevronRight, Trash2, Share2, Check } from "lucide-react";
+import { CalendarClock, CalendarDays, List, ClipboardList, Plus, Trash2, Share2, Check } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import VoiceButton from "@/components/VoiceButton";
 import { apiGet, apiPost } from "@/lib/client";
@@ -46,6 +46,7 @@ function Plantoes() {
   const [showForm, setShowForm] = useState(false);
   const [f, setF] = useState({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
   const [saving, setSaving] = useState(false);
+  const swipeX = useRef<number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -104,7 +105,7 @@ function Plantoes() {
   for (let i = firstWeekday - 1; i >= 0; i--) cells.push({ d: prevDays - i, inMonth: false });
   for (let d = 1; d <= daysInMonth; d++) cells.push({ d, inMonth: true });
   let nd = 1;
-  while (cells.length % 7) cells.push({ d: nd++, inMonth: false });
+  while (cells.length < 42) cells.push({ d: nd++, inMonth: false }); // SEMPRE 6 linhas (altura constante)
 
   const shiftsDoDia = (iso: string) => shifts.filter((s) => s.data === iso);
   const selShifts = selDay ? shiftsDoDia(selDay) : [];
@@ -151,30 +152,37 @@ function Plantoes() {
 
       {view === "cal" ? (
         <>
-          {/* Calendário estilo iOS / Plantãozinho */}
-          <div className="card" style={{ padding: "14px 10px 12px", fontFamily: SF }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, padding: "0 6px" }}>
-              <button onClick={() => { setMonth(curMonth()); setSelDay(todayISO()); }} style={{ background: "none", border: "none", color: "var(--primary)", fontWeight: 600, fontSize: 15, cursor: "pointer", padding: 0, fontFamily: SF }}>Hoje</button>
-              <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <button onClick={() => setMonth(shiftMonth(month, -1))} aria-label="mês anterior" style={{ background: "none", border: "none", color: "var(--text-faint)", cursor: "pointer", padding: 4, display: "grid", placeItems: "center" }}><ChevronLeft size={18} /></button>
-                <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: "0.01em", minWidth: 132, textAlign: "center" }}>{MES[mo - 1].toUpperCase()} {y}</span>
-                <button onClick={() => setMonth(shiftMonth(month, 1))} aria-label="próximo mês" style={{ background: "none", border: "none", color: "var(--text-faint)", cursor: "pointer", padding: 4, display: "grid", placeItems: "center" }}><ChevronRight size={18} /></button>
-              </div>
-              <button onClick={() => novoNoDia(selDay || todayISO())} aria-label="novo plantão" style={{ background: "var(--primary)", border: "none", color: "#fff", width: 30, height: 30, borderRadius: 999, display: "grid", placeItems: "center", cursor: "pointer" }}><Plus size={18} /></button>
+          {/* Calendário estilo iOS / Plantãozinho — navega por swipe */}
+          <div
+            className="card"
+            style={{ padding: "14px 10px 12px", fontFamily: SF, touchAction: "pan-y" }}
+            onPointerDown={(e) => { swipeX.current = e.clientX; }}
+            onPointerUp={(e) => {
+              if (swipeX.current == null) return;
+              const dx = e.clientX - swipeX.current;
+              swipeX.current = null;
+              if (Math.abs(dx) > 45) setMonth(shiftMonth(month, dx < 0 ? 1 : -1));
+            }}
+          >
+            {/* Cabeçalho: Hoje | MÊS ANO (centro absoluto) | + */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginBottom: 14, padding: "0 4px" }}>
+              <button onClick={() => { setMonth(curMonth()); setSelDay(todayISO()); }} style={{ justifySelf: "start", background: "none", border: "none", color: "var(--primary)", fontWeight: 600, fontSize: 15, cursor: "pointer", padding: 0, fontFamily: SF }}>Hoje</button>
+              <span style={{ gridColumn: 2, justifySelf: "center", fontWeight: 700, fontSize: 16, letterSpacing: "0.01em", whiteSpace: "nowrap" }}>{MES[mo - 1].toUpperCase()} {y}</span>
+              <button onClick={() => novoNoDia(selDay || todayISO())} aria-label="novo plantão" style={{ justifySelf: "end", background: "var(--primary)", border: "none", color: "#fff", width: 30, height: 30, borderRadius: 999, display: "grid", placeItems: "center", cursor: "pointer" }}><Plus size={18} /></button>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: 4 }}>
               {SEM.map((w, i) => (
                 <div key={i} style={{ textAlign: "center", fontSize: 12.5, color: "var(--text-faint)", fontWeight: 500 }}>{w}</div>
               ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", rowGap: 4 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: "repeat(6, 50px)" }}>
               {cells.map((c, i) => {
                 if (!c.inMonth)
                   return (
-                    <div key={i} style={{ minHeight: 48, display: "flex", justifyContent: "center", paddingTop: 4 }}>
-                      <span style={{ fontSize: 16, color: "var(--text-faint)", opacity: 0.4 }}>{c.d}</span>
+                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 16, color: "#C7CCD1" }}>{c.d}</span>
                     </div>
                   );
                 const iso = `${month}-${pad(c.d)}`;
@@ -182,8 +190,8 @@ function Plantoes() {
                 const isToday = iso === hoje;
                 const isSel = iso === selDay && !isToday;
                 return (
-                  <button key={i} onClick={() => setSelDay(selDay === iso ? null : iso)} style={{ minHeight: 48, background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, paddingTop: 4, fontFamily: SF }}>
-                    <span style={{ width: 32, height: 32, borderRadius: 999, display: "grid", placeItems: "center", fontSize: 16, fontWeight: isToday ? 700 : 400, background: isToday ? "var(--primary)" : isSel ? "var(--navy-tint)" : "transparent", color: isToday ? "#fff" : "var(--text)" }}>{c.d}</span>
+                  <button key={i} onClick={() => setSelDay(selDay === iso ? null : iso)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, fontFamily: SF }}>
+                    <span style={{ width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center", fontSize: 16, fontWeight: isToday ? 700 : 400, background: isToday ? "var(--primary)" : isSel ? "var(--navy-tint)" : "transparent", color: isToday ? "#fff" : "var(--text)" }}>{c.d}</span>
                     <span style={{ display: "flex", gap: 3, height: 6 }}>
                       {ds.slice(0, 3).map((s, k) => (<span key={k} style={{ width: 6, height: 6, borderRadius: 999, background: s.cor || CORES[0] }} />))}
                     </span>
