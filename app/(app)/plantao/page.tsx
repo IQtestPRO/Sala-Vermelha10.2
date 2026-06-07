@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarClock, CalendarDays, List, ClipboardList, Plus, Trash2, Share2, Check } from "lucide-react";
+import { CalendarClock, CalendarDays, List, ClipboardList, Plus, Trash2, Share2, Check, CheckCheck } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import VoiceButton from "@/components/VoiceButton";
 import { apiGet, apiPost } from "@/lib/client";
@@ -47,6 +47,17 @@ function Plantoes() {
   const [f, setF] = useState({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
   const [saving, setSaving] = useState(false);
   const swipeX = useRef<number | null>(null);
+  // Seleção em bloco (1c)
+  const [selMode, setSelMode] = useState(false);
+  const [bulkDays, setBulkDays] = useState<string[]>([]);
+  const [bulkShifts, setBulkShifts] = useState<string[]>([]);
+  const toggleBulkDay = (iso: string) => setBulkDays((a) => (a.includes(iso) ? a.filter((x) => x !== iso) : [...a, iso]));
+  const toggleBulkShift = (id: string) => setBulkShifts((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]));
+  function sairSelecao() {
+    setSelMode(false);
+    setBulkDays([]);
+    setBulkShifts([]);
+  }
 
   const load = useCallback(async () => {
     try {
@@ -68,10 +79,28 @@ function Plantoes() {
   const aReceber = shifts.filter((s) => !s.pago).reduce((a, s) => a + (s.valor || 0), 0);
 
   async function salvar() {
+    const valor = f.valor ? Number(f.valor.replace(",", ".")) : null;
+    // Lançamento em bloco: um plantão em cada dia selecionado.
+    if (bulkDays.length) {
+      setSaving(true);
+      try {
+        for (const data of bulkDays) await apiPost("/api/shifts", { ...f, data, recorrencia: "unica", valor });
+        setShowForm(false);
+        setF({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
+        toast.success(`${bulkDays.length} plantões lançados.`);
+        sairSelecao();
+        load();
+      } catch {
+        toast.error("Não consegui salvar.");
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
     if (!f.data) return toast.error("Informe a data.");
     setSaving(true);
     try {
-      await apiPost("/api/shifts", { ...f, valor: f.valor ? Number(f.valor.replace(",", ".")) : null });
+      await apiPost("/api/shifts", { ...f, valor });
       setShowForm(false);
       setF({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
       toast.success("Plantão salvo.");
@@ -81,6 +110,18 @@ function Plantoes() {
     } finally {
       setSaving(false);
     }
+  }
+  async function bulkPago(pago: boolean) {
+    setShifts((arr) => arr.map((x) => (bulkShifts.includes(x.id) ? { ...x, pago } : x)));
+    for (const id of bulkShifts) await fetch("/api/shifts", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, pago }) });
+    toast.success(pago ? "Marcados como pagos." : "Marcados como a receber.");
+    sairSelecao();
+  }
+  async function bulkRemover() {
+    const ids = bulkShifts;
+    setShifts((arr) => arr.filter((x) => !ids.includes(x.id)));
+    sairSelecao();
+    for (const id of ids) await fetch(`/api/shifts?id=${id}`, { method: "DELETE" });
   }
   async function togglePago(s: Shift) {
     setShifts((arr) => arr.map((x) => (x.id === s.id ? { ...x, pago: !x.pago } : x)));
@@ -111,8 +152,9 @@ function Plantoes() {
   const selShifts = selDay ? shiftsDoDia(selDay) : [];
 
   function ShiftRow({ s }: { s: Shift }) {
-    return (
-      <div className="card" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
+    const checked = bulkShifts.includes(s.id);
+    const corpo = (
+      <>
         <div style={{ width: 6, alignSelf: "stretch", borderRadius: 4, background: s.cor || CORES[0] }} />
         <div style={{ textAlign: "center", minWidth: 38 }}>
           <div className="data" style={{ fontSize: 18, fontWeight: 800 }}>{ddmm(s.data).slice(0, 2)}</div>
@@ -122,6 +164,20 @@ function Plantoes() {
           <div style={{ fontWeight: 700, fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.local || "Plantão"}</div>
           <div className="faint" style={{ fontSize: 12 }}>{[s.inicio && s.fim ? `${s.inicio}–${s.fim}` : s.inicio, s.valor != null ? brl(s.valor) : null].filter(Boolean).join(" · ")}</div>
         </div>
+      </>
+    );
+    if (selMode) {
+      return (
+        <button onClick={() => toggleBulkShift(s.id)} className="card" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", width: "100%", textAlign: "left", cursor: "pointer", border: checked ? "1.5px solid var(--primary)" : undefined, background: checked ? "var(--primary-tint)" : undefined }}>
+          <span style={{ flex: "0 0 auto", width: 22, height: 22, borderRadius: 999, border: `2px solid ${checked ? "var(--primary)" : "var(--border)"}`, background: checked ? "var(--primary)" : "transparent", display: "grid", placeItems: "center" }}>{checked && <Check size={13} color="#fff" />}</span>
+          {corpo}
+          <span className="chip" style={{ flex: "0 0 auto", background: s.pago ? "color-mix(in srgb, var(--green) 16%, var(--surface))" : "var(--surface-sunken)", color: s.pago ? "var(--green)" : "var(--text-dim)", fontWeight: 700, pointerEvents: "none" }}>{s.pago ? "Pago" : "A receber"}</span>
+        </button>
+      );
+    }
+    return (
+      <div className="card" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
+        {corpo}
         <button onClick={() => togglePago(s)} className="chip" style={{ flex: "0 0 auto", background: s.pago ? "color-mix(in srgb, var(--green) 16%, var(--surface))" : "var(--surface-sunken)", color: s.pago ? "var(--green)" : "var(--text-dim)", fontWeight: 700 }}>
           {s.pago ? <><Check size={13} /> Pago</> : "A receber"}
         </button>
@@ -144,10 +200,16 @@ function Plantoes() {
         </div>
       </div>
 
-      {/* Toggle de visão */}
+      {/* Toggle de visão + seleção em bloco */}
       <div style={{ display: "flex", gap: 8 }}>
         <button className={`btn btn-sm ${view === "cal" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("cal")} style={{ flex: 1 }}><CalendarDays size={16} /> Calendário</button>
         <button className={`btn btn-sm ${view === "lista" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("lista")} style={{ flex: 1 }}><List size={16} /> Lista</button>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: -4 }}>
+        <span className="faint" style={{ fontSize: 12 }}>{selMode ? (view === "cal" ? "Toque nos dias para selecionar" : "Toque nos plantões") : ""}</span>
+        <button className={`btn btn-sm ${selMode ? "btn-primary" : "btn-ghost"}`} onClick={() => (selMode ? sairSelecao() : setSelMode(true))} style={{ flex: "0 0 auto" }}>
+          <CheckCheck size={15} /> {selMode ? "Concluir" : "Selecionar"}
+        </button>
       </div>
 
       {view === "cal" ? (
@@ -188,11 +250,13 @@ function Plantoes() {
                 const iso = `${month}-${pad(c.d)}`;
                 const ds = shiftsDoDia(iso);
                 const isToday = iso === hoje;
-                const isSel = iso === selDay && !isToday;
+                const isBulk = selMode && bulkDays.includes(iso);
+                const isSel = iso === selDay && !isToday && !isBulk;
+                const dark = isBulk || isToday;
                 return (
                   // número SEMPRE centralizado; bolinha é overlay absoluto (não consome altura) → linhas idênticas
-                  <button key={i} onClick={() => setSelDay(selDay === iso ? null : iso)} style={{ position: "relative", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SF }}>
-                    <span style={{ width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center", fontSize: 16, fontWeight: isToday ? 700 : 400, fontVariantNumeric: "tabular-nums", background: isToday ? "var(--primary)" : isSel ? "var(--navy-tint)" : "transparent", color: isToday ? "#fff" : "var(--text)" }}>{c.d}</span>
+                  <button key={i} onClick={() => (selMode ? toggleBulkDay(iso) : setSelDay(selDay === iso ? null : iso))} style={{ position: "relative", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SF }}>
+                    <span style={{ width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center", fontSize: 16, fontWeight: dark ? 700 : 400, fontVariantNumeric: "tabular-nums", background: dark ? "var(--primary)" : isSel ? "var(--navy-tint)" : "transparent", color: dark ? "#fff" : "var(--text)" }}>{c.d}</span>
                     {ds.length > 0 && (
                       <span style={{ position: "absolute", bottom: 2, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4 }}>
                         {ds.slice(0, 3).map((s, k) => (<span key={k} style={{ width: 6, height: 6, borderRadius: 999, background: s.cor || CORES[0] }} />))}
@@ -227,16 +291,37 @@ function Plantoes() {
         </>
       )}
 
-      <button className="btn btn-primary" onClick={() => setShowForm((v) => !v)} style={{ minHeight: 46 }}>
-        <Plus size={18} /> Novo plantão
-      </button>
+      {selMode && view === "cal" && bulkDays.length > 0 && (
+        <div className="card" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px" }}>
+          <span style={{ flex: 1, fontWeight: 700, fontSize: 13 }}>{bulkDays.length} {bulkDays.length === 1 ? "dia" : "dias"}</span>
+          <button className="btn btn-primary btn-sm" onClick={() => { setShowForm(true); setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 100); }}><Plus size={15} /> Lançar plantão nos dias</button>
+        </div>
+      )}
+      {selMode && view === "lista" && bulkShifts.length > 0 && (
+        <div className="card" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, padding: "10px 12px" }}>
+          <span style={{ flex: 1, fontWeight: 700, fontSize: 13, minWidth: 70 }}>{bulkShifts.length} selecionado{bulkShifts.length === 1 ? "" : "s"}</span>
+          <button className="btn btn-ghost btn-sm" onClick={() => bulkPago(true)} style={{ color: "var(--green)" }}><Check size={14} /> Pagos</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => bulkPago(false)}>A receber</button>
+          <button className="btn btn-ghost btn-sm" onClick={bulkRemover} style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
+        </div>
+      )}
+
+      {!selMode && (
+        <button className="btn btn-primary" onClick={() => setShowForm((v) => !v)} style={{ minHeight: 46 }}>
+          <Plus size={18} /> Novo plantão
+        </button>
+      )}
 
       {showForm && (
         <div className="card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", gap: 8 }}>
             <div style={{ flex: 1 }}>
               <label className="label">Data</label>
-              <input type="date" className="field" value={f.data} onChange={(e) => setF({ ...f, data: e.target.value })} style={{ minHeight: 46 }} />
+              {bulkDays.length > 0 ? (
+                <div className="field" style={{ minHeight: 46, display: "flex", alignItems: "center", color: "var(--text-dim)", fontWeight: 600 }}>{bulkDays.length} dias selecionados</div>
+              ) : (
+                <input type="date" className="field" value={f.data} onChange={(e) => setF({ ...f, data: e.target.value })} style={{ minHeight: 46 }} />
+              )}
             </div>
             <div style={{ width: 110 }}>
               <label className="label">Valor</label>
