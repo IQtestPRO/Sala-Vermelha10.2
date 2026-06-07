@@ -37,12 +37,13 @@ function infComConc(d: DrogaInfusao, conc: number): Infusao {
   inf.concentracao = `${fmt(conc)} ${u}`;
   return inf;
 }
-// Guard-rail: taxa fora do plausível p/ adulto.
+// Guard-rail: dispara só quando a FAIXA INTEIRA é implausível (sinal de diluição errada),
+// não quando apenas o extremo da faixa é alto (normal em alguns vasopressores).
 function foraDoUsual(mlh: string): boolean {
   const nums = (mlh.match(/[\d.,]+/g) || []).map((s) => Number(s.replace(".", "").replace(",", ".")));
   if (!nums.length) return false;
   const min = Math.min(...nums), max = Math.max(...nums);
-  return min < 0.5 || max > 100;
+  return min > 100 || max < 0.5; // tudo rápido demais (muito diluído) ou tudo lento demais (muito concentrado)
 }
 
 export default function CalcInfusao() {
