@@ -62,6 +62,7 @@ ${contextoClinico(ctx)}
 REGRAS:
 ${hasImage ? "- Leia APENAS o que está visível na imagem (não invente dados; aponte sensor solto/artefato/PA não aferida). Use os dados clínicos acima como contexto." : "- Baseie-se na DESCRIÇÃO CLÍNICA acima; NÃO invente dados; deixe EXPLÍCITO o que ainda precisa ser confirmado (ex.: ECG, exames laboratoriais, imagem)."}
 - IDENTIFIQUE a condição mais provável e fundamente a conduta na DIRETRIZ MAIS ATUAL daquela especialidade — ex.: SCA/IAM → AHA/ACC e ESC; AVC → AHA/ASA Stroke; PCR → AHA/ACLS; sepse/choque → Surviving Sepsis; arritmias/FA → ESC/AHA; anafilaxia → WAO; intoxicações → protocolos toxicológicos; TEP → ESC. Cite a diretriz específica usada em "fontes".
+- SEGUNDA VERTENTE (UPA) — OBRIGATÓRIA: a conduta acima é o PADRÃO-OURO (hospital com tudo). Em "alternativaUPA" dê SEMPRE o plano B ADAPTADO à realidade do SUS/UPA brasileira: o que fazer quando a droga/recurso ideal NÃO está disponível — substituições por medicações REALMENTE disponíveis na UPA/PS do SUS (lógica da REMUME), improvisos seguros e práticos, e QUANDO e como estabilizar + acionar a regulação/transferência. Baseie-se na prática real de emergencistas do SUS/UPA no Brasil. Seja concreto (nomes de drogas disponíveis).
 - Doses/energias são valores de REFERÊNCIA — o médico confere e aprova.
 - Fundamente em LITERATURA/ESTUDOS DE REFERÊNCIA RENOMADOS e em padrões de CASOS REAIS consolidados (ex.: Sgarbossa/Smith, de Winter, Wellens, Brugada; grandes ensaios e diretrizes de sociedades). NÃO cite URLs nem invente referências; em "fontes" liste só nomes de diretrizes/estudos (ex.: ${fontes || "AHA/ACLS 2020, SBC"}).
 - Isto é APOIO À DECISÃO; o médico assistente lê, confirma e aprova.
@@ -71,7 +72,8 @@ Responda em português, em JSON:
 - resumo: parágrafo de laudo curto e bem escrito (3 a 5 frases), simples porém aprofundado.
 - achados: leituras objetivas da imagem (inclua alarmes e dados não confiáveis).
 - hipoteses: diferenciais priorizados (mais provável primeiro).
-- conduta: próximos passos imediatos e específicos.
+- conduta: próximos passos imediatos e específicos (PADRÃO-OURO).
+- alternativaUPA: lista (2 a 4) com a SEGUNDA VERTENTE adaptada ao SUS/UPA — o plano B com o que existe na UPA. Cada item objetivo e acionável (ex.: "Sem noradrenalina/BIC: dopamina ... ou adrenalina ..."; "Sem TC/trombólise: estabilizar + acionar regulação para centro com hemodinâmica"). SEMPRE preencher.
 - alertas: limitações, o que confirmar, red flags, o que NÃO fazer.
 - gravidade.
 - fontes: nomes das diretrizes/evidências em que a leitura se baseou.
@@ -86,6 +88,7 @@ const SCHEMA = {
     achados: { type: "array", items: { type: "string" } },
     hipoteses: { type: "array", items: { type: "string" } },
     conduta: { type: "array", items: { type: "string" } },
+    alternativaUPA: { type: "array", items: { type: "string" } },
     alertas: { type: "array", items: { type: "string" } },
     gravidade: { type: "string", enum: ["critico", "alto", "moderado", "baixo", "indeterminado"] },
     fontes: { type: "array", items: { type: "string" } },
@@ -103,7 +106,7 @@ const SCHEMA = {
       },
     },
   },
-  required: ["condutaImediata", "resumo", "achados", "hipoteses", "conduta", "alertas", "gravidade", "fontes", "mensagemPlantonista"],
+  required: ["condutaImediata", "resumo", "achados", "hipoteses", "conduta", "alternativaUPA", "alertas", "gravidade", "fontes", "mensagemPlantonista"],
   additionalProperties: false,
 } as const;
 

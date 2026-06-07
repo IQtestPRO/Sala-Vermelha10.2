@@ -9,6 +9,7 @@ export type Analysis = {
   achados: string[];
   hipoteses: string[];
   conduta: string[];
+  alternativaUPA?: string[];
   alertas: string[];
   gravidade: string;
   fontes?: string[];
@@ -69,7 +70,23 @@ export default function AnalysisResult({ a }: { a: Analysis }) {
         )}
         <Bloco icon={<Eye size={16} />} titulo="Achados" itens={a.achados} />
         <Bloco icon={<ListChecks size={16} />} titulo="Hipóteses" itens={a.hipoteses} />
-        <Bloco icon={<Stethoscope size={16} />} titulo="Conduta sugerida" itens={a.conduta} accent="var(--primary)" />
+        <Bloco icon={<Stethoscope size={16} />} titulo="Conduta sugerida (padrão-ouro)" itens={a.conduta} accent="var(--primary)" />
+        {a.alternativaUPA && a.alternativaUPA.length > 0 && (
+          <div
+            className="card-2"
+            style={{ boxShadow: "none", border: "1px solid color-mix(in srgb, var(--primary) 32%, var(--border))", background: "color-mix(in srgb, var(--primary) 6%, var(--surface))", padding: "11px 13px" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span style={{ fontWeight: 900, fontSize: 11, letterSpacing: "0.06em", color: "#fff", background: "var(--primary)", borderRadius: 6, padding: "2px 7px" }}>UPA</span>
+              <span style={{ fontWeight: 800, fontSize: 13.5 }}>Alternativa no SUS / UPA</span>
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 5, fontSize: 14.5, lineHeight: 1.45 }}>
+              {a.alternativaUPA.map((t, i) => (
+                <li key={i}>{t}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         <Bloco icon={<AlertTriangle size={16} />} titulo="Alertas" itens={a.alertas} accent="var(--red)" />
         {a.fontes && a.fontes.length > 0 && (
           <div className="faint" style={{ fontSize: 11, lineHeight: 1.5 }}>Fontes: {a.fontes.join(" · ")}</div>

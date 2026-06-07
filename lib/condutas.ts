@@ -80,6 +80,7 @@ export type CondutaCard = {
   doses: Dose[];
   energia?: string[];
   alertas: string[];
+  upa?: string[]; // SEGUNDA VERTENTE: alternativa adaptada à realidade do SUS/UPA
   referencia: string;
   tags?: string[];
 };
@@ -497,6 +498,14 @@ export const CONDUTAS: CondutaCard[] = [
       "Excluir hemorragia na TC antes de qualquer trombolítico.",
       "Hipoglicemia mimetiza AVC — sempre cheque a glicemia.",
       "Controlar PA antes da trombólise (< 185/110).",
+    ],
+    upa: [
+      "ABC + glicemia capilar JÁ: hipoglicemia < 60 mimetiza AVC — corrija com glicose 50% IV (40–60 mL = 4–6 amp de 10 mL) + tiamina 100 mg IV antes da glicose no etilista/desnutrido. O2 só se SatO2 < 94%. Cabeceira 0–30°, decúbito lateral se vômito/rebaixamento, ZERO via oral (jejum) até teste de deglutição — risco de broncoaspiração.",
+      "Cronômetro: anote a HORA DE INÍCIO (ou última vez visto bem) — é o dado que decide trombólise. Aplique escala (Cincinnati se não dominar o NIHSS) e ACIONE A REGULAÇÃO/SAMU IMEDIATAMENTE: AVC é tempo-dependente e o papel da UPA é ESTABILIZAR e TRANSFERIR rápido para centro com TC e trombólise — não tratar definitivamente aqui.",
+      "Hipertensão permissiva: NÃO baixe a PA de rotina. Sem TC para excluir hemorragia, só trate se PA > 220×120 (ou emergência hipertensiva associada: EAP, dissecção, IAM). Use o que há na REMUME — captopril 25 mg VO/SL (se deglutição segura) — e reduza no MÁXIMO ~15% em 24 h. Queda abrupta piora a penumbra. Evite nifedipino sublingual (queda descontrolada). Atenção: se houver chance de trombólise no destino, o alvo passa a < 185/110 — alinhe com a regulação.",
+      "NÃO dê AAS nem qualquer antiagregante/anticoagulante na UPA sem TC excluindo hemorragia: antiagregar AVC hemorrágico é catastrófico. AAS 200–300 mg é decisão do centro de referência APÓS a TC e confirmação de deglutição segura. Na dúvida, priorize a transferência em vez de medicar.",
+      "Trate o que mata e o que confunde enquanto espera vaga: convulsão com diazepam 10 mg IV lento; febre com dipirona (febre piora desfecho); SF 0,9% para hidratar (NUNCA soro glicosado/hipotônico — pioram o edema), mantendo normoglicemia. Monitor, acesso venoso calibroso e ECG de 12 derivações (FA é causa frequente).",
+      "Transfira MONITORIZADO, com acompanhamento médico/enfermagem e folha de regulação trazendo horário de início, escala/NIHSS, glicemia, PA seriada e medicações feitas. Reavalie a via aérea ANTES de embarcar: Glasgow caindo ou ≤ 8 = considerar IOT antes do transporte. Paciente que dessatura ou broncoaspira na ambulância perde a janela.",
     ],
     referencia: "Diretriz de AVC (AHA/ASA, SBDCV). Verificar janelas e protocolo local.",
     tags: ["avc", "isquemico", "nihss", "trombolise", "alteplase", "trombectomia"],

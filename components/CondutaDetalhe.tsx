@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AlertTriangle, Copy, Calculator, Zap, Droplet } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORIAS, CondutaCard } from "@/lib/condutas";
+import { UPA } from "@/lib/upa";
 import { calcDose, calcInfusao } from "@/lib/doseCalculator";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import AcaoRapidaCard from "./AcaoRapidaCard";
@@ -35,6 +36,7 @@ export function categoriaLabel(card: CondutaCard) {
 export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
   const [peso, setPeso] = useState<number | undefined>(undefined);
   const temCalculo = card.doses.some((d) => d.mgPorKg || d.infusao);
+  const upa = card.upa ?? UPA[card.id];
 
   function copiar() {
     const linhas: string[] = [card.titulo, ""];
@@ -221,6 +223,25 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
             })}
           </div>
         </Section>
+      )}
+
+      {upa && upa.length > 0 && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ fontWeight: 900, fontSize: 11, letterSpacing: "0.06em", color: "#fff", background: "var(--primary)", borderRadius: 6, padding: "2px 7px" }}>UPA</span>
+            <span className="label" style={{ margin: 0 }}>Alternativa no SUS / UPA</span>
+          </div>
+          <div
+            className="card-2"
+            style={{ boxShadow: "none", border: "1px solid color-mix(in srgb, var(--primary) 32%, var(--border))", background: "color-mix(in srgb, var(--primary) 6%, var(--surface))", padding: "12px 14px" }}
+          >
+            <ul style={ulStyle}>
+              {upa.map((u, k) => (
+                <li key={k}>{u}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
       )}
 
       <Section title="Alertas">

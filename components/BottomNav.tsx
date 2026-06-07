@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Sparkles } from "lucide-react";
 import HfIcon from "@/components/icons/HfIcon";
 import type { Role } from "@/lib/db";
 
 type Item = { href: string; label: string; icon: React.ReactNode };
 
 const RAPIDO: Item = { href: "/rapido", label: "Rápida", icon: <HfIcon name="nav-rapida" size={26} /> };
+const CHAT: Item = { href: "/chat", label: "STAT IA", icon: <Sparkles size={24} /> };
 
 export default function BottomNav({ role }: { role: Role }) {
   const pathname = usePathname();
@@ -18,12 +20,14 @@ export default function BottomNav({ role }: { role: Role }) {
           RAPIDO,
           { href: "/queue", label: "Fila", icon: <HfIcon name="nav-fila" size={26} /> },
           { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
+          CHAT,
           { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
           { href: "/condutas", label: "Especialidades", icon: <HfIcon name="nav-condutas" size={26} /> },
         ]
       : [
           RAPIDO,
           { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
+          CHAT,
           { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
           { href: "/condutas", label: "Especialidades", icon: <HfIcon name="nav-condutas" size={26} /> },
         ];
