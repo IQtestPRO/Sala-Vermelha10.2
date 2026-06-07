@@ -5,6 +5,16 @@ import { Camera, Sparkles, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { resizeToJpegBase64 } from "@/lib/image";
 import AnalysisResult, { Analysis } from "./AnalysisResult";
+import { MultiStepLoader } from "./ui/multi-step-loader";
+
+const ANALYZE_STEPS = [
+  { text: "Lendo a imagem do ECG / monitor" },
+  { text: "Identificando ritmo e frequência" },
+  { text: "Medindo intervalos e segmentos" },
+  { text: "Cruzando com diretrizes (AHA · ESC · SBC)" },
+  { text: "Levantando hipóteses diagnósticas" },
+  { text: "Definindo conduta e doses" },
+];
 
 // Análise de imagem por IA, ESPECIALIZADA na área (conduta_id). Reutilizado na
 // Ação Rápida, nas Condutas e no Novo caso. Tira foto na hora (capture) ou envia.
@@ -64,6 +74,7 @@ export default function ImageAnalyzer({
 
   return (
     <div className="card" style={{ borderColor: "var(--navy)", display: "flex", flexDirection: "column", gap: 12 }}>
+      <MultiStepLoader loadingStates={ANALYZE_STEPS} loading={analyzing} duration={2400} />
       {!img ? (
         <>
           <button
@@ -108,7 +119,7 @@ export default function ImageAnalyzer({
           )}
         </>
       )}
-      <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => onPick(e.target.files)} />
+      <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => onPick(e.target.files)} />
     </div>
   );
 }

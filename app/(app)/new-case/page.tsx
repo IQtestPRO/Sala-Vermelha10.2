@@ -26,11 +26,22 @@ import ScreenHero from "@/components/ScreenHero";
 import PhotoCapture, { CapturedPhoto } from "@/components/PhotoCapture";
 import AiFunnel from "@/components/AiFunnel";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
+import { MultiStepLoader } from "@/components/ui/multi-step-loader";
 import { apiPost } from "@/lib/client";
 import { QUESTION_TYPES, questionMeta, QuestionType, RITMOS, RitmoMonitor, Sexo, Vitais } from "@/lib/types/case";
 import { specialistIdForQuestionType } from "@/lib/specialists";
 import { LGPD_NOTA } from "@/lib/legal/disclaimer";
 import HfIcon from "@/components/icons/HfIcon";
+
+const ANALYZING_STEPS = [
+  { text: "Lendo a imagem do ECG / monitor" },
+  { text: "Identificando ritmo e frequência" },
+  { text: "Medindo intervalos e segmentos" },
+  { text: "Cruzando com diretrizes (AHA · ESC · SBC)" },
+  { text: "Levantando hipóteses diagnósticas" },
+  { text: "Definindo conduta e doses" },
+  { text: "Preparando a mensagem ao plantonista" },
+];
 
 const ICONS: Record<string, React.ReactNode> = {
   Activity: <HfIcon name="ecg" size={26} />,
@@ -212,6 +223,7 @@ function NewCaseInner() {
   if (urgente) {
     return (
       <>
+        <MultiStepLoader loadingStates={ANALYZING_STEPS} loading={analyzing} duration={2400} />
         <ScreenHero
           bg="/hero-rapida.jpg"
           title="Urgência"
@@ -305,6 +317,7 @@ function NewCaseInner() {
 
     return (
       <>
+        <MultiStepLoader loadingStates={ANALYZING_STEPS} loading={analyzing} duration={2400} />
         <ScreenHero
           bg="/hero-novocaso.jpg"
           title={meta?.label ?? "Novo caso"}
