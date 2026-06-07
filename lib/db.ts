@@ -241,6 +241,24 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_pcr_user ON pcr_reports(user_id, created_at DESC)`);
 
+  // ---- USER DILUTIONS (diluições customizadas por usuário, por droga em infusão) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS user_dilutions (
+      id              TEXT PRIMARY KEY,
+      user_id         TEXT NOT NULL,
+      droga_nome      TEXT NOT NULL,
+      label           TEXT NOT NULL,
+      qty             REAL NOT NULL,
+      qty_unit        TEXT NOT NULL,
+      volume_final_ml REAL NOT NULL,
+      conc            REAL NOT NULL,
+      conc_unit       TEXT NOT NULL,
+      is_active       INTEGER NOT NULL DEFAULT 0,
+      created_at      INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_dilutions_user_droga ON user_dilutions(user_id, droga_nome)`);
+
   await maybeSeedResponder(db);
   tableReady = true;
 }

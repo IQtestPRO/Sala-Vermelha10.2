@@ -5,11 +5,10 @@ import { Search, ChevronRight, ChevronLeft, FlaskConical, Baby, Activity, ListCh
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import ScoreCalculator from "@/components/ScoreCalculator";
 import { SCORES, type ScoreDef } from "@/lib/scores";
-import { DROGAS_INFUSAO } from "@/lib/drogasInfusao";
-import { calcInfusao } from "@/lib/doseCalculator";
 import { estimarPeso, valoresPediatricos, clearanceCreatinina, bandaRenal, fmtNum } from "@/lib/pedCalc";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import CalcFormulas from "@/components/CalcFormulas";
+import CalcInfusao from "@/components/CalcInfusao";
 
 type Tab = "escores" | "medicacoes" | "formulas" | "pediatria" | "renal";
 
@@ -93,63 +92,6 @@ function Escores() {
           </div>
         ))
       )}
-    </div>
-  );
-}
-
-// ---------- Medicações (drogas em infusão / BIC) ----------
-function Medicacoes() {
-  const [peso, setPeso] = useState("");
-  const p = num(peso);
-  const [aberto, setAberto] = useState<string | null>(null);
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div className="card-2" style={{ display: "flex", alignItems: "center", gap: 10, boxShadow: "none" }}>
-        <Droplet size={18} color="var(--primary)" />
-        <span className="muted" style={{ fontSize: 13, fontWeight: 700 }}>Peso</span>
-        <div style={{ position: "relative", width: 110 }}>
-          <input className="field" inputMode="decimal" placeholder="kg" value={peso} onChange={(e) => setPeso(e.target.value)} style={{ minHeight: 44, paddingRight: 32 }} />
-          <span className="faint" style={{ position: "absolute", right: 12, top: 13, fontSize: 12 }}>kg</span>
-        </div>
-        <span className="faint" style={{ fontSize: 11.5, flex: 1 }}>Calcula o mL/h dos fármacos conforme o peso.</span>
-      </div>
-
-      <div className="card" style={{ padding: "2px 14px" }}>
-        {DROGAS_INFUSAO.map((d) => {
-          const inf = calcInfusao(d.infusao, p);
-          const open = aberto === d.nome;
-          return (
-            <div key={d.nome} style={{ borderBottom: "1px solid var(--border)" }}>
-              <button className="list-row" style={{ borderBottom: "none" }} onClick={() => setAberto(open ? null : d.nome)}>
-                <span style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                  <span style={{ display: "block", fontWeight: 800, fontSize: 15 }}>{d.nome}</span>
-                  <span className="faint" style={{ display: "block", fontSize: 12 }}>{d.classe} · {d.infusao.concentracao}</span>
-                </span>
-                {inf ? (
-                  <span className="data" style={{ flex: "0 0 auto", color: "var(--primary-press)", fontWeight: 800, fontSize: 14 }}>{inf.mlh}</span>
-                ) : (
-                  <ChevronRight size={18} className="faint" style={{ flex: "0 0 auto", transform: open ? "rotate(90deg)" : "none" }} />
-                )}
-              </button>
-              {open && (
-                <div style={{ padding: "0 2px 12px", display: "flex", flexDirection: "column", gap: 5, fontSize: 13 }}>
-                  <div>Diluição: <b>{d.infusao.diluicao}</b></div>
-                  {d.infusao.inicio && <div className="faint">Início: {d.infusao.inicio}</div>}
-                  {d.infusao.titulacao && <div className="faint">Titulação: {d.infusao.titulacao}</div>}
-                  {d.infusao.gatilho && <div className="faint">Quando: {d.infusao.gatilho}</div>}
-                  {inf ? (
-                    <div className="data" style={{ color: "var(--primary-press)", fontWeight: 800, fontSize: 15, marginTop: 2 }}>{inf.faixaLabel} → {inf.mlh}</div>
-                  ) : (
-                    <div className="faint" style={{ fontSize: 11.5 }}>Informe o peso acima para ver os mL/h.</div>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <div className="faint" style={{ fontSize: 11, lineHeight: 1.4 }}>Diluições padrão — sempre confira o protocolo da sua instituição.</div>
     </div>
   );
 }
@@ -280,7 +222,7 @@ export default function CalculadorasPage() {
         </div>
         <Disclaimer />
         {tab === "escores" && <Escores />}
-        {tab === "medicacoes" && <Medicacoes />}
+        {tab === "medicacoes" && <CalcInfusao />}
         {tab === "formulas" && <CalcFormulas />}
         {tab === "pediatria" && <Pediatria />}
         {tab === "renal" && <Renal />}
