@@ -200,7 +200,7 @@ function Plantoes() {
           {/* Dia selecionado */}
           {selDay && (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div className="eyebrow" style={{ margin: 0 }}>{ddmm(selDay)} — {selShifts.length} plantão{selShifts.length === 1 ? "" : "s"}</div>
+              <div className="eyebrow" style={{ margin: 0 }}>{ddmm(selDay)} — {selShifts.length} {selShifts.length === 1 ? "plantão" : "plantões"}</div>
               {selShifts.map((s) => <ShiftRow key={s.id} s={s} />)}
               <button className="btn btn-ghost btn-sm" onClick={() => novoNoDia(selDay)} style={{ alignSelf: "flex-start" }}>
                 <Plus size={15} /> Novo plantão em {ddmm(selDay)}
