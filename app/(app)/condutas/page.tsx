@@ -29,13 +29,15 @@ function DisclaimerBar() {
 function CondutasInner() {
   const params = useSearchParams();
   const initial = params.get("c");
+  const rapidaParam = params.get("rapida") === "1";
   const [query, setQuery] = useState("");
-  const [cat, setCat] = useState<CondutaCategoria | "ALL">("ALL");
+  const [cat, setCat] = useState<CondutaCategoria | "ALL" | "RAPIDA">(rapidaParam ? "RAPIDA" : "ALL");
   const [selected, setSelected] = useState<CondutaCard | null>(initial ? condutaById(initial) ?? null : null);
 
   const list = useMemo(() => {
     let r = searchCondutas(query);
-    if (cat !== "ALL") r = r.filter((c) => c.categoria === cat);
+    if (cat === "RAPIDA") r = r.filter((c) => c.acaoRapida);
+    else if (cat !== "ALL") r = r.filter((c) => c.categoria === cat);
     return r;
   }, [query, cat]);
 
@@ -66,6 +68,9 @@ function CondutasInner() {
         </div>
 
         <div className="scroll-x" style={{ scrollSnapType: "x proximity" }}>
+          <button className={`chip ${cat === "RAPIDA" ? "chip-on" : ""}`} onClick={() => setCat("RAPIDA")} style={{ flex: "0 0 auto", scrollSnapAlign: "start" }}>
+            <Zap size={13} style={{ marginRight: 4, verticalAlign: "-2px" }} /> Ação rápida
+          </button>
           <button className={`chip ${cat === "ALL" ? "chip-on" : ""}`} onClick={() => setCat("ALL")} style={{ flex: "0 0 auto", scrollSnapAlign: "start" }}>
             Todas
           </button>

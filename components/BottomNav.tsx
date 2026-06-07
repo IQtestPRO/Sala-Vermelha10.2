@@ -8,13 +8,13 @@ import type { Me } from "@/lib/client";
 
 type Item = { href: string; label: string; icon: React.ReactNode };
 
-// Abas únicas (Fila foi fundida em "Casos", que adapta por papel).
+// Abas únicas. "Fila" foi fundida em "Casos"; "Ação rápida" foi fundida em "Condutas"
+// (ambas abriam o mesmo detalhe de conduta). + avatar de Perfil no fim.
 const items: Item[] = [
-  { href: "/rapido", label: "Rápida", icon: <HfIcon name="nav-rapida" size={26} /> },
   { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
-  { href: "/chat", label: "STAT IA", icon: <Sparkles size={24} /> },
   { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
-  { href: "/condutas", label: "Especialidades", icon: <HfIcon name="nav-condutas" size={26} /> },
+  { href: "/chat", label: "STAT IA", icon: <Sparkles size={24} /> },
+  { href: "/condutas", label: "Condutas", icon: <HfIcon name="nav-condutas" size={26} /> },
 ];
 
 function initials(name: string) {
