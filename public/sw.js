@@ -1,6 +1,6 @@
-// Service worker do STAT — cache do shell + recebimento de Web Push.
-const CACHE = "stat-shell-v2";
-const SHELL = ["/", "/queue", "/feed", "/condutas", "/offline"];
+// Service worker do STAT — cache do shell + offline + Web Push.
+const CACHE = "stat-shell-v3";
+const SHELL = ["/", "/condutas", "/calculadoras", "/plantao", "/chat", "/perfil", "/protocolos/rcp", "/offline"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL).catch(() => {})));
@@ -16,15 +16,38 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// NUNCA cachear /api/* — dados de SLA precisam estar sempre frescos.
+// NUNCA cachear /api/* — dados precisam estar frescos.
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.pathname.startsWith("/api/")) return;
+
+  // Navegação: network-first, atualiza o cache; offline cai na PRÓPRIA página cacheada (não em /offline).
   if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request).catch(() => caches.match("/offline")));
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(event.request, copy)).catch(() => {});
+          return res;
+        })
+        .catch(async () => (await caches.match(event.request)) || (await caches.match(url.pathname)) || (await caches.match("/offline")))
+    );
     return;
   }
-  event.respondWith(caches.match(event.request).then((hit) => hit || fetch(event.request)));
+
+  // Estáticos (JS/CSS/imagens): cache-first com cache-on-fetch → 100% offline depois de carregado.
+  event.respondWith(
+    caches.match(event.request).then((hit) => {
+      if (hit) return hit;
+      return fetch(event.request).then((res) => {
+        if (res && res.ok && url.origin === self.location.origin) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(event.request, copy)).catch(() => {});
+        }
+        return res;
+      });
+    })
+  );
 });
 
 // ---- Web Push ----

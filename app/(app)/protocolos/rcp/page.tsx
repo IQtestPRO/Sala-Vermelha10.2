@@ -73,6 +73,41 @@ function persist(s: PcrState | null) {
   }
 }
 
+// Outbox: o relatório finalizado OFFLINE nunca se perde — fica na fila e sincroniza ao voltar a rede.
+const OUTBOX_KEY = "stat_pcr_outbox";
+function enqueueOutbox(payload: unknown) {
+  try {
+    const q = JSON.parse(localStorage.getItem(OUTBOX_KEY) || "[]");
+    q.push(payload);
+    localStorage.setItem(OUTBOX_KEY, JSON.stringify(q.slice(-20)));
+  } catch {
+    /* noop */
+  }
+}
+async function flushOutbox() {
+  let q: unknown[];
+  try {
+    q = JSON.parse(localStorage.getItem(OUTBOX_KEY) || "[]");
+  } catch {
+    return;
+  }
+  if (!Array.isArray(q) || !q.length) return;
+  const restantes: unknown[] = [];
+  for (const item of q) {
+    try {
+      const r = await fetch("/api/pcr", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(item) });
+      if (!r.ok) restantes.push(item);
+    } catch {
+      restantes.push(item);
+    }
+  }
+  try {
+    localStorage.setItem(OUTBOX_KEY, JSON.stringify(restantes));
+  } catch {
+    /* noop */
+  }
+}
+
 function Dial({ label, restante, total, cor, alerta }: { label: string; restante: number; total: number; cor: string; alerta: boolean }) {
   const R = 70, C = 2 * Math.PI * R;
   const frac = total > 0 ? Math.max(0, Math.min(1, restante / total)) : 0;
@@ -95,10 +130,11 @@ export default function PcrPage() {
   const [pcr, setPcr] = useState<PcrState | null>(null);
   const [retomavel, setRetomavel] = useState<PcrState | null>(null);
   const [painel, setPainel] = useState<"" | "causas" | "rce" | "relatorio">("");
-  const [enviando, setEnviando] = useState(false);
+  const [finalizando, setFinalizando] = useState(false);
   const [, tick] = useReducer((x) => x + 1, 0);
   const wakeRef = useRef<WakeLockSentinel | null>(null);
   const audioRef = useRef<AudioContext | null>(null);
+  const nextBeatRef = useRef(0);
 
   useEffect(() => {
     const id = setInterval(tick, 250);
@@ -107,6 +143,17 @@ export default function PcrPage() {
   useEffect(() => {
     const s = load();
     if (s) setRetomavel(s);
+  }, []);
+  // Sincroniza relatórios pendentes (finalizados offline) ao montar e ao voltar a rede/visibilidade.
+  useEffect(() => {
+    flushOutbox();
+    const on = () => flushOutbox();
+    window.addEventListener("online", on);
+    document.addEventListener("visibilitychange", on);
+    return () => {
+      window.removeEventListener("online", on);
+      document.removeEventListener("visibilitychange", on);
+    };
   }, []);
 
   // ---- Áudio (Web Audio, sem arquivos; unlock no 1º gesto p/ iOS) ----
@@ -180,23 +227,48 @@ export default function PcrPage() {
   const adrRest = pcr?.adrenalinaStart != null ? pcr.adrenalinaIntervalSec - (now - pcr.adrenalinaStart) / 1000 : null;
   const adrAlerta = !!ativa && adrRest != null && adrRest <= 0;
   const ultimoRitmo = pcr?.ritmos[pcr.ritmos.length - 1]?.ritmo;
+  const nAdr = pcr ? pcr.eventos.filter((e) => e.tipo === "droga" && e.label.startsWith("Adrenalina")).length : 0;
+  const naoChocavel = ultimoRitmo === "AESP" || ultimoRitmo === "ASSISTOLIA";
 
-  // ---- Metrônomo ----
+  // ---- Metrônomo SAMPLE-ACCURATE (agenda os cliques pelo relógio do AudioContext → sem drift) ----
   useEffect(() => {
     if (!ativa || !pcr?.metronomo) return;
-    const iv = 60000 / (pcr?.bpm ?? 110);
-    const id = setInterval(() => {
-      beep(900, 35, 0.45);
-      if (pcr?.vibrar) {
-        try {
-          navigator.vibrate?.(18);
-        } catch {
-          /* noop */
-        }
+    const ac = ensureAudio();
+    if (!ac) return;
+    const spb = 60 / (pcr.bpm || 110);
+    nextBeatRef.current = Math.max(ac.currentTime + 0.06, nextBeatRef.current || 0);
+    const click = (t: number) => {
+      try {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = "square";
+        o.frequency.value = 1000;
+        o.connect(g);
+        g.connect(ac.destination);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.5, t + 0.001);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+        o.start(t);
+        o.stop(t + 0.06);
+      } catch {
+        /* noop */
       }
-    }, iv);
-    return () => clearInterval(id);
-  }, [ativa, pcr?.metronomo, pcr?.bpm, pcr?.vibrar, beep]);
+    };
+    const lookahead = setInterval(() => {
+      const ahead = ac.currentTime + 0.15;
+      while (nextBeatRef.current < ahead) {
+        click(nextBeatRef.current);
+        if (pcr.vibrar) {
+          try {
+            navigator.vibrate?.(16);
+          } catch {
+            /* noop */
+          }
+        }
+        nextBeatRef.current += spb;
+      }
+    }, 25);
+    return () => clearInterval(lookahead);
+  }, [ativa, pcr?.metronomo, pcr?.bpm, pcr?.vibrar, ensureAudio]);
 
   // ---- Alertas (bipe periódico enquanto em alerta) ----
   useEffect(() => {
@@ -300,35 +372,26 @@ export default function PcrPage() {
   }
   const [relatorioTxt, setRelatorioTxt] = useState("");
 
-  async function finalizar(desfecho: "RCE" | "Óbito") {
+  function finalizar(desfecho: "RCE" | "Óbito") {
     if (!pcr) return;
     const txt = montarRelatorio(pcr, desfecho);
     setRelatorioTxt(txt);
-    setEnviando(true);
-    try {
-      await fetch("/api/pcr", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          started_at: pcr.startedAt,
-          duracao_seg: Math.round((Date.now() - pcr.startedAt) / 1000),
-          ciclos: pcr.ritmos.length || pcr.ciclos,
-          choques: pcr.choques,
-          desfecho,
-          eventos: pcr.eventos,
-          ritmos: pcr.ritmos,
-          causas: Object.keys(pcr.causas).filter((c) => pcr.causas[c]),
-          relatorio: txt,
-        }),
-      });
-    } catch {
-      /* salvo localmente de qualquer forma; sync quando voltar a rede */
-    } finally {
-      setEnviando(false);
-    }
+    enqueueOutbox({
+      started_at: pcr.startedAt,
+      duracao_seg: Math.round((Date.now() - pcr.startedAt) / 1000),
+      ciclos: pcr.ritmos.length || pcr.ciclos,
+      choques: pcr.choques,
+      desfecho,
+      eventos: pcr.eventos,
+      ritmos: pcr.ritmos,
+      causas: Object.keys(pcr.causas).filter((c) => pcr.causas[c]),
+      relatorio: txt,
+    }); // nunca se perde: vai p/ a fila e sincroniza quando houver rede
     persist(null);
+    setFinalizando(false);
     setPcr((p) => (p ? { ...p, finalizado: true } : p));
     setPainel("relatorio");
+    flushOutbox(); // tenta enviar agora (se online)
   }
 
   async function compartilhar() {
@@ -384,9 +447,21 @@ export default function PcrPage() {
         <Dial label="Adrenalina" restante={adrRest != null ? Math.max(0, adrRest) : pcr.adrenalinaIntervalSec} total={pcr.adrenalinaIntervalSec} cor="#f59e0b" alerta={adrAlerta} />
       </div>
 
-      <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 13.5, fontWeight: 700, marginBottom: 8 }}>
+      <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 13.5, fontWeight: 700, marginBottom: 3 }}>
         Diagnóstico: {pcr.ciclos}º ciclo{ultimoRitmo ? ` · ${ultimoRitmo}` : ""}
       </div>
+      <div className="data" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginBottom: 8, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+        <span>Adrenalina ×{nAdr} · Choques {pcr.choques}</span>
+        <span style={{ opacity: 0.5 }}>|</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+          Adr a cada
+          <button onClick={() => upd({ adrenalinaIntervalSec: Math.max(180, pcr.adrenalinaIntervalSec - 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>−</button>
+          {Math.round(pcr.adrenalinaIntervalSec / 60)} min
+          <button onClick={() => upd({ adrenalinaIntervalSec: Math.min(300, pcr.adrenalinaIntervalSec + 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>+</button>
+        </span>
+      </div>
+
+      {adrAlerta && !cicloAlerta && <div style={{ textAlign: "center", color: "#ffb020", fontWeight: 800, fontSize: 16, marginBottom: 8 }}>💉 ADRENALINA AGORA?</div>}
 
       {cicloAlerta ? (
         <div style={{ width: "100%", maxWidth: 440 }}>
@@ -399,6 +474,7 @@ export default function PcrPage() {
         </div>
       ) : (
         <div style={{ width: "100%", maxWidth: 440, display: "flex", flexDirection: "column", gap: 8 }}>
+          {naoChocavel && <div style={{ textAlign: "center", color: "rgba(255,255,255,0.72)", fontSize: 13, fontWeight: 600 }}>Não chocável → Adrenalina + reiniciar massagem</div>}
           {ultimoRitmo === "FV/TV" && (
             <button onClick={registrarChoque} style={{ ...bigBtn, background: "#E11D2A", minHeight: 56 }}>
               ⚡ Registrar choque{pcr.choques >= 2 ? " · Amiodarona após o 3º" : ""}
@@ -440,11 +516,20 @@ export default function PcrPage() {
 
       <div style={{ width: "100%", maxWidth: 440, display: "flex", gap: 8 }}>
         {!pcr.emRce && <button onClick={entrarRce} style={{ ...bigBtn, background: "#1f8f4f", minHeight: 52, fontSize: 17 }}>RCE</button>}
-        <button onClick={() => setPainel("rce")} style={{ display: "none" }} />
-        <button onClick={() => { if (confirm("Finalizar a PCR?")) finalizar(pcr.emRce ? "RCE" : "Óbito"); }} disabled={enviando} style={{ ...ghostBtn, marginTop: 0, borderColor: "rgba(255,255,255,0.25)", color: "#fff", minHeight: 52, flex: 1 }}>
-          {enviando ? "Salvando…" : "Finalizar"}
-        </button>
+        <button onClick={() => setFinalizando(true)} style={{ ...ghostBtn, marginTop: 0, borderColor: "rgba(255,255,255,0.25)", color: "#fff", minHeight: 52, flex: 1 }}>Finalizar</button>
       </div>
+
+      {finalizando && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 220, background: "rgba(0,0,0,0.65)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setFinalizando(false)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 360, background: "#12161f", borderRadius: 18, padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ color: "#fff", fontWeight: 800, fontSize: 18, textAlign: "center" }}>Encerrar a PCR?</div>
+            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textAlign: "center", marginBottom: 4 }}>Escolha o desfecho — gera o relatório.</div>
+            <button onClick={() => finalizar("RCE")} style={{ ...bigBtn, background: "#1f8f4f", minHeight: 54 }}>RCE (retorno de circulação)</button>
+            <button onClick={() => finalizar("Óbito")} style={{ ...bigBtn, background: "#7a1620", minHeight: 54 }}>Óbito</button>
+            <button onClick={() => setFinalizando(false)} style={{ ...ghostBtn, marginTop: 2, color: "#fff", minHeight: 46 }}>Cancelar</button>
+          </div>
+        </div>
+      )}
 
       {/* Painel: Causas */}
       {painel === "causas" && (
