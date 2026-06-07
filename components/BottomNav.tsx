@@ -2,19 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Calculator, CalendarClock } from "lucide-react";
 import HfIcon from "@/components/icons/HfIcon";
 import type { Me } from "@/lib/client";
 
 type Item = { href: string; label: string; icon: React.ReactNode };
 
-// Abas únicas. "Fila" foi fundida em "Casos"; "Ação rápida" foi fundida em "Condutas"
-// (ambas abriam o mesmo detalhe de conduta). + avatar de Perfil no fim.
+// Toolkit clínico: Protocolos · Calculadoras · STAT IA · Plantão (+ avatar Perfil).
+// Casos/Novo (teleconsulta) saíram do menu mas as rotas continuam existindo.
 const items: Item[] = [
-  { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
-  { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
+  { href: "/condutas", label: "Protocolos", icon: <HfIcon name="nav-condutas" size={26} /> },
+  { href: "/calculadoras", label: "Calculadoras", icon: <Calculator size={24} /> },
   { href: "/chat", label: "STAT IA", icon: <Sparkles size={24} /> },
-  { href: "/condutas", label: "Condutas", icon: <HfIcon name="nav-condutas" size={26} /> },
+  { href: "/plantao", label: "Plantão", icon: <CalendarClock size={24} /> },
 ];
 
 function initials(name: string) {

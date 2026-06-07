@@ -23,10 +23,12 @@ export default function LoginPage() {
     try {
       const { user } = await apiPost<{ user: Me }>("/api/auth/login", { crm, password });
       toast.success(`Bem-vindo, ${user.name.split(" ")[0]}`);
+      const next = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("next") : null;
+      const destino = next && next.startsWith("/") ? next : "/condutas";
       if (user.role === "responder" && user.status !== "approved") {
         router.replace("/pending");
       } else {
-        router.replace("/feed");
+        router.replace(destino);
       }
     } catch (err) {
       toast.error(friendlyError(err instanceof ApiError ? err.code : "internal_error"));

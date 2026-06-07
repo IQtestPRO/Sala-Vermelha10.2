@@ -25,7 +25,7 @@ export const CATEGORIAS: { key: CondutaCategoria; label: string }[] = [
 export type DoseUnidade = "mg/kg" | "mL/kg" | "mcg/kg" | "mcg/kg/min" | "mEq/kg";
 
 // Unidade da dose de uma droga em INFUSÃO contínua (bomba).
-export type InfusaoUnidade = "mcg/kg/min" | "mcg/min" | "UI/min" | "mg/min" | "mg/h" | "mg/kg/h";
+export type InfusaoUnidade = "mcg/kg/min" | "mcg/min" | "UI/min" | "mg/min" | "mg/h" | "mg/kg/h" | "mcg/kg/h" | "mcg/h";
 
 // Diluição padrão + dados para calcular mL/h na bomba (BIC) por peso.
 export type Infusao = {
@@ -81,6 +81,7 @@ export type CondutaCard = {
   energia?: string[];
   alertas: string[];
   upa?: string[]; // SEGUNDA VERTENTE: alternativa adaptada à realidade do SUS/UPA
+  scores?: string[]; // ids de escores (lib/scores) embutidos neste protocolo (ex.: nihss no AVC)
   referencia: string;
   tags?: string[];
 };
@@ -142,6 +143,7 @@ export const CONDUTAS: CondutaCard[] = [
       "Rocurônio tem duração longa: NUNCA deixe bloqueado sem sedação.",
       "Tenha plano de resgate (supraglótico, cricotireoidostomia).",
     ],
+    scores: ["glasgow"],
     referencia: "ACLS / diretrizes de via aérea de emergência. Verificar concentrações e padronização locais.",
     tags: ["sri", "rsi", "intubacao", "via aerea", "etomidato", "cetamina", "succinilcolina", "rocuronio"],
   },
@@ -361,6 +363,7 @@ export const CONDUTAS: CondutaCard[] = [
       "Adenosina é perigosa em FA pré-excitada (WPW).",
       "QRS largo: na dúvida, trate como TV.",
     ],
+    scores: ["cha2ds2vasc", "hasbled"],
     referencia: "ACLS/AHA e SBC. Verificar protocolo local.",
     tags: ["taquicardia", "tsv", "tv", "fa", "adenosina", "amiodarona", "magnesio"],
   },
@@ -431,6 +434,7 @@ export const CONDUTAS: CondutaCard[] = [
       "Noradrenalina: ideal em acesso central; se periférico, use veia calibrosa e vigie extravasamento (risco de necrose).",
       "Cuidado com sobrecarga de volume na disfunção cardíaca/renal — reavalie a cada etapa.",
     ],
+    scores: ["qsofa", "sofa", "news2"],
     referencia: "Surviving Sepsis Campaign. Verificar protocolo institucional de ATB.",
     tags: ["sepse", "choque", "noradrenalina", "lactato", "antibiotico", "pam"],
   },
@@ -474,6 +478,7 @@ export const CONDUTAS: CondutaCard[] = [
       "Nitrato CONTRAINDICADO em hipotensão, IAM de VD e uso recente de sildenafila/tadalafila.",
       "Supra em parede inferior: investigar VD (V3R/V4R) — sensível a volume.",
     ],
+    scores: ["timi"],
     referencia: "Diretriz SBC / AHA de SCACSST. Conferir protocolo de reperfusão local.",
     tags: ["iam", "supra", "infarto", "aas", "reperfusao", "angioplastia", "trombolise"],
   },
@@ -507,6 +512,7 @@ export const CONDUTAS: CondutaCard[] = [
       "Trate o que mata e o que confunde enquanto espera vaga: convulsão com diazepam 10 mg IV lento; febre com dipirona (febre piora desfecho); SF 0,9% para hidratar (NUNCA soro glicosado/hipotônico — pioram o edema), mantendo normoglicemia. Monitor, acesso venoso calibroso e ECG de 12 derivações (FA é causa frequente).",
       "Transfira MONITORIZADO, com acompanhamento médico/enfermagem e folha de regulação trazendo horário de início, escala/NIHSS, glicemia, PA seriada e medicações feitas. Reavalie a via aérea ANTES de embarcar: Glasgow caindo ou ≤ 8 = considerar IOT antes do transporte. Paciente que dessatura ou broncoaspira na ambulância perde a janela.",
     ],
+    scores: ["nihss"],
     referencia: "Diretriz de AVC (AHA/ASA, SBDCV). Verificar janelas e protocolo local.",
     tags: ["avc", "isquemico", "nihss", "trombolise", "alteplase", "trombectomia"],
   },

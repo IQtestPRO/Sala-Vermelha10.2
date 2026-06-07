@@ -11,6 +11,8 @@ import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import AcaoRapidaCard from "./AcaoRapidaCard";
 import ImageAnalyzer from "./ImageAnalyzer";
 import UpaSection from "./UpaSection";
+import ScoreCalculator from "./ScoreCalculator";
+import { SCORES, scoreById } from "@/lib/scores";
 
 const ulStyle: React.CSSProperties = {
   margin: 0,
@@ -125,6 +127,22 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
                 <span className="data" style={{ fontSize: 15 }}>{e}</span>
               </div>
             ))}
+          </div>
+        </Section>
+      )}
+
+      {card.scores && card.scores.length > 0 && (
+        <Section title="Escalas & scores">
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {card.scores.map((sid) => {
+              const def = scoreById(sid, SCORES);
+              return def ? (
+                <div key={sid}>
+                  <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 7 }}>{def.nome}</div>
+                  <ScoreCalculator def={def} />
+                </div>
+              ) : null;
+            })}
           </div>
         </Section>
       )}

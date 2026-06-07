@@ -20,7 +20,8 @@ export function useUpdateMe(): (m: Me) => void {
   return useContext(MeUpdateCtx) ?? (() => {});
 }
 
-const ALLOWED_WHEN_PENDING = ["/pending", "/condutas", "/rapido", "/analisar"];
+// Pendente (plantonista não aprovado) pode usar o toolkit, só não a fila de casos.
+const ALLOWED_WHEN_PENDING = ["/pending", "/condutas", "/calculadoras", "/chat", "/plantao", "/perfil", "/rapido", "/analisar"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
@@ -40,13 +41,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         if (!alive) return;
         setMe(user);
         const pending = user.role === "responder" && user.status !== "approved";
-        if (pending && !ALLOWED_WHEN_PENDING.includes(pathname)) {
+        const liberado = ALLOWED_WHEN_PENDING.some((a) => pathname === a || pathname.startsWith(a + "/"));
+        if (pending && !liberado) {
           router.replace("/pending");
         }
         setReady(true);
       })
       .catch(() => {
-        router.replace("/login");
+        // Preserva o destino (deep-link) p/ voltar após login (ex.: link da passagem no WhatsApp).
+        const path = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
+        router.replace(path && path !== "/" && !path.startsWith("/login") ? `/login?next=${encodeURIComponent(path)}` : "/login");
       });
     return () => {
       alive = false;

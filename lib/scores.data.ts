@@ -1,0 +1,2117 @@
+import type { ScoreDef } from "./scores";
+
+// GERADO pelo workflow de escores (autor + verificacao adversarial, confianca alta).
+// Pontuacoes/faixas conferidas contra a referencia canonica. Nao editar a mao.
+export const SCORES: ScoreDef[] = [
+  {
+    "id": "nihss",
+    "nome": "NIHSS (AVC)",
+    "categoria": "Neurologia / AVC",
+    "descricao": "A National Institutes of Health Stroke Scale (NIHSS) quantifica o deficit neurologico no acidente vascular cerebral agudo por meio de 11 itens pontuados (1a, 1b, 1c, 2-11), com total de 0 a 42 pontos. Pontuacoes mais altas indicam maior gravidade. E usada para avaliacao inicial, monitoramento da evolucao, decisao terapeutica (ex.: trombolise/trombectomia) e prognostico. Itens nao testaveis (amputacao, imobilizacao articular, intubacao, barreira de idioma) tem regras especificas; alguns recebem pontuacao 0 ou sao registrados como \"UN\" (untestable) sem somar ao total. Aplicar a escala na ordem indicada, registrar a primeira resposta e nao treinar o paciente.",
+    "itens": [
+      {
+        "label": "1a. Nivel de consciencia (vigilia)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Alerta; responde vivamente",
+            "pontos": 0
+          },
+          {
+            "label": "Sonolento; desperta com estimulo minimo (verbal) e obedece/responde",
+            "pontos": 1
+          },
+          {
+            "label": "Torporoso; requer estimulo repetido ou doloroso para resposta nao estereotipada",
+            "pontos": 2
+          },
+          {
+            "label": "Coma; responde apenas com reflexos motores/autonomicos ou totalmente arreativo, flacido, arreflexo",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "1b. NC - Perguntas (mes atual e idade)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Responde ambas corretamente",
+            "pontos": 0
+          },
+          {
+            "label": "Responde uma corretamente",
+            "pontos": 1
+          },
+          {
+            "label": "Nenhuma resposta correta",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "1c. NC - Comandos (abrir/fechar olhos e abrir/fechar a mao nao paretica)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Executa ambas as tarefas corretamente",
+            "pontos": 0
+          },
+          {
+            "label": "Executa uma tarefa corretamente",
+            "pontos": 1
+          },
+          {
+            "label": "Nao executa nenhuma tarefa corretamente",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "2. Melhor olhar conjugado (horizontal)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Normal",
+            "pontos": 0
+          },
+          {
+            "label": "Paralisia parcial do olhar (desvio vencivel por estimulo/oculocefalico)",
+            "pontos": 1
+          },
+          {
+            "label": "Desvio forcado ou paresia total do olhar nao vencivel pela manobra oculocefalica",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "3. Campos visuais (por confrontacao)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sem perda visual",
+            "pontos": 0
+          },
+          {
+            "label": "Hemianopsia parcial (quadrantanopsia)",
+            "pontos": 1
+          },
+          {
+            "label": "Hemianopsia completa",
+            "pontos": 2
+          },
+          {
+            "label": "Hemianopsia bilateral (cegueira, incluindo cegueira cortical)",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "4. Paralisia facial",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Movimentos normais simetricos",
+            "pontos": 0
+          },
+          {
+            "label": "Paralisia menor (apagamento do sulco nasolabial, assimetria ao sorrir)",
+            "pontos": 1
+          },
+          {
+            "label": "Paralisia parcial (paralisia total ou quase total da face inferior)",
+            "pontos": 2
+          },
+          {
+            "label": "Paralisia completa de um ou ambos os lados (ausencia de movimento facial superior e inferior)",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "5a. Motor - membro superior ESQUERDO (90 graus sentado / 45 graus deitado por 10 s)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sem queda; mantem por 10 s",
+            "pontos": 0
+          },
+          {
+            "label": "Queda parcial antes de 10 s, sem tocar o leito",
+            "pontos": 1
+          },
+          {
+            "label": "Algum esforco contra a gravidade; nao mantem e cai ao leito",
+            "pontos": 2
+          },
+          {
+            "label": "Sem esforco contra a gravidade; o membro cai",
+            "pontos": 3
+          },
+          {
+            "label": "Sem movimento",
+            "pontos": 4
+          },
+          {
+            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "5b. Motor - membro superior DIREITO (90 graus sentado / 45 graus deitado por 10 s)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sem queda; mantem por 10 s",
+            "pontos": 0
+          },
+          {
+            "label": "Queda parcial antes de 10 s, sem tocar o leito",
+            "pontos": 1
+          },
+          {
+            "label": "Algum esforco contra a gravidade; nao mantem e cai ao leito",
+            "pontos": 2
+          },
+          {
+            "label": "Sem esforco contra a gravidade; o membro cai",
+            "pontos": 3
+          },
+          {
+            "label": "Sem movimento",
+            "pontos": 4
+          },
+          {
+            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "6a. Motor - membro inferior ESQUERDO (30 graus deitado por 5 s)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sem queda; mantem 30 graus por 5 s",
+            "pontos": 0
+          },
+          {
+            "label": "Queda parcial antes de 5 s, sem tocar o leito",
+            "pontos": 1
+          },
+          {
+            "label": "Algum esforco contra a gravidade; cai ao leito antes de 5 s",
+            "pontos": 2
+          },
+          {
+            "label": "Sem esforco contra a gravidade; cai imediatamente",
+            "pontos": 3
+          },
+          {
+            "label": "Sem movimento",
+            "pontos": 4
+          },
+          {
+            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "6b. Motor - membro inferior DIREITO (30 graus deitado por 5 s)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sem queda; mantem 30 graus por 5 s",
+            "pontos": 0
+          },
+          {
+            "label": "Queda parcial antes de 5 s, sem tocar o leito",
+            "pontos": 1
+          },
+          {
+            "label": "Algum esforco contra a gravidade; cai ao leito antes de 5 s",
+            "pontos": 2
+          },
+          {
+            "label": "Sem esforco contra a gravidade; cai imediatamente",
+            "pontos": 3
+          },
+          {
+            "label": "Sem movimento",
+            "pontos": 4
+          },
+          {
+            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "7. Ataxia de membros (indice-nariz e calcanhar-joelho)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Ausente",
+            "pontos": 0
+          },
+          {
+            "label": "Presente em um membro",
+            "pontos": 1
+          },
+          {
+            "label": "Presente em dois membros",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "8. Sensibilidade (picada/retirada ao estimulo doloroso)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Normal; sem perda sensitiva",
+            "pontos": 0
+          },
+          {
+            "label": "Perda sensitiva leve a moderada (sente menos a picada ou apenas toque)",
+            "pontos": 1
+          },
+          {
+            "label": "Perda sensitiva grave a total (nao percebe toque na face, braco e perna)",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "9. Melhor linguagem (afasia)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sem afasia; normal",
+            "pontos": 0
+          },
+          {
+            "label": "Afasia leve a moderada (perda de fluencia/compreensao, sem limitacao significativa)",
+            "pontos": 1
+          },
+          {
+            "label": "Afasia grave (comunicacao muito fragmentada; examinador infere com grande esforco)",
+            "pontos": 2
+          },
+          {
+            "label": "Mudo, afasia global; sem fala ou compreensao auditiva uteis",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "10. Disartria",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Normal",
+            "pontos": 0
+          },
+          {
+            "label": "Leve a moderada; arrasta algumas palavras, mas e compreendido com dificuldade",
+            "pontos": 1
+          },
+          {
+            "label": "Grave; fala tao distorcida que e ininteligivel (ou mudo/anartrico)",
+            "pontos": 2
+          },
+          {
+            "label": "Intubado ou outra barreira fisica (nao somar - UN)",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "11. Extincao e desatencao (negligencia)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sem anormalidade",
+            "pontos": 0
+          },
+          {
+            "label": "Desatencao/extincao em uma modalidade (visual, tatil, auditiva ou espacial)",
+            "pontos": 1
+          },
+          {
+            "label": "Hemi-desatencao profunda ou extincao em mais de uma modalidade; nao reconhece a propria mao ou orienta-se a um so lado do espaco",
+            "pontos": 2
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 0,
+        "rotulo": "Sem sintomas de AVC",
+        "cor": "green"
+      },
+      {
+        "min": 1,
+        "max": 4,
+        "rotulo": "AVC leve (menor)",
+        "cor": "amber"
+      },
+      {
+        "min": 5,
+        "max": 15,
+        "rotulo": "AVC moderado",
+        "cor": "amber"
+      },
+      {
+        "min": 16,
+        "max": 20,
+        "rotulo": "Moderado a grave",
+        "cor": "red"
+      },
+      {
+        "min": 21,
+        "rotulo": "AVC grave",
+        "cor": "red"
+      }
+    ],
+    "fonte": "NIH Stroke Scale (NINDS / AHA-ASA); Brott T et al., Stroke 1989;20:864-870"
+  },
+  {
+    "id": "glasgow",
+    "nome": "Escala de Coma de Glasgow",
+    "categoria": "Neurologia",
+    "descricao": "Avaliação padronizada do nível de consciência por meio de três componentes — abertura ocular, resposta verbal e resposta motora. O escore total varia de 3 (coma profundo) a 15 (totalmente alerta) e orienta a gravidade do comprometimento neurológico e a conduta (ex.: indicação de via aérea avançada com GCS ≤ 8).",
+    "itens": [
+      {
+        "label": "Abertura ocular (O)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Espontânea",
+            "pontos": 4
+          },
+          {
+            "label": "Ao estímulo sonoro / à voz",
+            "pontos": 3
+          },
+          {
+            "label": "À pressão / ao estímulo doloroso",
+            "pontos": 2
+          },
+          {
+            "label": "Ausente",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Resposta verbal (V)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Orientada",
+            "pontos": 5
+          },
+          {
+            "label": "Confusa",
+            "pontos": 4
+          },
+          {
+            "label": "Palavras inapropriadas / soltas",
+            "pontos": 3
+          },
+          {
+            "label": "Sons incompreensíveis",
+            "pontos": 2
+          },
+          {
+            "label": "Ausente",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Resposta motora (M)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Obedece a comandos",
+            "pontos": 6
+          },
+          {
+            "label": "Localiza o estímulo doloroso",
+            "pontos": 5
+          },
+          {
+            "label": "Flexão normal / retirada à dor",
+            "pontos": 4
+          },
+          {
+            "label": "Flexão anormal (decorticação)",
+            "pontos": 3
+          },
+          {
+            "label": "Extensão (descerebração)",
+            "pontos": 2
+          },
+          {
+            "label": "Ausente",
+            "pontos": 1
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 13,
+        "max": 15,
+        "rotulo": "Leve",
+        "cor": "green"
+      },
+      {
+        "min": 9,
+        "max": 12,
+        "rotulo": "Moderado",
+        "cor": "amber"
+      },
+      {
+        "min": 3,
+        "rotulo": "Grave (coma)",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Teasdale & Jennett, Lancet 1974 (escala original com motora de 5 pontos); componente motor de 6 pontos conforme refinamento de 1976. Classificação de gravidade e valores confirmados em StatPearls (NCBI Bookshelf, NBK513298)."
+  },
+  {
+    "id": "qsofa",
+    "nome": "qSOFA (quick SOFA)",
+    "categoria": "Sepse",
+    "descricao": "Escore rapido a beira do leito para identificar, entre pacientes com infeccao suspeita ou confirmada, aqueles sob maior risco de desfecho desfavoravel (mortalidade hospitalar e/ou internacao prolongada em UTI). Avalia 3 criterios clinicos, cada um valendo 1 ponto. Pontuacao total de 0 a 3; valor maior ou igual a 2 indica alto risco e deve motivar investigacao de disfuncao organica (SOFA completo) e intensificacao da monitorizacao. O qSOFA nao define sepse isoladamente, mas funciona como ferramenta de triagem rapida, preferencialmente fora da UTI.",
+    "itens": [
+      {
+        "label": "Frequencia respiratoria maior ou igual a 22 irpm",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao (< 22 irpm)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (>= 22 irpm)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Alteracao do nivel de consciencia (Glasgow < 15)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao (Glasgow = 15, sem alteracao)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (Glasgow < 15 / estado mental alterado)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Pressao arterial sistolica menor ou igual a 100 mmHg",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao (PAS > 100 mmHg)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (PAS <= 100 mmHg)",
+            "pontos": 1
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 1,
+        "rotulo": "Baixo risco",
+        "cor": "green"
+      },
+      {
+        "min": 2,
+        "rotulo": "Alto risco",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Sepsis-3 (Singer et al., JAMA 2016; Seymour et al., JAMA 2016) / Surviving Sepsis Campaign"
+  },
+  {
+    "id": "sofa",
+    "nome": "SOFA (Sequential Organ Failure Assessment)",
+    "categoria": "Terapia intensiva",
+    "descricao": "Escore de avaliacao sequencial de falencia organica. Quantifica a gravidade da disfuncao de seis sistemas organicos (respiratorio, coagulacao, hepatico, cardiovascular, neurologico e renal) em pacientes criticos. Cada sistema e pontuado de 0 a 4; o total varia de 0 a 24. Usado para monitorar evolucao na UTI e, no contexto Sepsis-3, um aumento agudo >=2 pontos define disfuncao organica associada a sepse.",
+    "itens": [
+      {
+        "label": "Respiratorio - PaO2/FiO2 (mmHg)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "PaO2/FiO2 >= 400",
+            "pontos": 0
+          },
+          {
+            "label": "PaO2/FiO2 300-399 (< 400)",
+            "pontos": 1
+          },
+          {
+            "label": "PaO2/FiO2 200-299 (< 300)",
+            "pontos": 2
+          },
+          {
+            "label": "PaO2/FiO2 100-199 (< 200) com suporte ventilatorio",
+            "pontos": 3
+          },
+          {
+            "label": "PaO2/FiO2 < 100 com suporte ventilatorio",
+            "pontos": 4
+          }
+        ]
+      },
+      {
+        "label": "Coagulacao - Plaquetas (x10^3/uL)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Plaquetas >= 150",
+            "pontos": 0
+          },
+          {
+            "label": "Plaquetas < 150",
+            "pontos": 1
+          },
+          {
+            "label": "Plaquetas < 100",
+            "pontos": 2
+          },
+          {
+            "label": "Plaquetas < 50",
+            "pontos": 3
+          },
+          {
+            "label": "Plaquetas < 20",
+            "pontos": 4
+          }
+        ]
+      },
+      {
+        "label": "Hepatico - Bilirrubina (mg/dL)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Bilirrubina < 1,2",
+            "pontos": 0
+          },
+          {
+            "label": "Bilirrubina 1,2-1,9",
+            "pontos": 1
+          },
+          {
+            "label": "Bilirrubina 2,0-5,9",
+            "pontos": 2
+          },
+          {
+            "label": "Bilirrubina 6,0-11,9",
+            "pontos": 3
+          },
+          {
+            "label": "Bilirrubina >= 12,0",
+            "pontos": 4
+          }
+        ]
+      },
+      {
+        "label": "Cardiovascular - PAM / vasopressores (doses em ug/kg/min)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "PAM >= 70 mmHg",
+            "pontos": 0
+          },
+          {
+            "label": "PAM < 70 mmHg, sem vasopressor",
+            "pontos": 1
+          },
+          {
+            "label": "Dopamina <= 5 ou dobutamina (qualquer dose)",
+            "pontos": 2
+          },
+          {
+            "label": "Dopamina > 5, OU adrenalina <= 0,1, OU noradrenalina <= 0,1",
+            "pontos": 3
+          },
+          {
+            "label": "Dopamina > 15, OU adrenalina > 0,1, OU noradrenalina > 0,1",
+            "pontos": 4
+          }
+        ]
+      },
+      {
+        "label": "Neurologico - Escala de Coma de Glasgow",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Glasgow 15",
+            "pontos": 0
+          },
+          {
+            "label": "Glasgow 13-14",
+            "pontos": 1
+          },
+          {
+            "label": "Glasgow 10-12",
+            "pontos": 2
+          },
+          {
+            "label": "Glasgow 6-9",
+            "pontos": 3
+          },
+          {
+            "label": "Glasgow < 6",
+            "pontos": 4
+          }
+        ]
+      },
+      {
+        "label": "Renal - Creatinina (mg/dL) ou debito urinario",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Creatinina < 1,2",
+            "pontos": 0
+          },
+          {
+            "label": "Creatinina 1,2-1,9",
+            "pontos": 1
+          },
+          {
+            "label": "Creatinina 2,0-3,4",
+            "pontos": 2
+          },
+          {
+            "label": "Creatinina 3,5-4,9 OU debito urinario < 500 mL/dia",
+            "pontos": 3
+          },
+          {
+            "label": "Creatinina >= 5,0 OU debito urinario < 200 mL/dia",
+            "pontos": 4
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 6,
+        "rotulo": "Disfuncao leve (mortalidade < 10%)",
+        "cor": "green"
+      },
+      {
+        "min": 7,
+        "max": 9,
+        "rotulo": "Disfuncao moderada (mortalidade ~15-20%)",
+        "cor": "amber"
+      },
+      {
+        "min": 10,
+        "max": 12,
+        "rotulo": "Disfuncao grave (mortalidade ~40-50%)",
+        "cor": "red"
+      },
+      {
+        "min": 13,
+        "rotulo": "Disfuncao muito grave (mortalidade > 50-80%)",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Vincent JL et al., Intensive Care Med 1996;22:707-710 (SOFA score); Singer M et al., Sepsis-3, JAMA 2016;315:801-810"
+  },
+  {
+    "id": "news2",
+    "nome": "NEWS 2 (National Early Warning Score 2)",
+    "categoria": "Deterioracao clinica",
+    "descricao": "Escore de alerta precoce para deteccao de deterioracao clinica em adultos (>=16 anos), padronizado pelo Royal College of Physicians do Reino Unido. Agrega 6 parametros fisiologicos (a suplementacao de oxigenio adiciona 2 pontos, totalizando 7 itens nesta calculadora). Possui duas escalas de SpO2: a Escala 1 para a maioria dos pacientes e a Escala 2 para pacientes com risco de insuficiencia respiratoria hipercapnica (ex.: DPOC) com alvo de saturacao de 88-92%. Esta calculadora utiliza a Escala 1 de SpO2 (pontuacao maxima agregada = 19).",
+    "itens": [
+      {
+        "label": "Frequencia respiratoria (irpm)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=8",
+            "pontos": 3
+          },
+          {
+            "label": "9-11",
+            "pontos": 1
+          },
+          {
+            "label": "12-20",
+            "pontos": 0
+          },
+          {
+            "label": "21-24",
+            "pontos": 2
+          },
+          {
+            "label": ">=25",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Saturacao de O2 - Escala 1 (%)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=91",
+            "pontos": 3
+          },
+          {
+            "label": "92-93",
+            "pontos": 2
+          },
+          {
+            "label": "94-95",
+            "pontos": 1
+          },
+          {
+            "label": ">=96",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "Suplementacao de oxigenio",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Ar ambiente",
+            "pontos": 0
+          },
+          {
+            "label": "Em uso de oxigenio suplementar",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "Pressao arterial sistolica (mmHg)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=90",
+            "pontos": 3
+          },
+          {
+            "label": "91-100",
+            "pontos": 2
+          },
+          {
+            "label": "101-110",
+            "pontos": 1
+          },
+          {
+            "label": "111-219",
+            "pontos": 0
+          },
+          {
+            "label": ">=220",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Frequencia cardiaca (bpm)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=40",
+            "pontos": 3
+          },
+          {
+            "label": "41-50",
+            "pontos": 1
+          },
+          {
+            "label": "51-90",
+            "pontos": 0
+          },
+          {
+            "label": "91-110",
+            "pontos": 1
+          },
+          {
+            "label": "111-130",
+            "pontos": 2
+          },
+          {
+            "label": ">=131",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Nivel de consciencia (ACVPU)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Alerta (A)",
+            "pontos": 0
+          },
+          {
+            "label": "Nova confusao, Resposta a Voz, Dor ou Inconsciente (C/V/P/U)",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Temperatura (graus C)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=35.0",
+            "pontos": 3
+          },
+          {
+            "label": "35.1-36.0",
+            "pontos": 1
+          },
+          {
+            "label": "36.1-38.0",
+            "pontos": 0
+          },
+          {
+            "label": "38.1-39.0",
+            "pontos": 1
+          },
+          {
+            "label": ">=39.1",
+            "pontos": 2
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 0,
+        "rotulo": "Risco baixo",
+        "cor": "green"
+      },
+      {
+        "min": 1,
+        "max": 4,
+        "rotulo": "Risco baixo",
+        "cor": "amber"
+      },
+      {
+        "min": 5,
+        "max": 6,
+        "rotulo": "Risco medio",
+        "cor": "amber"
+      },
+      {
+        "min": 7,
+        "rotulo": "Risco alto",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Royal College of Physicians. National Early Warning Score (NEWS) 2, 2017"
+  },
+  {
+    "id": "news",
+    "nome": "NEWS - National Early Warning Score",
+    "categoria": "Deterioracao clinica",
+    "descricao": "Escore de alerta precoce do Royal College of Physicians para deteccao e resposta a deterioracao clinica aguda em pacientes adultos. Baseado em 7 itens pontuaveis (6 parametros fisiologicos mais o uso de oxigenio suplementar). Esta versao reproduz o NEWS original (2012), usando a Escala 1 de SpO2. No NEWS2 (2017) a diferenca relevante e a adicao de uma 2a escala de SpO2 (Scale 2) para pacientes com risco de insuficiencia respiratoria hipercapnica e a substituicao do AVPU por ACVPU, que pontua 3 tambem para nova confusao (\"new confusion\"). O uso de O2 suplementar ja pontuava 2 no NEWS 2012 (mantido no NEWS2), e os limiares de temperatura sao os mesmos nas duas versoes.",
+    "itens": [
+      {
+        "label": "Frequencia respiratoria (irpm)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=8",
+            "pontos": 3
+          },
+          {
+            "label": "9-11",
+            "pontos": 1
+          },
+          {
+            "label": "12-20",
+            "pontos": 0
+          },
+          {
+            "label": "21-24",
+            "pontos": 2
+          },
+          {
+            "label": ">=25",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Saturacao de O2 - SpO2 (%) - Escala 1",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=91",
+            "pontos": 3
+          },
+          {
+            "label": "92-93",
+            "pontos": 2
+          },
+          {
+            "label": "94-95",
+            "pontos": 1
+          },
+          {
+            "label": ">=96",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "Oxigenio suplementar",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Sim (O2 suplementar)",
+            "pontos": 2
+          },
+          {
+            "label": "Nao (ar ambiente)",
+            "pontos": 0
+          }
+        ]
+      },
+      {
+        "label": "Temperatura (C)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=35.0",
+            "pontos": 3
+          },
+          {
+            "label": "35.1-36.0",
+            "pontos": 1
+          },
+          {
+            "label": "36.1-38.0",
+            "pontos": 0
+          },
+          {
+            "label": "38.1-39.0",
+            "pontos": 1
+          },
+          {
+            "label": ">=39.1",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "Pressao arterial sistolica (mmHg)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=90",
+            "pontos": 3
+          },
+          {
+            "label": "91-100",
+            "pontos": 2
+          },
+          {
+            "label": "101-110",
+            "pontos": 1
+          },
+          {
+            "label": "111-219",
+            "pontos": 0
+          },
+          {
+            "label": ">=220",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Frequencia cardiaca (bpm)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "<=40",
+            "pontos": 3
+          },
+          {
+            "label": "41-50",
+            "pontos": 1
+          },
+          {
+            "label": "51-90",
+            "pontos": 0
+          },
+          {
+            "label": "91-110",
+            "pontos": 1
+          },
+          {
+            "label": "111-130",
+            "pontos": 2
+          },
+          {
+            "label": ">=131",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Nivel de consciencia (AVPU)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Alerta (A)",
+            "pontos": 0
+          },
+          {
+            "label": "Resposta a voz/dor ou inconsciente (V/P/U)",
+            "pontos": 3
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 0,
+        "rotulo": "Risco baixo - monitoramento minimo",
+        "cor": "green"
+      },
+      {
+        "min": 1,
+        "max": 4,
+        "rotulo": "Risco baixo - resposta de equipe de enfermagem",
+        "cor": "green"
+      },
+      {
+        "min": 5,
+        "max": 6,
+        "rotulo": "Risco medio - resposta urgente",
+        "cor": "amber"
+      },
+      {
+        "min": 7,
+        "rotulo": "Risco alto - resposta emergencial",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Royal College of Physicians. National Early Warning Score (NEWS): Standardising the assessment of acute-illness severity in the NHS. London: RCP, 2012."
+  },
+  {
+    "id": "timi",
+    "nome": "Escore de Risco TIMI (AI/IAMSSST)",
+    "categoria": "Cardiologia",
+    "descricao": "Escore de risco TIMI para Angina Instável / Infarto Agudo do Miocárdio Sem Supradesnivelamento do segmento ST (AI/IAMSSST). Estima o risco de desfecho composto em 14 dias (morte por todas as causas, novo IAM ou IAM recorrente, e isquemia recorrente grave com necessidade de revascularização urgente). Composto por 7 preditores independentes, cada um valendo 1 ponto (total 0 a 7). Útil para estratificação de risco e decisão sobre estratégia invasiva precoce.",
+    "itens": [
+      {
+        "label": "Idade >= 65 anos",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (< 65 anos)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (>= 65 anos)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": ">= 3 fatores de risco para doença arterial coronariana (história familiar de DAC, hipertensão, hipercolesterolemia, diabetes, tabagismo ativo)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (< 3 fatores)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (>= 3 fatores)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Doença arterial coronariana conhecida (estenose coronariana >= 50%)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não / desconhecida",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (estenose >= 50%)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Uso de ácido acetilsalicílico (AAS) nos últimos 7 dias",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Angina grave recente (>= 2 episódios de angina nas últimas 24 horas)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (>= 2 episódios em 24h)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Desvio do segmento ST >= 0,5 mm (infra ou supra transitório) ao ECG de admissão",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (< 0,5 mm)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (>= 0,5 mm)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Marcadores de necrose miocárdica elevados (troponina ou CK-MB)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não / negativos",
+            "pontos": 0
+          },
+          {
+            "label": "Sim / positivos",
+            "pontos": 1
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 2,
+        "rotulo": "Baixo risco (4,7-8,3% em 14 dias)",
+        "cor": "green"
+      },
+      {
+        "min": 3,
+        "max": 4,
+        "rotulo": "Risco intermediário (13,2-19,9% em 14 dias)",
+        "cor": "amber"
+      },
+      {
+        "min": 5,
+        "rotulo": "Alto risco (26,2-40,9% em 14 dias)",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Antman EM, Cohen M, Bernink PJLM, et al. The TIMI Risk Score for Unstable Angina/Non-ST Elevation MI. JAMA. 2000;284(7):835-842."
+  },
+  {
+    "id": "pesi",
+    "nome": "PESI (severidade do TEP)",
+    "categoria": "Pneumologia / TEP",
+    "descricao": "Pulmonary Embolism Severity Index (PESI) — estratifica o risco de mortalidade em 30 dias em pacientes com tromboembolismo pulmonar (TEP) agudo confirmado, a partir de 11 variáveis clínicas. Classifica em 5 classes (I a V); classes I-II identificam pacientes de baixo risco, potencialmente candidatos a tratamento ambulatorial.",
+    "itens": [
+      {
+        "label": "Idade (anos)",
+        "tipo": "numero",
+        "min": 18,
+        "max": 120,
+        "coef": 1
+      },
+      {
+        "label": "Sexo",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Feminino",
+            "pontos": 0
+          },
+          {
+            "label": "Masculino",
+            "pontos": 10
+          }
+        ]
+      },
+      {
+        "label": "Câncer (histórico de neoplasia)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 30
+          }
+        ]
+      },
+      {
+        "label": "Insuficiência cardíaca crônica",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 10
+          }
+        ]
+      },
+      {
+        "label": "Doença pulmonar crônica",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 10
+          }
+        ]
+      },
+      {
+        "label": "Frequência cardíaca ≥ 110 bpm",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (< 110 bpm)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (≥ 110 bpm)",
+            "pontos": 20
+          }
+        ]
+      },
+      {
+        "label": "Pressão arterial sistólica < 100 mmHg",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (≥ 100 mmHg)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (< 100 mmHg)",
+            "pontos": 30
+          }
+        ]
+      },
+      {
+        "label": "Frequência respiratória ≥ 30 irpm",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (< 30 irpm)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (≥ 30 irpm)",
+            "pontos": 20
+          }
+        ]
+      },
+      {
+        "label": "Temperatura < 36 °C",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (≥ 36 °C)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (< 36 °C)",
+            "pontos": 20
+          }
+        ]
+      },
+      {
+        "label": "Estado mental alterado (desorientação, letargia, estupor ou coma)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 60
+          }
+        ]
+      },
+      {
+        "label": "Saturação arterial de O₂ < 90%",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não (≥ 90%)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (< 90%)",
+            "pontos": 20
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 65,
+        "rotulo": "Classe I — risco muito baixo (mort. 30d 0–1,6%)",
+        "cor": "green"
+      },
+      {
+        "min": 66,
+        "max": 85,
+        "rotulo": "Classe II — risco baixo (mort. 30d 1,7–3,5%)",
+        "cor": "green"
+      },
+      {
+        "min": 86,
+        "max": 105,
+        "rotulo": "Classe III — risco moderado (mort. 30d 3,2–7,1%)",
+        "cor": "amber"
+      },
+      {
+        "min": 106,
+        "max": 125,
+        "rotulo": "Classe IV — risco alto (mort. 30d 4,0–11,4%)",
+        "cor": "red"
+      },
+      {
+        "min": 126,
+        "rotulo": "Classe V — risco muito alto (mort. 30d 10,0–24,5%)",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Aujesky D et al. Am J Respir Crit Care Med 2005;172(8):1041-6 (PESI original); endossado pela ESC 2019 Guidelines on Acute Pulmonary Embolism."
+  },
+  {
+    "id": "wells-tep",
+    "nome": "Escore de Wells para TEP",
+    "categoria": "Pneumologia / TEP",
+    "descricao": "Estima a probabilidade clínica pré-teste de tromboembolismo pulmonar (TEP/EP) em pacientes com suspeita. Soma os pontos atribuídos a sete critérios clínicos. Permite estratificação em três níveis (baixa/intermediária/alta probabilidade) ou no modelo dicotômico (TEP improvável vs. provável, corte em 4 pontos: >4 = provável). A probabilidade pré-teste orienta a sequência diagnóstica (D-dímero vs. angio-TC de tórax).",
+    "itens": [
+      {
+        "label": "Sinais e sintomas clínicos de TVP (edema/dor à palpação de membro inferior)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Diagnóstico alternativo menos provável que TEP",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 3
+          }
+        ]
+      },
+      {
+        "label": "Frequência cardíaca > 100 bpm",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1.5
+          }
+        ]
+      },
+      {
+        "label": "Imobilização (≥ 3 dias) ou cirurgia nas últimas 4 semanas",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1.5
+          }
+        ]
+      },
+      {
+        "label": "TVP ou TEP prévios (objetivamente diagnosticados)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1.5
+          }
+        ]
+      },
+      {
+        "label": "Hemoptise",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Câncer (em tratamento, tratado nos últimos 6 meses ou paliativo)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 1.5,
+        "rotulo": "Baixa probabilidade",
+        "cor": "green"
+      },
+      {
+        "min": 2,
+        "max": 6,
+        "rotulo": "Probabilidade intermediária",
+        "cor": "amber"
+      },
+      {
+        "min": 6.5,
+        "rotulo": "Alta probabilidade",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Wells PS et al. Thromb Haemost 2000 (escore original de 7 itens, estratificação em três níveis); modelo dicotômico (≤4 improvável / >4 provável) Wells PS et al. Ann Intern Med 2001; endossado pela ESC 2019 (Diagnosis and Management of Acute Pulmonary Embolism)."
+  },
+  {
+    "id": "wells-tvp",
+    "nome": "Escore de Wells para TVP (Trombose Venosa Profunda)",
+    "categoria": "Vascular / TVP",
+    "descricao": "Estratificação da probabilidade pré-teste de trombose venosa profunda (TVP) de membros inferiores. Cada critério clínico soma pontos; o total orienta a conduta (uso de D-dímero e/ou ultrassom com Doppler). O item \"diagnóstico alternativo tão ou mais provável que TVP\" subtrai 2 pontos. Aplicável a pacientes ambulatoriais com suspeita de primeiro episódio de TVP.",
+    "itens": [
+      {
+        "label": "Câncer ativo (em tratamento ou nos últimos 6 meses, ou paliativo)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Paralisia, paresia ou imobilização recente (gesso) de membro inferior",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Acamado por mais de 3 dias ou cirurgia de grande porte nas últimas 12 semanas (com anestesia geral ou regional)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Dor localizada ao longo da distribuição do sistema venoso profundo",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Edema de todo o membro inferior",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Panturrilha com aumento > 3 cm em relação ao membro contralateral (medido 10 cm abaixo da tuberosidade tibial)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Edema depressível (cacifo) restrito ao membro sintomático",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Veias superficiais colaterais (não varicosas)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "TVP prévia documentada",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Diagnóstico alternativo tão ou mais provável que TVP",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": -2
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": -2,
+        "max": 0,
+        "rotulo": "Baixa probabilidade",
+        "cor": "green"
+      },
+      {
+        "min": 1,
+        "max": 2,
+        "rotulo": "Probabilidade moderada",
+        "cor": "amber"
+      },
+      {
+        "min": 3,
+        "rotulo": "Alta probabilidade",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Wells PS et al. Evaluation of D-dimer in the diagnosis of suspected deep-vein thrombosis. N Engl J Med 2003;349:1227-1235 (Wells DVT score)."
+  },
+  {
+    "id": "cha2ds2vasc",
+    "nome": "CHA2DS2-VASc",
+    "categoria": "Cardiologia / FA",
+    "descricao": "Estima o risco anual de AVC/tromboembolismo em pacientes com fibrilação atrial não valvar, orientando a indicação de anticoagulação oral. Pontuação de 0 a 9. O acrônimo reflete: Congestive heart failure, Hypertension, Age >=75 (2 pontos), Diabetes, Stroke/TIA prévio (2 pontos), Vascular disease, Age 65-74, Sex category (feminino).",
+    "itens": [
+      {
+        "label": "Insuficiência cardíaca congestiva / disfunção ventricular esquerda (C)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (IC clínica ou FEVE reduzida moderada/grave)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Hipertensão arterial (H)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (HAS ou em tratamento anti-hipertensivo)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Idade (A2 / A)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "< 65 anos",
+            "pontos": 0
+          },
+          {
+            "label": "65-74 anos",
+            "pontos": 1
+          },
+          {
+            "label": ">= 75 anos",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "Diabetes mellitus (D)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "AVC / AIT / tromboembolismo prévio (S2)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (AVC, AIT ou tromboembolismo prévio)",
+            "pontos": 2
+          }
+        ]
+      },
+      {
+        "label": "Doença vascular (V) - IAM prévio, doença arterial periférica ou placa aórtica",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Não",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Sexo (Sc)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Masculino",
+            "pontos": 0
+          },
+          {
+            "label": "Feminino",
+            "pontos": 1
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 0,
+        "rotulo": "Baixo risco",
+        "cor": "green"
+      },
+      {
+        "min": 1,
+        "max": 1,
+        "rotulo": "Risco intermediário",
+        "cor": "amber"
+      },
+      {
+        "min": 2,
+        "rotulo": "Alto risco - anticoagular",
+        "cor": "red"
+      }
+    ],
+    "fonte": "ESC 2020 Guidelines for atrial fibrillation (Hindricks/Lip et al., baseado no CHA2DS2-VASc original, Lip et al., Chest 2010)"
+  },
+  {
+    "id": "hasbled",
+    "nome": "HAS-BLED",
+    "categoria": "Cardiologia / FA",
+    "descricao": "Estima o risco de sangramento maior em 1 ano em pacientes com fibrilacao atrial (FA) em uso ou candidatos a anticoagulacao oral. Acronimo: Hypertension, Abnormal renal/liver function, Stroke, Bleeding, Labile INR, Elderly, Drugs/alcohol. Pontuacao maxima de 9. Um escore alto nao contraindica a anticoagulacao, mas sinaliza fatores de risco modificaveis e a necessidade de acompanhamento mais frequente.",
+    "itens": [
+      {
+        "label": "Hipertensao (PAS > 160 mmHg nao controlada)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Funcao renal anormal (dialise, transplante renal ou creatinina >= 2,26 mg/dL / 200 umol/L)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Funcao hepatica anormal (cirrose, bilirrubina > 2x LSN, ou TGO/TGP/FA > 3x LSN)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "AVC previo",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Sangramento previo ou predisposicao a sangramento (anemia, diatese hemorragica)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "INR labil (TTR < 60% no uso de varfarina)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Idoso (idade > 65 anos)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Medicamentos que predispoem a sangramento (antiplaquetarios, AINEs)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Uso abusivo de alcool (>= 8 doses/semana)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 0,
+        "rotulo": "Risco baixo",
+        "cor": "green"
+      },
+      {
+        "min": 1,
+        "max": 2,
+        "rotulo": "Risco intermediario",
+        "cor": "amber"
+      },
+      {
+        "min": 3,
+        "rotulo": "Risco alto",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Pisters et al., Chest 2010; ESC 2020 AF Guidelines"
+  },
+  {
+    "id": "curb65",
+    "nome": "CURB-65",
+    "categoria": "Pneumologia / PAC",
+    "descricao": "Escore de gravidade da pneumonia adquirida na comunidade (PAC) que estratifica o risco de mortalidade em 30 dias e orienta a decisao de tratamento ambulatorial, internacao ou cuidado intensivo. Cada um dos 5 criterios (acronimo CURB-65: Confusion, Urea, Respiratory rate, Blood pressure, 65 anos) vale 1 ponto, total 0 a 5. Confusao = confusao mental de inicio recente (AMTS menor ou igual a 8 ou desorientacao em pessoa, lugar ou tempo).",
+    "itens": [
+      {
+        "label": "Confusao mental (de inicio recente; AMTS menor ou igual a 8 ou desorientacao)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Ausente",
+            "pontos": 0
+          },
+          {
+            "label": "Presente",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Ureia (Urea) serica > 7 mmol/L (BUN > 19 mg/dL; ureia > ~42-50 mg/dL)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao (ureia menor ou igual ao limiar)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (ureia acima do limiar)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Frequencia respiratoria maior ou igual a 30 irpm",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao (< 30 irpm)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (maior ou igual a 30 irpm)",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Pressao arterial baixa (PAS < 90 mmHg ou PAD menor ou igual a 60 mmHg)",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao",
+            "pontos": 0
+          },
+          {
+            "label": "Sim",
+            "pontos": 1
+          }
+        ]
+      },
+      {
+        "label": "Idade maior ou igual a 65 anos",
+        "tipo": "opcoes",
+        "opcoes": [
+          {
+            "label": "Nao (< 65 anos)",
+            "pontos": 0
+          },
+          {
+            "label": "Sim (maior ou igual a 65 anos)",
+            "pontos": 1
+          }
+        ]
+      }
+    ],
+    "faixas": [
+      {
+        "min": 0,
+        "max": 1,
+        "rotulo": "Baixo risco (mortalidade ~1.5%; 0=~0.7%, 1=~3.2%) - tratamento ambulatorial",
+        "cor": "green"
+      },
+      {
+        "min": 2,
+        "max": 2,
+        "rotulo": "Risco intermediario (mortalidade ~9.2%) - internacao breve ou supervisao",
+        "cor": "amber"
+      },
+      {
+        "min": 3,
+        "rotulo": "Alto risco (mortalidade ~22%; 3=~14.5%, 4-5=ate ~40%) - internacao, avaliar UTI (sobretudo 4-5)",
+        "cor": "red"
+      }
+    ],
+    "fonte": "Lim WS, van der Eerden MM, Laing R, et al. Defining community acquired pneumonia severity on presentation to hospital: an international derivation and validation study. Thorax 2003;58:377-382."
+  }
+];

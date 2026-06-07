@@ -162,6 +162,55 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_chats_user ON chats(user_id, updated_at)`);
 
+  // ---- HANDOFFS (passagem de plantão — registro contínuo do paciente, compartilhável) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS handoffs (
+      id          TEXT PRIMARY KEY,
+      token       TEXT NOT NULL UNIQUE,
+      paciente    TEXT NOT NULL,
+      idade       TEXT,
+      leito       TEXT,
+      situacao    TEXT,
+      status      TEXT NOT NULL DEFAULT 'ativo',
+      created_by  TEXT NOT NULL,
+      author_name TEXT,
+      created_at  INTEGER NOT NULL,
+      updated_at  INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_handoffs_status ON handoffs(status, updated_at DESC)`);
+
+  // ---- HANDOFF ENTRIES (o log contínuo: o que cada médico passou/fez) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS handoff_entries (
+      id          TEXT PRIMARY KEY,
+      handoff_id  TEXT NOT NULL,
+      author_id   TEXT NOT NULL,
+      author_name TEXT,
+      texto       TEXT NOT NULL,
+      created_at  INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_handoff_entries ON handoff_entries(handoff_id, created_at)`);
+
+  // ---- SHIFTS (agenda de plantões + financeiro, por usuário — estilo Plantãozinho) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS shifts (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      data       TEXT NOT NULL,
+      inicio     TEXT,
+      fim        TEXT,
+      local      TEXT,
+      valor      REAL,
+      pago       INTEGER NOT NULL DEFAULT 0,
+      cor        TEXT,
+      nota       TEXT,
+      created_at INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_shifts_user_data ON shifts(user_id, data)`);
+
   await maybeSeedResponder(db);
   tableReady = true;
 }
@@ -275,5 +324,42 @@ export type CaseEventRow = {
   actor_id: string | null;
   event_type: string;
   payload: string | null;
+  created_at: number;
+};
+
+export type HandoffRow = {
+  id: string;
+  token: string;
+  paciente: string;
+  idade: string | null;
+  leito: string | null;
+  situacao: string | null;
+  status: "ativo" | "encerrado";
+  created_by: string;
+  author_name: string | null;
+  created_at: number;
+  updated_at: number;
+};
+
+export type HandoffEntryRow = {
+  id: string;
+  handoff_id: string;
+  author_id: string;
+  author_name: string | null;
+  texto: string;
+  created_at: number;
+};
+
+export type ShiftRow = {
+  id: string;
+  user_id: string;
+  data: string;
+  inicio: string | null;
+  fim: string | null;
+  local: string | null;
+  valor: number | null;
+  pago: number;
+  cor: string | null;
+  nota: string | null;
   created_at: number;
 };

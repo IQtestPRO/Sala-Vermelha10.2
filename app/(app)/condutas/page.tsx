@@ -52,7 +52,7 @@ function CondutasInner() {
 
   return (
     <>
-      <TopBar brand title="Condutas" subtitle="Sala vermelha • referência rápida" right={<LogoutButton />} />
+      <TopBar brand title="Protocolos" subtitle="Sala vermelha • referência rápida" right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
         <DisclaimerBar />
 
