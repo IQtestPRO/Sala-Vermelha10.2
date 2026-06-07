@@ -15,6 +15,11 @@ export function useMe(): Me {
   return me;
 }
 
+const MeUpdateCtx = createContext<((m: Me) => void) | null>(null);
+export function useUpdateMe(): (m: Me) => void {
+  return useContext(MeUpdateCtx) ?? (() => {});
+}
+
 const ALLOWED_WHEN_PENDING = ["/pending", "/condutas", "/rapido", "/analisar"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -70,11 +75,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <MeCtx.Provider value={me}>
-      <div className="app-main">
-        <InstallPrompt />
-        {children}
-      </div>
-      <BottomNav />
+      <MeUpdateCtx.Provider value={setMe}>
+        <div className="app-main">
+          <InstallPrompt />
+          {children}
+        </div>
+        <BottomNav me={me} />
+      </MeUpdateCtx.Provider>
     </MeCtx.Provider>
   );
 }

@@ -5,6 +5,10 @@ export type Me = {
   name: string;
   crm: string;
   specialty: string;
+  phone?: string | null;
+  email?: string | null;
+  avatar_url?: string | null;
+  perfil_medico?: string | null;
   role: Role;
   status: UserStatus;
 };

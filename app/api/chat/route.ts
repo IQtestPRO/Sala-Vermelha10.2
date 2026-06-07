@@ -29,10 +29,14 @@ type InMsg = { role: "user" | "assistant"; text?: string; image?: string };
 
 export async function POST(req: NextRequest) {
   try {
-    await requireUser(req);
+    const user = await requireUser(req);
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({ error: "ai_not_configured" }, { status: 503 });
     }
+    // Memória do médico: adapta as respostas ao contexto/preferências dele.
+    const system = user.perfil_medico
+      ? `${SYSTEM}\n\nCONTEXTO DESTE MÉDICO (use para adaptar TODAS as respostas ao jeito dele de trabalhar — local, recursos, preferências): ${String(user.perfil_medico).slice(0, 2000)}`
+      : SYSTEM;
     const body = await req.json();
     const msgs: InMsg[] = Array.isArray(body.messages) ? body.messages.slice(-24) : [];
     if (!msgs.length) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
@@ -58,7 +62,7 @@ export async function POST(req: NextRequest) {
       model: MODEL,
       max_tokens: 2200,
       output_config: { effort: "low" },
-      system: SYSTEM,
+      system,
       messages: anthropicMsgs,
     } as Anthropic.MessageStreamParams);
 
