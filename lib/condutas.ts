@@ -48,6 +48,7 @@ export type Dose = {
   obs?: string;
   // Coeficiente por kg (na unidade indicada). Habilita a calculadora por peso.
   mgPorKg?: { min: number; max?: number };
+  maxAbs?: number; // teto absoluto em mg (ex.: alteplase 90, tenecteplase 25, fenitoina 1500) — trava sobredose por peso
   unidade?: DoseUnidade; // default mg/kg
   concentracaoPadraoMgMl?: number; // so para mg/kg -> converte em mL
   infusao?: Infusao; // se a droga corre em bomba: diluição + cálculo de mL/h
@@ -322,6 +323,7 @@ export const CONDUTAS: CondutaCard[] = [
     alertas: [
       "BAV 2º Mobitz II e BAVT: prepare marca-passo precocemente.",
       "Confirme CAPTURA mecânica (pulso) no MPTC, não só a espícula.",
+      "Dopamina/adrenalina em dose vasopressora: acesso CENTRAL de preferência (em dose alta há risco de extravasamento/necrose); monitor de ECG/PA contínuo. Não infundir na mesma via do bicarbonato.",
       "Considere hipercalemia e intoxicação (BB/BCC/digoxina).",
     ],
     referencia: "ACLS/AHA e SBC. Conferir disponibilidade de marca-passo local.",
@@ -488,8 +490,8 @@ export const CONDUTAS: CondutaCard[] = [
       "5. Controle pressórico: alvo < 185/110 se for trombolisar; senão permissivo.",
     ],
     doses: [
-      { farmaco: "Alteplase (rtPA)", dose: "0,9 mg/kg (máx 90 mg)", via: "IV", obs: "Reconstituir a 1 mg/mL. 10% da dose em bólus em 1 min + 90% em bomba por 60 min. Ex.: 70 kg = 63 mg → 6,3 mg bólus + 56,7 mg (≈ 56,7 mL/h) em 60 min. Janela ≤ 4,5 h; PA < 185/110; checar contraindicações.", mgPorKg: { min: 0.9 } },
-      { farmaco: "Tenecteplase", dose: "0,25 mg/kg (máx 25 mg)", via: "IV bolus", obs: "Alternativa conforme serviço", mgPorKg: { min: 0.25 } },
+      { farmaco: "Alteplase (rtPA)", dose: "0,9 mg/kg (teto 90 mg)", via: "IV", obs: "Reconstituir SÓ com água estéril a 1 mg/mL (NUNCA SF/SG). 10% em bólus em 1 min + 90% em bomba por 60 min. Ex.: 70 kg = 63 mg → 6,3 mg bólus + 56,7 mg (≈ 56,7 mL/h). Janela ≤ 4,5 h; PA < 185/110 antes e < 180/105 durante/24 h. TETO 90 mg (não ultrapassar mesmo se > 100 kg).", mgPorKg: { min: 0.9 }, maxAbs: 90 },
+      { farmaco: "Tenecteplase", dose: "0,25 mg/kg (teto 25 mg)", via: "IV bólus único", obs: "Bólus IV único (SEM bomba) — não confundir com a alteplase. AVC: 0,25 mg/kg, teto 25 mg.", mgPorKg: { min: 0.25 }, maxAbs: 25 },
     ],
     alertas: [
       "Excluir hemorragia na TC antes de qualquer trombolítico.",
@@ -576,7 +578,7 @@ export const CONDUTAS: CondutaCard[] = [
     doses: [
       { farmaco: "Diazepam", dose: "0,15–0,2 mg/kg (máx 10 mg)", via: "IV", obs: "Repetir 1×", mgPorKg: { min: 0.15, max: 0.2 } },
       { farmaco: "Midazolam", dose: "10 mg (0,2 mg/kg)", via: "IM/IN", obs: "Quando sem acesso IV", mgPorKg: { min: 0.2 } },
-      { farmaco: "Fenitoína", dose: "20 mg/kg (ataque)", via: "IV (≤ 50 mg/min)", obs: "Diluir em SF 0,9% (NUNCA em SG — precipita); correr ≤ 50 mg/min (idoso/cardiopata ≤ 20 mg/min). Ex.: 70 kg = 1.400 mg. Monitor (hipotensão/bradi/arritmia).", mgPorKg: { min: 20 } },
+      { farmaco: "Fenitoína", dose: "20 mg/kg (ataque, teto ~1.500 mg)", via: "IV (≤ 50 mg/min)", obs: "Diluir em SF 0,9% (NUNCA em SG — precipita); ≤ 50 mg/min (idoso/cardiopata ≤ 20). VESICANTE: veia calibrosa/linha exclusiva, filtro in-line, flush de SF antes/depois. Teto ~1.500 mg. Monitor ECG/PA e PARE se hipotensão/BAV/QRS alargar. Refratário: +10 mg/kg (considerar fosfenitoína).", mgPorKg: { min: 20 }, maxAbs: 1500 },
       { farmaco: "Levetiracetam", dose: "60 mg/kg (máx 4,5 g)", via: "IV", obs: "Alternativa", mgPorKg: { min: 60 } },
     ],
     alertas: [
@@ -646,7 +648,7 @@ export const CONDUTAS: CondutaCard[] = [
     ],
     doses: [
       { farmaco: "Naloxona (opioide)", dose: "0,04–0,4 mg, titular", via: "IV/IM/IN", obs: "Reverter depressão respiratória" },
-      { farmaco: "N-acetilcisteína (paracetamol)", dose: "Protocolo IV 21 h (3 bolsas)", via: "IV", obs: "150 mg/kg em 200 mL SG5% em 1 h → 50 mg/kg em 500 mL em 4 h → 100 mg/kg em 1.000 mL em 16 h. Guiar pelo nomograma de Rumack-Matthew/tempo." },
+      { farmaco: "N-acetilcisteína (paracetamol)", dose: "Protocolo IV 21 h (3 bolsas)", via: "IV", obs: "3 bolsas SEQUENCIAIS: 150 mg/kg em 200 mL SG5% em 1 h → 50 mg/kg em 500 mL em 4 h → 100 mg/kg em 1.000 mL em 16 h. LIMITE o peso a ~100 kg no cálculo (evita hiponatremia). Nomograma de Rumack-Matthew só vale p/ ingestão ÚNICA com horário conhecido (nível 4–24 h); em ingestão escalonada/crônica/horário incerto/>24 h, iniciar NAC empírico por nível detectável + transaminases. Reação anafilactoide na 1ª bolsa: PAUSAR e tratar, não suspender o antídoto." },
       { farmaco: "Bicarbonato de sódio (tricíclico)", dose: "1–2 mEq/kg em bolus", via: "IV", obs: "QRS alargado/arritmia", mgPorKg: { min: 1, max: 2 }, unidade: "mEq/kg" },
       { farmaco: "Glucagon (betabloqueador)", dose: "3–10 mg", via: "IV", obs: "BB/BCC; considerar Ca, insulina-euglicemia" },
       { farmaco: "Atropina + pralidoxima (organofosforado)", dose: "Atropina titular; pralidoxima conforme protocolo", via: "IV", obs: "Síndrome colinérgica" },
