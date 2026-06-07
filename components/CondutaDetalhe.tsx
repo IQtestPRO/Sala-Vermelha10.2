@@ -139,7 +139,7 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
               return def ? (
                 <div key={sid}>
                   <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 7 }}>{def.nome}</div>
-                  <ScoreCalculator def={def} />
+                  <ScoreCalculator def={def} stickyTop="8px" />
                 </div>
               ) : null;
             })}

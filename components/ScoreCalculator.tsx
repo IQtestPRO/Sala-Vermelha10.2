@@ -4,7 +4,8 @@ import { useState } from "react";
 import { ScoreDef, faixaDoTotal } from "@/lib/scores";
 
 // Renderiza qualquer escore (ScoreDef): soma ao vivo + interpretação por faixa.
-export default function ScoreCalculator({ def }: { def: ScoreDef }) {
+// O resultado GRUDA enquanto rola os itens (stickyTop = offset do cabeçalho).
+export default function ScoreCalculator({ def, stickyTop = "calc(env(safe-area-inset-top) + 58px)" }: { def: ScoreDef; stickyTop?: string }) {
   // sel[i] = índice da opção (tipo "opcoes") OU valor numérico (tipo "numero").
   const [sel, setSel] = useState<(number | undefined)[]>(() => def.itens.map(() => undefined));
 
@@ -30,17 +31,21 @@ export default function ScoreCalculator({ def }: { def: ScoreDef }) {
 
   return (
     <div className="card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {/* Resultado ao vivo */}
+      {/* Resultado ao vivo — GRUDA abaixo do cabeçalho enquanto rola os itens (sempre visível) */}
       <div
         style={{
+          position: "sticky",
+          top: stickyTop,
+          zIndex: 20,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 10,
           padding: "12px 14px",
           borderRadius: 14,
-          background: faixa ? `color-mix(in srgb, ${cor} 9%, var(--surface))` : "var(--surface-sunken)",
+          background: faixa ? `color-mix(in srgb, ${cor} 11%, var(--surface))` : "var(--surface-sunken)",
           border: `1px solid ${faixa ? `color-mix(in srgb, ${cor} 35%, var(--border))` : "var(--border)"}`,
+          boxShadow: "0 8px 18px -10px rgba(13, 30, 60, 0.28)",
         }}
       >
         <div>
