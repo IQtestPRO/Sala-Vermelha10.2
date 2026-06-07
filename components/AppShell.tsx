@@ -74,7 +74,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <InstallPrompt />
         {children}
       </div>
-      <BottomNav role={me.role} />
+      <BottomNav />
     </MeCtx.Provider>
   );
 }
