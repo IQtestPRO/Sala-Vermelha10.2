@@ -9,6 +9,7 @@ import PhotoCapture, { CapturedPhoto } from "@/components/PhotoCapture";
 import AiFunnel from "@/components/AiFunnel";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
 import { MultiStepLoader } from "@/components/ui/multi-step-loader";
+import VoiceButton from "@/components/VoiceButton";
 import { apiPost } from "@/lib/client";
 import { RITMOS, RitmoMonitor, Sexo, Vitais } from "@/lib/types/case";
 import { LGPD_NOTA } from "@/lib/legal/disclaimer";
@@ -356,13 +357,16 @@ function NewCaseInner() {
 
         <div>
           <label className="label">Relate o caso</label>
-          <textarea
-            className="field"
-            placeholder="Ex.: Homem, 58a, dor precordial em aperto com irradiação para MSE há 40 min, sudorese, PA 150/90. Anexei o ECG."
-            value={summary}
-            onChange={(e) => { setSummary(e.target.value); resetAi(); }}
-            style={{ minHeight: 120, lineHeight: 1.5 }}
-          />
+          <div style={{ position: "relative" }}>
+            <textarea
+              className="field"
+              placeholder="Ex.: Homem, 58a, dor precordial em aperto com irradiação para MSE há 40 min, sudorese, PA 150/90. Anexei o ECG. (ou toque no microfone e fale)"
+              value={summary}
+              onChange={(e) => { setSummary(e.target.value); resetAi(); }}
+              style={{ minHeight: 120, lineHeight: 1.5, paddingRight: 52 }}
+            />
+            <VoiceButton value={summary} onChange={setSummary} className="voice-in-area" />
+          </div>
         </div>
 
         <PhotoCapture photo={photo} onChange={(p) => { setPhoto(p); resetAi(); }} label="Anexe o ECG / exame (opcional)" />

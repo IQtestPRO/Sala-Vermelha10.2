@@ -7,6 +7,7 @@ import TopBar, { LogoutButton } from "@/components/TopBar";
 import { useMe, useUpdateMe } from "@/components/AppShell";
 import { BackgroundGradient } from "@/components/ui/background-gradient";
 import { resizeToJpegBase64 } from "@/lib/image";
+import VoiceButton from "@/components/VoiceButton";
 import type { Me } from "@/lib/client";
 
 function initials(name: string) {
@@ -174,13 +175,16 @@ export default function PerfilPage() {
               <BrainCircuit size={16} color="var(--primary)" style={{ flex: "0 0 auto", marginTop: 1 }} />
               <span>Conte como você trabalha. A IA usa isso pra adaptar as respostas ao seu contexto (local, recursos, preferências).</span>
             </div>
-            <textarea
-              className="field"
-              value={perfil}
-              onChange={(e) => setPerfil(e.target.value)}
-              placeholder="Ex.: Trabalho em UPA do SUS (recursos limitados), atendo adultos. Prefiro condutas adaptadas à realidade, doses em ampolas e mL/h na BIC. Já aciono a regulação cedo nos casos graves."
-              style={{ minHeight: 110, lineHeight: 1.5 }}
-            />
+            <div style={{ position: "relative" }}>
+              <textarea
+                className="field"
+                value={perfil}
+                onChange={(e) => setPerfil(e.target.value)}
+                placeholder="Ex.: Trabalho em UPA do SUS (recursos limitados), atendo adultos. Prefiro condutas adaptadas à realidade, doses em ampolas e mL/h na BIC. Já aciono a regulação cedo nos casos graves. (ou toque no microfone e fale)"
+                style={{ minHeight: 110, lineHeight: 1.5, paddingRight: 52 }}
+              />
+              <VoiceButton value={perfil} onChange={setPerfil} className="voice-in-area" />
+            </div>
           </div>
         </div>
 

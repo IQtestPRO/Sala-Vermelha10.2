@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Send, ImagePlus, Loader2, X, Sparkles, Stethoscope, History, SquarePen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { resizeToJpegBase64 } from "@/lib/image";
+import VoiceButton from "@/components/VoiceButton";
 import { apiGet, apiPost } from "@/lib/client";
 import { LGPD_NOTA } from "@/lib/legal/disclaimer";
 
@@ -225,6 +226,7 @@ export default function ChatPage() {
           <button className="chat-attach" onClick={() => fileRef.current?.click()} aria-label="Anexar imagem" disabled={busy}>
             <ImagePlus size={20} />
           </button>
+          <VoiceButton value={input} onChange={setInput} />
           <textarea
             className="field chat-textarea"
             placeholder="Descreva o caso ou responda…"
