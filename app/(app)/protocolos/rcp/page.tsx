@@ -381,7 +381,7 @@ export default function PcrPage() {
 
       <div style={{ display: "flex", gap: 10, margin: "8px 0 6px" }}>
         <Dial label="Ciclo" restante={Math.max(0, cicloRest)} total={CICLO_SEG} cor="#3b82f6" alerta={cicloAlerta} />
-        <Dial label="Adrenalina" restante={Math.max(0, adrRest ?? 0)} total={pcr.adrenalinaIntervalSec} cor="#f59e0b" alerta={adrAlerta} />
+        <Dial label="Adrenalina" restante={adrRest != null ? Math.max(0, adrRest) : pcr.adrenalinaIntervalSec} total={pcr.adrenalinaIntervalSec} cor="#f59e0b" alerta={adrAlerta} />
       </div>
 
       <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 13.5, fontWeight: 700, marginBottom: 8 }}>
@@ -394,7 +394,7 @@ export default function PcrPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
             <button onClick={() => selecionarRitmo("FV/TV")} style={{ ...ritmoBtn, background: "#7a1620" }}>FV/TV<span style={blk}>chocável</span></button>
             <button onClick={() => selecionarRitmo("AESP")} style={{ ...ritmoBtn, background: "#1f2a3d" }}>AESP<span style={blk}>adrenalina</span></button>
-            <button onClick={() => selecionarRitmo("ASSISTOLIA")} style={{ ...ritmoBtn, background: "#1f2a3d" }}>ASSIS<span style={blk}>tolia</span></button>
+            <button onClick={() => selecionarRitmo("ASSISTOLIA")} style={{ ...ritmoBtn, background: "#1f2a3d", fontSize: 14 }}>Assistolia<span style={blk}>adrenalina</span></button>
           </div>
         </div>
       ) : (
