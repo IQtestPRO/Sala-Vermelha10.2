@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Copy, Calculator, Zap, Droplet, Lock } from "lucide-react";
+import { AlertTriangle, Copy, Calculator, Zap, Droplet, Lock, Baby, UserRound, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORIAS, CondutaCard } from "@/lib/condutas";
 import { UPA } from "@/lib/upa";
 import { calcDose, calcInfusao } from "@/lib/doseCalculator";
+import { estimarPeso, valoresPediatricos, clearanceCreatinina, bandaRenal, fmtNum } from "@/lib/pedCalc";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import AcaoRapidaCard from "./AcaoRapidaCard";
 import ImageAnalyzer from "./ImageAnalyzer";
@@ -35,9 +36,19 @@ export function categoriaLabel(card: CondutaCard) {
 }
 
 export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
+  const [idade, setIdade] = useState<number | undefined>(undefined);
   const [peso, setPeso] = useState<number | undefined>(undefined);
-  const temCalculo = card.doses.some((d) => d.mgPorKg || d.infusao);
+  const [creatinina, setCreatinina] = useState<number | undefined>(undefined);
+  const [sexo, setSexo] = useState<"M" | "F">("M");
+  const [pedAberto, setPedAberto] = useState(false);
   const upa = card.upa ?? UPA[card.id];
+
+  // Peso usado nos cálculos: o informado, ou estimado pela idade (criança).
+  const pesoEfetivo = peso ?? (idade != null && idade < 12 ? estimarPeso(idade) : undefined);
+  const estimado = peso == null && pesoEfetivo != null;
+  const ehPed = pesoEfetivo != null && ((idade != null && idade < 12) || (peso != null && peso < 40));
+  const ehIdoso = idade != null && idade >= 65;
+  const crcl = ehIdoso && peso != null && creatinina != null ? clearanceCreatinina(idade as number, peso, creatinina, sexo) : null;
 
   function copiar() {
     const linhas: string[] = [card.titulo, ""];
@@ -120,28 +131,73 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
 
       {card.doses.length > 0 && (
         <Section title="Doses">
-          {temCalculo && (
-            <div className="card-2" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, boxShadow: "none" }}>
+          <div className="card-2" style={{ display: "flex", flexDirection: "column", gap: 9, marginBottom: 10, boxShadow: "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Calculator size={18} color="var(--primary)" />
-              <span className="muted" style={{ fontSize: 13 }}>Peso</span>
-              <input
-                className="field"
-                inputMode="numeric"
-                placeholder="kg"
-                value={peso ?? ""}
-                onChange={(e) => {
-                  const n = e.target.value === "" ? undefined : Number(e.target.value.replace(",", "."));
-                  setPeso(Number.isNaN(n as number) ? undefined : n);
-                }}
-                style={{ minHeight: 42, width: 90 }}
-              />
-              <span className="faint" style={{ fontSize: 12 }}>Libera as doses</span>
+              <span className="muted" style={{ fontSize: 13, fontWeight: 700 }}>Calcular por idade / peso</span>
             </div>
-          )}
+            <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <input
+                  className="field"
+                  inputMode="decimal"
+                  placeholder="idade"
+                  value={idade ?? ""}
+                  onChange={(e) => { const n = e.target.value === "" ? undefined : Number(e.target.value.replace(",", ".")); setIdade(Number.isNaN(n as number) ? undefined : n); }}
+                  style={{ minHeight: 44, paddingRight: 44 }}
+                />
+                <span className="faint" style={{ position: "absolute", right: 12, top: 13, fontSize: 12 }}>anos</span>
+              </div>
+              <div style={{ position: "relative", flex: 1 }}>
+                <input
+                  className="field"
+                  inputMode="decimal"
+                  placeholder="peso"
+                  value={peso ?? ""}
+                  onChange={(e) => { const n = e.target.value === "" ? undefined : Number(e.target.value.replace(",", ".")); setPeso(Number.isNaN(n as number) ? undefined : n); }}
+                  style={{ minHeight: 44, paddingRight: 34 }}
+                />
+                <span className="faint" style={{ position: "absolute", right: 12, top: 13, fontSize: 12 }}>kg</span>
+              </div>
+            </div>
+            {estimado && (
+              <div className="faint" style={{ fontSize: 11.5, lineHeight: 1.4 }}>
+                Peso estimado pela idade: <b style={{ color: "var(--primary-press)" }}>≈ {fmtNum(pesoEfetivo as number)} kg</b> — informe o peso real se tiver.
+              </div>
+            )}
+            {ehIdoso && (
+              <>
+                <div style={{ fontSize: 11.5, color: "var(--amber)", display: "flex", gap: 5, alignItems: "flex-start", lineHeight: 1.4 }}>
+                  <UserRound size={13} style={{ flex: "0 0 auto", marginTop: 1 }} /> Idoso: comece pela MENOR dose de sedativos/opioides e ajuste pela função renal.
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ position: "relative", flex: 1 }}>
+                    <input
+                      className="field"
+                      inputMode="decimal"
+                      placeholder="creatinina"
+                      value={creatinina ?? ""}
+                      onChange={(e) => { const n = e.target.value === "" ? undefined : Number(e.target.value.replace(",", ".")); setCreatinina(Number.isNaN(n as number) ? undefined : n); }}
+                      style={{ minHeight: 42, paddingRight: 48 }}
+                    />
+                    <span className="faint" style={{ position: "absolute", right: 12, top: 12, fontSize: 11 }}>mg/dL</span>
+                  </div>
+                  {(["M", "F"] as const).map((s) => (
+                    <button key={s} className={`chip ${sexo === s ? "chip-on" : ""}`} onClick={() => setSexo(s)} style={{ flex: "0 0 auto" }}>{s}</button>
+                  ))}
+                </div>
+                {crcl != null && (
+                  <div className="data" style={{ fontSize: 14, fontWeight: 700 }}>
+                    Clearance ≈ <span style={{ color: bandaRenal(crcl).cor }}>{fmtNum(crcl, 0)} mL/min · {bandaRenal(crcl).txt}</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {card.doses.map((d, k) => {
-              const calc = peso ? calcDose(d, peso) : null;
-              const inf = d.infusao ? calcInfusao(d.infusao, peso) : null;
+              const calc = pesoEfetivo ? calcDose(d, pesoEfetivo) : null;
+              const inf = d.infusao ? calcInfusao(d.infusao, pesoEfetivo) : null;
               return (
                 <div
                   key={k}
@@ -149,7 +205,7 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
                   style={{ padding: "12px 14px", cursor: "pointer" }}
                   title="Tocar para copiar"
                   onClick={() => {
-                    const txt = `${d.farmaco}: ${d.dose}${d.via ? " " + d.via : ""}${calc ? ` (${peso} kg → ${calc.label})` : ""}`;
+                    const txt = `${d.farmaco}: ${d.dose}${d.via ? " " + d.via : ""}${calc ? ` (${fmtNum(pesoEfetivo as number)} kg → ${calc.label})` : ""}`;
                     navigator.clipboard?.writeText(txt).then(
                       () => {
                         toast.success("Dose copiada.");
@@ -168,11 +224,11 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
                   </div>
                   {calc && (
                     <div className="data" style={{ marginTop: 7, color: "var(--primary-press)", fontWeight: 700, fontSize: 17 }}>
-                      {peso} kg → {calc.label}
+                      {fmtNum(pesoEfetivo as number)} kg → {calc.label}
                     </div>
                   )}
                   {d.obs && <div className="faint" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.4 }}>{d.obs}</div>}
-                  {peso && !d.mgPorKg && !d.infusao && (
+                  {pesoEfetivo && !d.mgPorKg && !d.infusao && (
                     <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 6, fontSize: 11.5, color: "var(--text-faint)" }}>
                       <Lock size={12} /> Dose fixa — não varia com o peso
                     </div>
@@ -228,6 +284,26 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
               );
             })}
           </div>
+
+          {ehPed && pesoEfetivo != null && (
+            <div style={{ marginTop: 12 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setPedAberto((o) => !o)} style={{ alignSelf: "flex-start" }}>
+                <Baby size={16} /> Valores pediátricos
+                <ChevronDown size={15} style={{ transform: pedAberto ? "rotate(180deg)" : "none", transition: "transform .15s" }} />
+              </button>
+              {pedAberto && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+                  {valoresPediatricos(pesoEfetivo as number, idade).map((v, i) => (
+                    <div key={i} className="z-sunken" style={{ padding: "10px 12px" }}>
+                      <div className="faint" style={{ fontSize: 12, fontWeight: 700 }}>{v.titulo}</div>
+                      <div className="data" style={{ fontSize: 15.5, fontWeight: 700, color: "var(--primary-press)", marginTop: 2 }}>{v.valor}</div>
+                      {v.nota && <div className="faint" style={{ fontSize: 11, marginTop: 2 }}>{v.nota}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </Section>
       )}
 
