@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, ChevronRight, ChevronLeft, FlaskConical, Baby, Activity, ListChecks, Droplet, AlertTriangle } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import ScoreCalculator from "@/components/ScoreCalculator";
@@ -18,11 +18,11 @@ function num(v: string): number | undefined {
   return Number.isFinite(x) && x > 0 ? x : undefined;
 }
 
-const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
+const TABS: { key: Tab; label: string; icon: React.ReactNode; novo?: boolean }[] = [
   { key: "escores", label: "Escores", icon: <ListChecks size={16} /> },
-  { key: "medicacoes", label: "Medicações", icon: <Droplet size={16} /> },
+  { key: "medicacoes", label: "Medicações", icon: <Droplet size={16} />, novo: true },
   { key: "formulas", label: "Fórmulas", icon: <FlaskConical size={16} /> },
-  { key: "gaso", label: "Gasometria", icon: <Activity size={16} /> },
+  { key: "gaso", label: "Gasometria", icon: <Activity size={16} />, novo: true },
   { key: "pediatria", label: "Pediatria", icon: <Baby size={16} /> },
   { key: "renal", label: "Renal", icon: <Activity size={16} /> },
 ];
@@ -211,14 +211,38 @@ function Renal() {
 
 export default function CalculadorasPage() {
   const [tab, setTab] = useState<Tab>("escores");
+  const [seen, setSeen] = useState<string[]>([]);
+  useEffect(() => {
+    try {
+      setSeen(JSON.parse(localStorage.getItem("stat_calc_seen") || "[]"));
+    } catch {
+      /* noop */
+    }
+  }, []);
+  function abrir(k: Tab) {
+    setTab(k);
+    const t = TABS.find((x) => x.key === k);
+    if (t?.novo && !seen.includes(k)) {
+      const ns = [...seen, k];
+      setSeen(ns);
+      try {
+        localStorage.setItem("stat_calc_seen", JSON.stringify(ns));
+      } catch {
+        /* noop */
+      }
+    }
+  }
   return (
     <>
       <TopBar brand title="Calculadoras" subtitle="Escores, medicações e cálculos" right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14, paddingBottom: 96 }}>
         <div className="scroll-x" style={{ scrollSnapType: "x proximity" }}>
           {TABS.map((t) => (
-            <button key={t.key} className={`chip ${tab === t.key ? "chip-on" : ""}`} onClick={() => setTab(t.key)} style={{ flex: "0 0 auto", gap: 5 }}>
+            <button key={t.key} className={`chip ${tab === t.key ? "chip-on" : ""}`} onClick={() => abrir(t.key)} style={{ flex: "0 0 auto", gap: 5 }}>
               {t.icon} {t.label}
+              {t.novo && !seen.includes(t.key) && (
+                <span style={{ fontSize: 9, fontWeight: 800, background: "var(--primary)", color: "#fff", borderRadius: 999, padding: "1px 5px", marginLeft: 1, letterSpacing: "0.03em" }}>NOVO</span>
+              )}
             </button>
           ))}
         </div>

@@ -253,6 +253,10 @@ export default function PerfilPage() {
         <button className="btn btn-primary" disabled={saving} onClick={salvar} style={{ minHeight: 52 }}>
           {saving ? <><Loader2 size={20} className="spin" /> Salvando…</> : <><Save size={20} /> Salvar perfil</>}
         </button>
+
+        <button className="btn btn-ghost" onClick={() => window.dispatchEvent(new Event("stat-open-tutorial"))} style={{ minHeight: 46 }}>
+          <GraduationCap size={18} /> Ver tutorial do app
+        </button>
       </div>
 
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pickAvatar(e.target.files)} />

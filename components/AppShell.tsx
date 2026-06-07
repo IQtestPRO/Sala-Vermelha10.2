@@ -6,7 +6,10 @@ import { apiGet, Me } from "@/lib/client";
 import BottomNav from "./BottomNav";
 import InstallPrompt from "./InstallPrompt";
 import ConsentScreen from "./ConsentScreen";
+import Onboarding from "./Onboarding";
 import { CONSENT_VERSION } from "@/lib/legal/disclaimer";
+
+const ONBOARDING_KEY = "stat_onboarding_v1";
 
 const MeCtx = createContext<Me | null>(null);
 export function useMe(): Me {
@@ -27,12 +30,37 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);
   const [ready, setReady] = useState(false);
   const [consented, setConsented] = useState<boolean | null>(null);
+  const [showOnb, setShowOnb] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     setConsented(localStorage.getItem("e10_consent") === CONSENT_VERSION);
   }, []);
+
+  // Tutorial: 1º acesso (após consentir) + reabrível pelo Perfil (evento).
+  useEffect(() => {
+    const abrir = () => setShowOnb(true);
+    window.addEventListener("stat-open-tutorial", abrir);
+    return () => window.removeEventListener("stat-open-tutorial", abrir);
+  }, []);
+  useEffect(() => {
+    if (ready && me && consented) {
+      try {
+        if (!localStorage.getItem(ONBOARDING_KEY)) setShowOnb(true);
+      } catch {
+        /* noop */
+      }
+    }
+  }, [ready, me, consented]);
+  const fecharOnb = () => {
+    try {
+      localStorage.setItem(ONBOARDING_KEY, "1");
+    } catch {
+      /* noop */
+    }
+    setShowOnb(false);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -85,6 +113,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </div>
         <BottomNav me={me} />
+        {showOnb && <Onboarding onDone={fecharOnb} />}
       </MeUpdateCtx.Provider>
     </MeCtx.Provider>
   );
