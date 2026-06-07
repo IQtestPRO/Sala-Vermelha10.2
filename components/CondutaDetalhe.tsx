@@ -9,6 +9,7 @@ import { calcDose, calcInfusao } from "@/lib/doseCalculator";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import AcaoRapidaCard from "./AcaoRapidaCard";
 import ImageAnalyzer from "./ImageAnalyzer";
+import UpaSection from "./UpaSection";
 
 const ulStyle: React.CSSProperties = {
   margin: 0,
@@ -225,24 +226,7 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
         </Section>
       )}
 
-      {upa && upa.length > 0 && (
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontWeight: 900, fontSize: 11, letterSpacing: "0.06em", color: "#fff", background: "var(--primary)", borderRadius: 6, padding: "2px 7px" }}>UPA</span>
-            <span className="label" style={{ margin: 0 }}>Alternativa no SUS / UPA</span>
-          </div>
-          <div
-            className="card-2"
-            style={{ boxShadow: "none", border: "1px solid color-mix(in srgb, var(--primary) 32%, var(--border))", background: "color-mix(in srgb, var(--primary) 6%, var(--surface))", padding: "12px 14px" }}
-          >
-            <ul style={ulStyle}>
-              {upa.map((u, k) => (
-                <li key={k}>{u}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+      {upa && upa.length > 0 && <UpaSection items={upa} />}
 
       <Section title="Alertas">
         <div className="card" style={{ borderColor: "color-mix(in srgb, var(--red) 30%, var(--border))", display: "flex", flexDirection: "column", gap: 7 }}>
