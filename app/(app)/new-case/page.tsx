@@ -3,59 +3,24 @@
 import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import {
-  Activity,
-  HeartPulse,
-  Zap,
-  HeartCrack,
-  Wind,
-  Droplet,
-  Brain,
-  FlaskConical,
-  Bone,
-  Heart,
-  CircleHelp,
-  ChevronLeft,
-  Send,
-  SlidersHorizontal,
-  Sparkles,
-  Loader2,
-  Stethoscope,
-} from "lucide-react";
+import { Zap, ChevronLeft, Send, SlidersHorizontal, Sparkles, Loader2, Stethoscope } from "lucide-react";
 import ScreenHero from "@/components/ScreenHero";
 import PhotoCapture, { CapturedPhoto } from "@/components/PhotoCapture";
 import AiFunnel from "@/components/AiFunnel";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
 import { MultiStepLoader } from "@/components/ui/multi-step-loader";
 import { apiPost } from "@/lib/client";
-import { QUESTION_TYPES, questionMeta, QuestionType, RITMOS, RitmoMonitor, Sexo, Vitais } from "@/lib/types/case";
-import { specialistIdForQuestionType } from "@/lib/specialists";
+import { RITMOS, RitmoMonitor, Sexo, Vitais } from "@/lib/types/case";
 import { LGPD_NOTA } from "@/lib/legal/disclaimer";
-import HfIcon from "@/components/icons/HfIcon";
 
 const ANALYZING_STEPS = [
-  { text: "Lendo a imagem do ECG / monitor" },
-  { text: "Identificando ritmo e frequência" },
-  { text: "Medindo intervalos e segmentos" },
-  { text: "Cruzando com diretrizes (AHA · ESC · SBC)" },
+  { text: "Lendo o caso e a imagem" },
+  { text: "Identificando a condição" },
+  { text: "Cruzando com a diretriz da especialidade" },
   { text: "Levantando hipóteses diagnósticas" },
-  { text: "Definindo conduta e doses" },
+  { text: "Definindo conduta imediata e doses" },
   { text: "Preparando a mensagem ao plantonista" },
 ];
-
-const ICONS: Record<string, React.ReactNode> = {
-  Activity: <HfIcon name="ecg" size={26} />,
-  HeartPulse: <HfIcon name="arritmia" size={26} />,
-  Zap: <HfIcon name="bolt" size={26} />,
-  HeartCrack: <HfIcon name="pcr" size={26} />,
-  Wind: <HfIcon name="airway" size={26} />,
-  Droplet: <HfIcon name="fluid" size={26} />,
-  Brain: <HfIcon name="brain" size={26} />,
-  FlaskConical: <HfIcon name="tox" size={26} />,
-  Bone: <HfIcon name="trauma" size={26} />,
-  Heart: <HfIcon name="heart" size={26} />,
-  CircleHelp: <HfIcon name="help" size={26} />,
-};
 
 function NumField({
   label,
@@ -115,14 +80,10 @@ function MensagemBlock({ value, onChange }: { value: string; onChange: (v: strin
 function NewCaseInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const initialType = (params.get("type") as QuestionType) || null;
   const urgenciaParam = params.get("mode") === "urgencia";
 
   const [urgente, setUrgente] = useState(urgenciaParam);
   const [step, setStep] = useState(1);
-  const [qtype, setQtype] = useState<QuestionType | null>(
-    initialType && QUESTION_TYPES.some((q) => q.key === initialType) ? initialType : null
-  );
   const [summary, setSummary] = useState("");
   const [photo, setPhoto] = useState<CapturedPhoto | null>(null);
   const [age, setAge] = useState<number | undefined>(undefined);
@@ -131,15 +92,14 @@ function NewCaseInner() {
   const [vitals, setVitals] = useState<Vitais>({});
   const [sending, setSending] = useState(false);
 
-  // IA
+  // IA — a IA identifica sozinha a condição e aplica a guideline da especialidade.
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [aiMessage, setAiMessage] = useState("");
   const [perguntas, setPerguntas] = useState<{ pergunta: string; opcoes: string[] }[]>([]);
 
-  const meta = qtype ? questionMeta(qtype) : null;
-  const condutaId = urgente ? "geral" : qtype ? specialistIdForQuestionType(qtype) : "geral";
-  const area = urgente ? "Urgência — qualquer caso" : meta?.label ?? "emergência";
+  const condutaId = "geral";
+  const area = urgente ? "Urgência — qualquer caso" : "emergência geral";
 
   const setV = (patch: Partial<Vitais>) => setVitals((p) => ({ ...p, ...patch }));
 
@@ -150,8 +110,8 @@ function NewCaseInner() {
   }
 
   async function analyze(comFunil: boolean, respostas?: { pergunta: string; resposta: string }[]) {
-    if (!photo) {
-      toast.error("Adicione a foto primeiro.");
+    if (!photo && !summary.trim()) {
+      toast.error("Descreva o caso ou anexe uma foto.");
       return;
     }
     setAnalyzing(true);
@@ -160,7 +120,7 @@ function NewCaseInner() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          image_base64: photo.base64,
+          image_base64: photo?.base64,
           conduta_id: condutaId,
           area,
           resumo: summary.trim() || undefined,
@@ -194,13 +154,13 @@ function NewCaseInner() {
 
   async function submit() {
     if (!photo && !summary.trim() && !aiMessage.trim()) {
-      toast.error("Adicione a foto ou um resumo clínico.");
+      toast.error("Descreva o caso ou anexe uma foto.");
       return;
     }
     setSending(true);
     try {
       const { id } = await apiPost<{ id: string }>("/api/cases", {
-        question_type: qtype || "OUTRO",
+        question_type: "OUTRO",
         clinical_summary: summary.trim() || (urgente ? "Caso de urgência (leitura imediata)" : ""),
         ai_message: aiMessage.trim() || undefined,
         ai_analysis: analysis || undefined,
@@ -219,7 +179,7 @@ function NewCaseInner() {
     }
   }
 
-  // ============ FLUXO URGÊNCIA ============
+  // ============ FLUXO URGÊNCIA (só foto → leitura imediata → funil) ============
   if (urgente) {
     return (
       <>
@@ -238,7 +198,7 @@ function NewCaseInner() {
           <div className="card" style={{ borderColor: "var(--red)", background: "var(--red-tint)", display: "flex", gap: 9, alignItems: "flex-start" }}>
             <Zap size={18} color="var(--red)" style={{ flex: "0 0 auto", marginTop: 1 }} />
             <div style={{ fontSize: 13, lineHeight: 1.4 }}>
-              <b style={{ color: "var(--red)" }}>Caso urgente.</b> Só tire a foto do monitor e toque em analisar. A IA dá a leitura na
+              <b style={{ color: "var(--red)" }}>Caso urgente.</b> Tire a foto do monitor e toque em analisar. A IA dá a leitura na
               hora e pode refinar com você por perguntas rápidas.
             </div>
           </div>
@@ -269,203 +229,160 @@ function NewCaseInner() {
     );
   }
 
-  // ============ PASSO 1 (normal) ============
-  if (step === 1) {
-    // Menu de entrada: urgência + tipos
-    if (!qtype) {
-      return (
-        <>
-          <ScreenHero
-            bg="/hero-novocaso.jpg"
-            title="Novo caso"
-            subtitle="Sala vermelha • resultado em menos de 2 min"
-            right={
-              <button className="hero-btn-text" onClick={() => router.back()}>
-                <ChevronLeft size={16} /> Sair
-              </button>
-            }
-          />
-          <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 16, paddingBottom: 28 }}>
-            <button
-              className="btn btn-emergency pulse"
-              onClick={() => { setUrgente(true); resetAi(); }}
-              style={{ minHeight: 62, fontSize: 17 }}
-            >
-              <Zap size={24} /> URGÊNCIA — leitura imediata
-            </button>
-
-            <div>
-              <div className="label">Ou registre por tipo de caso</div>
-              <div className="grid-tiles">
-                {QUESTION_TYPES.map((q) => (
-                  <button
-                    key={q.key}
-                    onClick={() => { setQtype(q.key); resetAi(); }}
-                    className="card-2"
-                    style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, cursor: "pointer", minHeight: 92 }}
-                  >
-                    <span style={{ color: "var(--navy)" }}>{ICONS[q.icon]}</span>
-                    <span style={{ fontWeight: 800, fontSize: 14 }}>{q.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </>
-      );
-    }
-
+  // ============ PASSO 2 (idade/peso/vitais — opcional) ============
+  if (step === 2) {
     return (
       <>
-        <MultiStepLoader loadingStates={ANALYZING_STEPS} loading={analyzing} duration={2400} />
         <ScreenHero
           bg="/hero-novocaso.jpg"
-          title={meta?.label ?? "Novo caso"}
-          subtitle="Registrar caso"
+          title="Dados do paciente"
+          subtitle="Tudo opcional — peso libera doses"
           right={
-            <button className="hero-btn-text" onClick={() => router.back()}>
-              <ChevronLeft size={16} /> Sair
+            <button className="hero-btn-text" onClick={() => setStep(1)}>
+              <ChevronLeft size={16} /> Voltar
             </button>
           }
         />
         <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 16, paddingBottom: 28 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ color: "var(--navy)" }}>{meta && ICONS[meta.icon]}</span>
-            <div style={{ fontWeight: 800, fontSize: 17, flex: 1 }}>{meta?.label}</div>
-            <button className="chip" style={{ minHeight: 36 }} onClick={() => { setQtype(null); resetAi(); }}>
-              Trocar
-            </button>
+          <div style={{ display: "flex", gap: 10 }}>
+            <NumField label="Idade" value={age} onChange={setAge} suffix="anos" />
+            <NumField label="Peso" value={weight} onChange={setWeight} suffix="kg" />
           </div>
-
-          <PhotoCapture photo={photo} onChange={(p) => { setPhoto(p); resetAi(); }} label="Foto do ECG / monitor" />
-          <div className="faint" style={{ fontSize: 11, lineHeight: 1.4 }}>{LGPD_NOTA}</div>
 
           <div>
-            <label className="label">Resumo clínico (curto)</label>
-            <input
-              className="field"
-              placeholder="Ex.: FA aguda, instável, FC 180, PA 80/50"
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-            />
+            <label className="label">Sexo</label>
+            <div className="scroll-x">
+              {([
+                ["M", "Masculino"],
+                ["F", "Feminino"],
+                ["O", "Outro"],
+              ] as [Sexo, string][]).map(([k, lbl]) => (
+                <button key={k} className={`chip ${sexo === k ? "chip-on" : ""}`} onClick={() => setSexo(k)} style={{ flex: "0 0 auto" }}>
+                  {lbl}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <button className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start" }} onClick={() => setStep(2)}>
-            <SlidersHorizontal size={18} /> Idade, peso e vitais (opcional)
-          </button>
+          <hr className="divider" />
 
-          {photo && !analysis && (
-            <button className="btn btn-primary" disabled={analyzing} onClick={() => analyze(false)}>
-              {analyzing ? <><Loader2 size={20} className="spin" /> Analisando…</> : <><Sparkles size={20} /> Analisar com IA (opcional)</>}
-            </button>
-          )}
+          <div className="label">Sinais vitais</div>
+          <div>
+            <label className="label" style={{ marginBottom: 4 }}>
+              Pressão arterial
+            </label>
+            <div className="scroll-x" style={{ marginBottom: 8 }}>
+              {[
+                [120, 80],
+                [90, 60],
+                [80, 40],
+                [160, 100],
+              ].map(([s, d]) => (
+                <button
+                  key={`${s}/${d}`}
+                  className={`chip ${vitals.paSys === s && vitals.paDia === d ? "chip-on" : ""}`}
+                  onClick={() => setV({ paSys: s, paDia: d })}
+                  style={{ flex: "0 0 auto" }}
+                >
+                  {s}/{d}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <NumField label="Sistólica" value={vitals.paSys} onChange={(v) => setV({ paSys: v })} suffix="mmHg" />
+              <NumField label="Diastólica" value={vitals.paDia} onChange={(v) => setV({ paDia: v })} suffix="mmHg" />
+            </div>
+          </div>
 
-          {analysis && <AnalysisResult a={analysis} />}
-          {analysis && <MensagemBlock value={aiMessage} onChange={setAiMessage} />}
+          <div style={{ display: "flex", gap: 10 }}>
+            <NumField label="FC" value={vitals.fc} onChange={(v) => setV({ fc: v })} suffix="bpm" />
+            <NumField label="FR" value={vitals.fr} onChange={(v) => setV({ fr: v })} suffix="irpm" />
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <NumField label="SpO₂" value={vitals.satO2} onChange={(v) => setV({ satO2: v })} suffix="%" />
+            <NumField label="Tax" value={vitals.tax} onChange={(v) => setV({ tax: v })} suffix="°C" />
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <NumField label="Glicemia (HGT)" value={vitals.glicemia} onChange={(v) => setV({ glicemia: v })} suffix="mg/dL" />
+            <NumField label="Glasgow" value={vitals.glasgow} onChange={(v) => setV({ glasgow: v })} />
+          </div>
 
-          <button className="btn btn-emergency" disabled={sending || (!photo && !summary.trim())} onClick={submit}>
-            <Send size={20} /> {sending ? "Enviando…" : "Enviar ao plantonista"}
+          <div>
+            <label className="label">Ritmo no monitor</label>
+            <div className="scroll-x" style={{ flexWrap: "wrap" }}>
+              {RITMOS.map((r) => (
+                <button
+                  key={r.key}
+                  className={`chip ${vitals.ritmo === r.key ? "chip-on" : ""}`}
+                  onClick={() => setV({ ritmo: vitals.ritmo === r.key ? undefined : (r.key as RitmoMonitor) })}
+                  style={{ flex: "0 0 auto" }}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button className="btn btn-primary" onClick={() => setStep(1)}>
+            <ChevronLeft size={18} /> Voltar para analisar / enviar
           </button>
         </div>
       </>
     );
   }
 
-  // ============ PASSO 2 (vitais) ============
+  // ============ ENTRADA ÚNICA: escreva o caso e/ou anexe uma foto ============
   return (
     <>
+      <MultiStepLoader loadingStates={ANALYZING_STEPS} loading={analyzing} duration={2400} />
       <ScreenHero
         bg="/hero-novocaso.jpg"
-        title="Dados do paciente"
-        subtitle="Tudo opcional — peso libera doses"
+        title="Novo caso"
+        subtitle="Escreva o caso ou envie uma foto"
         right={
-          <button className="hero-btn-text" onClick={() => setStep(1)}>
-            <ChevronLeft size={16} /> Voltar
+          <button className="hero-btn-text" onClick={() => router.back()}>
+            <ChevronLeft size={16} /> Sair
           </button>
         }
       />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 16, paddingBottom: 28 }}>
-        <div style={{ display: "flex", gap: 10 }}>
-          <NumField label="Idade" value={age} onChange={setAge} suffix="anos" />
-          <NumField label="Peso" value={weight} onChange={setWeight} suffix="kg" />
-        </div>
+        <button
+          className="btn btn-emergency pulse"
+          onClick={() => { setUrgente(true); resetAi(); }}
+          style={{ minHeight: 58, fontSize: 16.5 }}
+        >
+          <Zap size={22} /> URGÊNCIA — leitura imediata
+        </button>
 
         <div>
-          <label className="label">Sexo</label>
-          <div className="scroll-x">
-            {([
-              ["M", "Masculino"],
-              ["F", "Feminino"],
-              ["O", "Outro"],
-            ] as [Sexo, string][]).map(([k, lbl]) => (
-              <button key={k} className={`chip ${sexo === k ? "chip-on" : ""}`} onClick={() => setSexo(k)} style={{ flex: "0 0 auto" }}>
-                {lbl}
-              </button>
-            ))}
-          </div>
+          <label className="label">Relate o caso</label>
+          <textarea
+            className="field"
+            placeholder="Ex.: Homem, 58a, dor precordial em aperto com irradiação para MSE há 40 min, sudorese, PA 150/90. Anexei o ECG."
+            value={summary}
+            onChange={(e) => { setSummary(e.target.value); resetAi(); }}
+            style={{ minHeight: 120, lineHeight: 1.5 }}
+          />
         </div>
 
-        <hr className="divider" />
+        <PhotoCapture photo={photo} onChange={(p) => { setPhoto(p); resetAi(); }} label="Anexe o ECG / exame (opcional)" />
+        <div className="faint" style={{ fontSize: 11, lineHeight: 1.4 }}>{LGPD_NOTA}</div>
 
-        <div className="label">Sinais vitais</div>
-        <div>
-          <label className="label" style={{ marginBottom: 4 }}>
-            Pressão arterial
-          </label>
-          <div className="scroll-x" style={{ marginBottom: 8 }}>
-            {[
-              [120, 80],
-              [90, 60],
-              [80, 40],
-              [160, 100],
-            ].map(([s, d]) => (
-              <button
-                key={`${s}/${d}`}
-                className={`chip ${vitals.paSys === s && vitals.paDia === d ? "chip-on" : ""}`}
-                onClick={() => setV({ paSys: s, paDia: d })}
-                style={{ flex: "0 0 auto" }}
-              >
-                {s}/{d}
-              </button>
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <NumField label="Sistólica" value={vitals.paSys} onChange={(v) => setV({ paSys: v })} suffix="mmHg" />
-            <NumField label="Diastólica" value={vitals.paDia} onChange={(v) => setV({ paDia: v })} suffix="mmHg" />
-          </div>
-        </div>
+        <button className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start" }} onClick={() => setStep(2)}>
+          <SlidersHorizontal size={18} /> Idade, peso e vitais (opcional)
+        </button>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <NumField label="FC" value={vitals.fc} onChange={(v) => setV({ fc: v })} suffix="bpm" />
-          <NumField label="FR" value={vitals.fr} onChange={(v) => setV({ fr: v })} suffix="irpm" />
-        </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <NumField label="SpO₂" value={vitals.satO2} onChange={(v) => setV({ satO2: v })} suffix="%" />
-          <NumField label="Tax" value={vitals.tax} onChange={(v) => setV({ tax: v })} suffix="°C" />
-        </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <NumField label="Glicemia (HGT)" value={vitals.glicemia} onChange={(v) => setV({ glicemia: v })} suffix="mg/dL" />
-          <NumField label="Glasgow" value={vitals.glasgow} onChange={(v) => setV({ glasgow: v })} />
-        </div>
+        {!analysis && (
+          <button className="btn btn-primary" disabled={analyzing || (!photo && !summary.trim())} onClick={() => analyze(false)}>
+            {analyzing ? <><Loader2 size={20} className="spin" /> Analisando…</> : <><Sparkles size={20} /> Analisar com IA</>}
+          </button>
+        )}
 
-        <div>
-          <label className="label">Ritmo no monitor</label>
-          <div className="scroll-x" style={{ flexWrap: "wrap" }}>
-            {RITMOS.map((r) => (
-              <button
-                key={r.key}
-                className={`chip ${vitals.ritmo === r.key ? "chip-on" : ""}`}
-                onClick={() => setV({ ritmo: vitals.ritmo === r.key ? undefined : (r.key as RitmoMonitor) })}
-                style={{ flex: "0 0 auto" }}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        {analysis && <AnalysisResult a={analysis} />}
+        {analysis && <MensagemBlock value={aiMessage} onChange={setAiMessage} />}
 
-        <button className="btn btn-primary" onClick={() => setStep(1)}>
-          <ChevronLeft size={18} /> Voltar para analisar / enviar
+        <button className="btn btn-emergency" disabled={sending || (!photo && !summary.trim())} onClick={submit}>
+          <Send size={20} /> {sending ? "Enviando…" : "Enviar ao plantonista"}
         </button>
       </div>
     </>

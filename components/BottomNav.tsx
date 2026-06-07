@@ -19,13 +19,13 @@ export default function BottomNav({ role }: { role: Role }) {
           { href: "/queue", label: "Fila", icon: <HfIcon name="nav-fila" size={26} /> },
           { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
           { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
-          { href: "/condutas", label: "Condutas", icon: <HfIcon name="nav-condutas" size={26} /> },
+          { href: "/condutas", label: "Especialidades", icon: <HfIcon name="nav-condutas" size={26} /> },
         ]
       : [
           RAPIDO,
           { href: "/feed", label: "Casos", icon: <HfIcon name="nav-casos" size={26} /> },
           { href: "/new-case", label: "Novo", icon: <HfIcon name="nav-novo" size={26} /> },
-          { href: "/condutas", label: "Condutas", icon: <HfIcon name="nav-condutas" size={26} /> },
+          { href: "/condutas", label: "Especialidades", icon: <HfIcon name="nav-condutas" size={26} /> },
         ];
 
   return (

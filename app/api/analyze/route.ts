@@ -35,7 +35,7 @@ function contextoClinico(ctx: AnalyzeCtx): string {
 }
 
 // Monta o prompt do AGENTE ESPECIALISTA da condicao (evidencia curada embutida + contexto do paciente).
-function buildSystem(condutaId: string, area: string, ctx: AnalyzeCtx): string {
+function buildSystem(condutaId: string, area: string, ctx: AnalyzeCtx, hasImage: boolean): string {
   const spec = resolveSpecialist(condutaId);
   const papel = spec?.papel ?? `médico emergencista sênior${area ? `, especialista em: ${area}` : " de sala vermelha"}`;
   const evid = (spec?.evidencias ?? []).map((e) => `- ${e.fato} [${e.fonte}]`).join("\n");
@@ -47,25 +47,23 @@ function buildSystem(condutaId: string, area: string, ctx: AnalyzeCtx): string {
     ? `\n- perguntas: 2 a 4 perguntas CURTAS de esclarecimento que tornariam o diagnóstico/conduta mais precisos, CADA uma com 3-4 "opcoes" objetivas pro médico clicar (ex.: nível de consciência, PA atual, tempo de evolução, resposta a medida já tomada). Pergunte SÓ o que muda a conduta. Se a imagem já bastar, devolva [].`
     : "";
 
-  return `Você é um ${papel}, analisando à beira-leito uma FOTO de ECG e/ou monitor multiparamétrico de um paciente GRAVE em sala vermelha. O tempo é crítico — seja rápido e direto.
+  return `Você é um ${papel}, avaliando um paciente GRAVE de sala vermelha ${hasImage ? "a partir de uma FOTO de ECG e/ou monitor multiparamétrico e da descrição clínica" : "a partir da DESCRIÇÃO CLÍNICA do médico (sem imagem anexada)"}. O tempo é crítico — seja rápido e direto.
 
 EVIDÊNCIA DE REFERÊNCIA (fundamente a leitura nestes dados; fonte entre colchetes):
 ${evid || "- (use seu conhecimento das diretrizes atuais)"}
-
-O QUE LER NESTA IMAGEM (foco para ${area || "esta condição"}):
-${ler}
-
+${hasImage ? `\nO QUE LER NA IMAGEM (foco para ${area || "esta condição"}):\n${ler}\n` : ""}
 RED FLAGS / ESCALONAMENTO:
 ${red || "- (use julgamento clínico para sinais de gravidade)"}
 ${acao ? `\nAÇÃO PRIORITÁRIA: ${acao}` : ""}
 
-DADOS CLÍNICOS DESTE PACIENTE (use junto com a imagem):
+DADOS CLÍNICOS DESTE PACIENTE:
 ${contextoClinico(ctx)}
 
 REGRAS:
-- Leia APENAS o que está visível na imagem (não invente dados; aponte sensor solto/artefato/PA não aferida). Use os dados clínicos acima como contexto.
+${hasImage ? "- Leia APENAS o que está visível na imagem (não invente dados; aponte sensor solto/artefato/PA não aferida). Use os dados clínicos acima como contexto." : "- Baseie-se na DESCRIÇÃO CLÍNICA acima; NÃO invente dados; deixe EXPLÍCITO o que ainda precisa ser confirmado (ex.: ECG, exames laboratoriais, imagem)."}
+- IDENTIFIQUE a condição mais provável e fundamente a conduta na DIRETRIZ MAIS ATUAL daquela especialidade — ex.: SCA/IAM → AHA/ACC e ESC; AVC → AHA/ASA Stroke; PCR → AHA/ACLS; sepse/choque → Surviving Sepsis; arritmias/FA → ESC/AHA; anafilaxia → WAO; intoxicações → protocolos toxicológicos; TEP → ESC. Cite a diretriz específica usada em "fontes".
 - Doses/energias são valores de REFERÊNCIA — o médico confere e aprova.
-- Fundamente as recomendações na EVIDÊNCIA acima e em LITERATURA/ESTUDOS DE REFERÊNCIA RENOMADOS e em padrões de CASOS REAIS consolidados (ex.: critérios de Sgarbossa/Smith, de Winter, Wellens, Brugada; grandes ensaios e diretrizes de sociedades). NÃO cite URLs nem invente referências; em "fontes" liste só nomes de diretrizes/estudos usados (ex.: ${fontes || "AHA/ACLS 2020, SBC"}).
+- Fundamente em LITERATURA/ESTUDOS DE REFERÊNCIA RENOMADOS e em padrões de CASOS REAIS consolidados (ex.: Sgarbossa/Smith, de Winter, Wellens, Brugada; grandes ensaios e diretrizes de sociedades). NÃO cite URLs nem invente referências; em "fontes" liste só nomes de diretrizes/estudos (ex.: ${fontes || "AHA/ACLS 2020, SBC"}).
 - Isto é APOIO À DECISÃO; o médico assistente lê, confirma e aprova.
 
 Responda em português, em JSON:
@@ -119,7 +117,6 @@ export async function POST(req: NextRequest) {
     const base64 = String(body.image_base64 || "");
     const condutaId = String(body.conduta_id || "").trim().slice(0, 64);
     const area = String(body.area || body.context || "").trim().slice(0, 200);
-    if (!base64) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
     if (base64.length > 9_000_000) return NextResponse.json({ error: "too_large" }, { status: 413 });
 
     const ctx: AnalyzeCtx = {
@@ -136,6 +133,17 @@ export async function POST(req: NextRequest) {
         : undefined,
       comFunil: !!body.comFunil,
     };
+    // Texto OU foto: precisa de pelo menos um.
+    if (!base64 && !ctx.resumo) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+
+    const userContent: Anthropic.ContentBlockParam[] = [];
+    if (base64) userContent.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } });
+    userContent.push({
+      type: "text",
+      text: base64
+        ? `Área/situação: ${area || "emergência geral"}. Analise a imagem deste paciente e responda no JSON pedido, o mais rápido possível.`
+        : `Área/situação: ${area || "emergência geral"}. Analise o caso pela descrição clínica acima e responda no JSON pedido, o mais rápido possível.`,
+    });
 
     const client = new Anthropic();
     const resp = await client.messages.create({
@@ -143,16 +151,8 @@ export async function POST(req: NextRequest) {
       max_tokens: 4000,
       // Sem thinking + effort baixo => resposta rapida (paciente na sala vermelha).
       output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-      system: buildSystem(condutaId, area, ctx),
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
-            { type: "text", text: `Área/situação: ${area || "emergência geral"}. Analise a imagem deste paciente e responda no JSON pedido, o mais rápido possível.` },
-          ],
-        },
-      ],
+      system: buildSystem(condutaId, area, ctx, !!base64),
+      messages: [{ role: "user", content: userContent }],
     } as Anthropic.MessageCreateParamsNonStreaming);
 
     const textBlock = resp.content.find((b) => b.type === "text");
