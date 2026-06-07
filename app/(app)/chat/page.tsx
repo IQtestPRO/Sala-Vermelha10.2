@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, ImagePlus, Loader2, X, Sparkles, Stethoscope } from "lucide-react";
+import { Send, ImagePlus, Loader2, X, Sparkles, Stethoscope, History, SquarePen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { resizeToJpegBase64 } from "@/lib/image";
+import { apiGet, apiPost } from "@/lib/client";
 import { LGPD_NOTA } from "@/lib/legal/disclaimer";
 
-type Msg = { role: "user" | "assistant"; text: string; image?: string };
+type Msg = { role: "user" | "assistant"; text: string; image?: string; imageUrl?: string };
+type ChatRef = { id: string; title: string; updated_at: number };
 
 const GREETING =
   "Sou o STAT. Mande a foto do ECG/monitor/exame + uma descrição breve do caso. Eu faço a leitura, te pergunto o que falta e devolvo conduta padrão-ouro e a alternativa para UPA/SUS.";
 
-// Render leve de markdown: títulos (#), negrito (**), bullets e quebras de linha.
+function quando(ts: number): string {
+  const s = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+  if (s < 60) return "agora";
+  if (s < 3600) return `há ${Math.floor(s / 60)} min`;
+  if (s < 86400) return `há ${Math.floor(s / 3600)} h`;
+  return `há ${Math.floor(s / 86400)} d`;
+}
+
 function inline(s: string, key: string) {
   return s.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
     p.startsWith("**") && p.endsWith("**") ? <b key={key + i}>{p.slice(2, -2)}</b> : <span key={key + i}>{p}</span>
@@ -34,8 +43,12 @@ function RichText({ text }: { text: string }) {
 export default function ChatPage() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
-  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [pendingImage, setPendingImage] = useState<{ base64: string; url?: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [showHist, setShowHist] = useState(false);
+  const [hist, setHist] = useState<ChatRef[]>([]);
+  const [loadingHist, setLoadingHist] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +61,15 @@ export default function ChatPage() {
     if (!file || !file.type.startsWith("image/")) return;
     try {
       const b = await resizeToJpegBase64(file);
-      setPendingImage(b);
+      setPendingImage({ base64: b });
+      // Sobe ao Blob (best-effort) p/ persistir no historico sem guardar base64.
+      try {
+        const res = await fetch("/api/upload", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ base64: b }) });
+        const d = await res.json().catch(() => ({}));
+        if (res.ok && d.url) setPendingImage((p) => (p ? { ...p, url: d.url } : p));
+      } catch {
+        /* segue só com base64 (vision desta sessão) */
+      }
     } catch {
       toast.error("Não consegui ler a imagem.");
     } finally {
@@ -56,16 +77,25 @@ export default function ChatPage() {
     }
   }
 
+  async function saveChat(msgs: Msg[]) {
+    try {
+      const payload = msgs.map((m) => ({ role: m.role, text: m.text, imageUrl: m.imageUrl }));
+      const r = await apiPost<{ id: string }>("/api/chats", { id: chatId, messages: payload });
+      if (r?.id) setChatId(r.id);
+    } catch {
+      /* salvar é best-effort; não atrapalha a conversa */
+    }
+  }
+
   async function send() {
     const text = input.trim();
     if ((!text && !pendingImage) || busy) return;
-    const userMsg: Msg = { role: "user", text, image: pendingImage ?? undefined };
+    const userMsg: Msg = { role: "user", text, image: pendingImage?.base64, imageUrl: pendingImage?.url };
     const next = [...messages, userMsg];
-    setMessages(next);
+    setMessages([...next, { role: "assistant", text: "" }]);
     setInput("");
     setPendingImage(null);
     setBusy(true);
-    setMessages((m) => [...m, { role: "assistant", text: "" }]);
 
     try {
       const res = await fetch("/api/chat", {
@@ -75,12 +105,12 @@ export default function ChatPage() {
       });
       if (res.status === 503) {
         toast.error("IA ainda não configurada (ANTHROPIC_API_KEY).");
-        setMessages((m) => m.slice(0, -1));
+        setMessages(next);
         return;
       }
       if (!res.ok || !res.body) {
         toast.error("A IA não respondeu agora. Tente de novo.");
-        setMessages((m) => m.slice(0, -1));
+        setMessages(next);
         return;
       }
       const reader = res.body.getReader();
@@ -90,32 +120,73 @@ export default function ChatPage() {
         const { done, value } = await reader.read();
         if (done) break;
         acc += dec.decode(value, { stream: true });
-        setMessages((m) => {
-          const c = [...m];
-          c[c.length - 1] = { role: "assistant", text: acc };
-          return c;
-        });
+        setMessages([...next, { role: "assistant", text: acc }]);
       }
+      void saveChat([...next, { role: "assistant", text: acc }]);
     } catch {
       toast.error("Falha de conexão.");
-      setMessages((m) => m.slice(0, -1));
+      setMessages(next);
     } finally {
       setBusy(false);
     }
   }
 
+  function novaConversa() {
+    if (busy) return;
+    setMessages([]);
+    setChatId(null);
+    setPendingImage(null);
+    setInput("");
+    setShowHist(false);
+  }
+
+  async function abrirHistorico() {
+    setShowHist(true);
+    setLoadingHist(true);
+    try {
+      const r = await apiGet<{ chats: ChatRef[] }>("/api/chats");
+      setHist(r.chats || []);
+    } catch {
+      toast.error("Não consegui carregar o histórico.");
+    } finally {
+      setLoadingHist(false);
+    }
+  }
+
+  async function abrirChat(id: string) {
+    try {
+      const r = await apiGet<{ id: string; messages: Msg[] }>(`/api/chats/${id}`);
+      setMessages(r.messages || []);
+      setChatId(r.id);
+      setShowHist(false);
+    } catch {
+      toast.error("Não consegui abrir a conversa.");
+    }
+  }
+
+  async function apagarChat(id: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    try {
+      await fetch(`/api/chats/${id}`, { method: "DELETE" });
+      setHist((h) => h.filter((c) => c.id !== id));
+      if (chatId === id) novaConversa();
+    } catch {
+      toast.error("Não consegui apagar.");
+    }
+  }
+
   return (
     <div className="chat-root">
-      {/* Cabeçalho */}
       <div className="chat-top">
         <span className="chat-top-badge"><Sparkles size={15} /></span>
-        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15, flex: 1, minWidth: 0 }}>
           <span style={{ fontWeight: 800, fontSize: 15 }}>STAT IA</span>
           <span className="faint" style={{ fontSize: 11.5 }}>Discuta o caso — análise, perguntas e conduta</span>
         </div>
+        <button className="chat-top-btn" onClick={abrirHistorico} aria-label="Histórico de conversas"><History size={19} /></button>
+        <button className="chat-top-btn" onClick={novaConversa} aria-label="Nova conversa"><SquarePen size={19} /></button>
       </div>
 
-      {/* Mensagens */}
       <div className="chat-scroll">
         {messages.length === 0 && (
           <div className="chat-bubble chat-bot">
@@ -126,11 +197,13 @@ export default function ChatPage() {
         {messages.map((m, i) => (
           <div key={i} className={`chat-bubble ${m.role === "user" ? "chat-me" : "chat-bot"}`}>
             {m.role === "assistant" && <div className="chat-bot-head"><Stethoscope size={14} /> STAT</div>}
-            {m.image && (
+            {(m.image || m.imageUrl) && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={`data:image/jpeg;base64,${m.image}`} alt="anexo" className="chat-img" />
+              <img src={m.image ? `data:image/jpeg;base64,${m.image}` : m.imageUrl} alt="anexo" className="chat-img" />
             )}
-            {m.text ? <RichText text={m.text} /> : busy && i === messages.length - 1 ? (
+            {m.text ? (
+              <RichText text={m.text} />
+            ) : busy && i === messages.length - 1 ? (
               <span className="muted" style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
                 <Loader2 size={15} className="spin" /> Analisando…
               </span>
@@ -140,12 +213,11 @@ export default function ChatPage() {
         <div ref={endRef} />
       </div>
 
-      {/* Barra de envio */}
       <div className="chat-input-bar">
         {pendingImage && (
           <div className="chat-preview">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`data:image/jpeg;base64,${pendingImage}`} alt="prévia" />
+            <img src={`data:image/jpeg;base64,${pendingImage.base64}`} alt="prévia" />
             <button onClick={() => setPendingImage(null)} aria-label="Remover imagem"><X size={14} /></button>
           </div>
         )}
@@ -172,6 +244,38 @@ export default function ChatPage() {
         </div>
         <div className="faint" style={{ fontSize: 10.5, lineHeight: 1.35, marginTop: 6 }}>{LGPD_NOTA}</div>
       </div>
+
+      {showHist && (
+        <div className="chat-hist-overlay" onClick={() => setShowHist(false)}>
+          <div className="chat-hist" onClick={(e) => e.stopPropagation()}>
+            <div className="chat-hist-head">
+              <span style={{ fontWeight: 800, fontSize: 15 }}>Histórico de conversas</span>
+              <button className="chat-top-btn" onClick={() => setShowHist(false)} aria-label="Fechar"><X size={18} /></button>
+            </div>
+            <button className="btn btn-primary btn-sm" style={{ margin: "0 14px 8px" }} onClick={novaConversa}>
+              <SquarePen size={16} /> Nova conversa
+            </button>
+            <div className="chat-hist-list">
+              {loadingHist ? (
+                <div className="muted" style={{ padding: 16, textAlign: "center" }}><Loader2 size={16} className="spin" /> Carregando…</div>
+              ) : hist.length === 0 ? (
+                <div className="faint" style={{ padding: 16, textAlign: "center", fontSize: 13 }}>Nenhuma conversa salva ainda.</div>
+              ) : (
+                hist.map((c) => (
+                  <div key={c.id} className={`chat-hist-item ${chatId === c.id ? "on" : ""}`} onClick={() => abrirChat(c.id)}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.title}</div>
+                      <div className="faint" style={{ fontSize: 11.5 }}>{quando(c.updated_at)}</div>
+                    </div>
+                    <button className="chat-hist-del" onClick={(e) => apagarChat(c.id, e)} aria-label="Apagar"><Trash2 size={15} /></button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pickImage(e.target.files)} />
     </div>
   );

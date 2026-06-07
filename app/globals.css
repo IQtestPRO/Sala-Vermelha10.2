@@ -504,6 +504,15 @@ select.field {
 .chat-send { background: var(--navy); color: #fff; border-color: var(--navy); }
 .chat-send:disabled, .chat-attach:disabled { opacity: 0.5; }
 .chat-textarea { flex: 1; min-height: 44px; max-height: 120px; resize: none; padding: 11px 13px; line-height: 1.4; }
+.chat-top-btn { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-dim); cursor: pointer; }
+.chat-hist-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(8,14,26,0.5); backdrop-filter: blur(2px); display: flex; justify-content: flex-end; }
+.chat-hist { width: min(92vw, 380px); height: 100%; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: var(--shadow-lg); animation: hist-in 0.22s var(--ease-out-quart); }
+@keyframes hist-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.chat-hist-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 10px; }
+.chat-hist-list { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
+.chat-hist-item { display: flex; align-items: center; gap: 8px; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); cursor: pointer; }
+.chat-hist-item.on { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--surface)); }
+.chat-hist-del { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-faint); cursor: pointer; }
 
 /* Banner de boas-vindas (feed) — cinematografico */
 .welcome-banner { position: relative; overflow: hidden; border-radius: var(--r-lg); min-height: 92px; display: flex; align-items: flex-end; padding: 14px 16px; background: var(--navy-deep); box-shadow: var(--shadow-md); }

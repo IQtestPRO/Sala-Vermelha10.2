@@ -146,6 +146,19 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_case_events_case ON case_events(case_id, created_at)`);
 
+  // ---- CHATS (historico de conversas com a IA, por usuario) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS chats (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      title      TEXT NOT NULL,
+      messages   TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_chats_user ON chats(user_id, updated_at)`);
+
   await maybeSeedResponder(db);
   tableReady = true;
 }
