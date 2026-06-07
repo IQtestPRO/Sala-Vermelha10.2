@@ -460,7 +460,11 @@ export const SPECIALISTS: Record<string, SpecialistConfig> = {
         "fonte": "Surviving Sepsis Campaign 2021"
       },
       {
-        "fato": "2a linha: adicionar vasopressina (referência 0,03 U/min) quando noradrenalina atinge ~0,25-0,5 mcg/kg/min; se débito cardíaco baixo persistente, adicionar adrenalina.",
+        "fato": "DILUIÇÃO PRÁTICA da noradrenalina (padrão comum): 16 mg (4 ampolas de 4 mg/4 mL) + 234 mL SG5% = 250 mL → 64 mcg/mL, em BIC (preferir acesso central). Conversão: mL/h = mcg/kg/min × peso(kg) × 60 ÷ 64 (ex.: 70 kg a 0,1 ≈ 6,5 mL/h; 0,3 ≈ 20; 0,5 ≈ 33). Sempre dê a diluição e a velocidade em mL/h quando indicar a noradrenalina; confira o protocolo institucional.",
+        "fonte": "Prática de UTI / Surviving Sepsis Campaign 2021"
+      },
+      {
+        "fato": "2a linha: adicionar vasopressina (referência 0,03 U/min, FIXA, não titula) quando noradrenalina atinge ~0,25-0,5 mcg/kg/min; se débito cardíaco baixo persistente, adicionar adrenalina. DILUIÇÃO da vasopressina: 20 UI + 100 mL SF0,9% = 0,2 UI/mL → 0,03 UI/min = 9 mL/h.",
         "fonte": "Surviving Sepsis Campaign 2021"
       },
       {
