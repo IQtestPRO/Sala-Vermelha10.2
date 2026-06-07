@@ -199,9 +199,14 @@ body {
   max-width: none;
   margin: 0;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
+/* iOS NÃO pode receber -webkit-overflow-scrolling:touch aqui — prende position:fixed
+   (overlays como o Modo PCR) ao container de scroll em vez da viewport. */
+
+/* Modo PCR ocupa a tela inteira (overlay fixed z-200) → esconde a nav e trava o scroll de fundo. */
+body.rcp-open .bottom-nav { display: none; }
+body.rcp-open .app-shell-frame > .app-main { overflow: hidden; }
 
 .topbar {
   position: sticky;

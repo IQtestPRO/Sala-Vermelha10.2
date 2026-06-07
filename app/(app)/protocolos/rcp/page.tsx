@@ -140,6 +140,11 @@ export default function PcrPage() {
     const id = setInterval(tick, 250);
     return () => clearInterval(id);
   }, []);
+  // Modo PCR é tela cheia: esconde a barra de navegação enquanto estiver aberto.
+  useEffect(() => {
+    document.body.classList.add("rcp-open");
+    return () => document.body.classList.remove("rcp-open");
+  }, []);
   useEffect(() => {
     const s = load();
     if (s) setRetomavel(s);
@@ -436,87 +441,90 @@ export default function PcrPage() {
   }
 
   return (
-    <div style={{ ...shell, justifyContent: "flex-start", paddingTop: "calc(env(safe-area-inset-top) + 12px)", animation: cicloAlerta || adrAlerta ? "pcrflash 0.8s steps(1) infinite" : undefined }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-        <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em" }}>TOTAL</span>
-        <span className="data" style={{ color: "#fff", fontSize: 26, fontWeight: 800 }}>{mmss(total)}</span>
-      </div>
-
-      <div style={{ display: "flex", gap: 10, margin: "8px 0 6px" }}>
-        <Dial label="Ciclo" restante={Math.max(0, cicloRest)} total={CICLO_SEG} cor="#3b82f6" alerta={cicloAlerta} />
-        <Dial label="Adrenalina" restante={adrRest != null ? Math.max(0, adrRest) : pcr.adrenalinaIntervalSec} total={pcr.adrenalinaIntervalSec} cor="#f59e0b" alerta={adrAlerta} />
-      </div>
-
-      <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 13.5, fontWeight: 700, marginBottom: 3 }}>
-        Diagnóstico: {pcr.ciclos}º ciclo{ultimoRitmo ? ` · ${ultimoRitmo}` : ""}
-      </div>
-      <div className="data" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginBottom: 8, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
-        <span>Adrenalina ×{nAdr} · Choques {pcr.choques}</span>
-        <span style={{ opacity: 0.5 }}>|</span>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-          Adr a cada
-          <button onClick={() => upd({ adrenalinaIntervalSec: Math.max(180, pcr.adrenalinaIntervalSec - 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>−</button>
-          {Math.round(pcr.adrenalinaIntervalSec / 60)} min
-          <button onClick={() => upd({ adrenalinaIntervalSec: Math.min(300, pcr.adrenalinaIntervalSec + 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>+</button>
-        </span>
-      </div>
-
-      {adrAlerta && !cicloAlerta && <div style={{ textAlign: "center", color: "#ffb020", fontWeight: 800, fontSize: 16, marginBottom: 8 }}>💉 ADRENALINA AGORA?</div>}
-
-      {cicloAlerta ? (
-        <div style={{ width: "100%", maxWidth: 440 }}>
-          <div style={{ textAlign: "center", color: "#ff5b64", fontWeight: 800, fontSize: 17, marginBottom: 8 }}>⚠ CHEQUE O RITMO</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-            <button onClick={() => selecionarRitmo("FV/TV")} style={{ ...ritmoBtn, background: "#7a1620" }}>FV/TV<span style={blk}>chocável</span></button>
-            <button onClick={() => selecionarRitmo("AESP")} style={{ ...ritmoBtn, background: "#1f2a3d" }}>AESP<span style={blk}>adrenalina</span></button>
-            <button onClick={() => selecionarRitmo("ASSISTOLIA")} style={{ ...ritmoBtn, background: "#1f2a3d", fontSize: 14 }}>Assistolia<span style={blk}>adrenalina</span></button>
-          </div>
+    <div style={{ ...shell, padding: 0, paddingBottom: 0, alignItems: "stretch", justifyContent: "flex-start", overflowY: "hidden", animation: cicloAlerta || adrAlerta ? "pcrflash 0.8s steps(1) infinite" : undefined }}>
+      {/* ZONA 1 — cronômetros: SEMPRE visível no topo */}
+      <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", padding: "calc(env(safe-area-inset-top) + 12px) 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+          <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em" }}>TOTAL</span>
+          <span className="data" style={{ color: "#fff", fontSize: 26, fontWeight: 800 }}>{mmss(total)}</span>
         </div>
-      ) : (
-        <div style={{ width: "100%", maxWidth: 440, display: "flex", flexDirection: "column", gap: 8 }}>
-          {naoChocavel && <div style={{ textAlign: "center", color: "rgba(255,255,255,0.72)", fontSize: 13, fontWeight: 600 }}>Não chocável → Adrenalina + reiniciar massagem</div>}
-          {ultimoRitmo === "FV/TV" && (
-            <button onClick={registrarChoque} style={{ ...bigBtn, background: "#E11D2A", minHeight: 56 }}>
-              ⚡ Registrar choque{pcr.choques >= 2 ? " · Amiodarona após o 3º" : ""}
-            </button>
-          )}
-          {/* Grade de medicações */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            {MEDS.map((m) => (
-              <button
-                key={m.k}
-                onClick={() => registrarDroga(m)}
-                style={{
-                  minHeight: 56, borderRadius: 13, border: "none", color: "#fff", cursor: "pointer", padding: "8px 10px",
-                  background: m.destaque ? (adrAlerta ? "#E11D2A" : "#9a1b24") : "#1f2a3d",
-                  fontWeight: 800, fontSize: 15, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1.2,
-                }}
-              >
-                {m.label}
-                <span style={{ fontSize: 11.5, fontWeight: 600, opacity: 0.8, marginTop: 2 }}>{m.k === "ami" ? (pcr.amiodaronas === 0 ? "300 mg" : "150 mg") : m.dose}</span>
+        <div style={{ display: "flex", gap: 10, margin: "8px 0 6px" }}>
+          <Dial label="Ciclo" restante={Math.max(0, cicloRest)} total={CICLO_SEG} cor="#3b82f6" alerta={cicloAlerta} />
+          <Dial label="Adrenalina" restante={adrRest != null ? Math.max(0, adrRest) : pcr.adrenalinaIntervalSec} total={pcr.adrenalinaIntervalSec} cor="#f59e0b" alerta={adrAlerta} />
+        </div>
+        <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 13.5, fontWeight: 700, marginBottom: 3 }}>
+          Diagnóstico: {pcr.ciclos}º ciclo{ultimoRitmo ? ` · ${ultimoRitmo}` : ""}
+        </div>
+        <div className="data" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
+          <span>Adrenalina ×{nAdr} · Choques {pcr.choques}</span>
+          <span style={{ opacity: 0.5 }}>|</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+            Adr a cada
+            <button onClick={() => upd({ adrenalinaIntervalSec: Math.max(180, pcr.adrenalinaIntervalSec - 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>−</button>
+            {Math.round(pcr.adrenalinaIntervalSec / 60)} min
+            <button onClick={() => upd({ adrenalinaIntervalSec: Math.min(300, pcr.adrenalinaIntervalSec + 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>+</button>
+          </span>
+        </div>
+      </div>
+
+      {/* ZONA 2 — ritmos / medicações: ROLA se precisar */}
+      <div style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 16px", gap: 8 }}>
+        {adrAlerta && !cicloAlerta && <div style={{ textAlign: "center", color: "#ffb020", fontWeight: 800, fontSize: 16 }}>💉 ADRENALINA AGORA?</div>}
+
+        {cicloAlerta ? (
+          <div style={{ width: "100%", maxWidth: 440 }}>
+            <div style={{ textAlign: "center", color: "#ff5b64", fontWeight: 800, fontSize: 17, marginBottom: 8 }}>⚠ CHEQUE O RITMO</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              <button onClick={() => selecionarRitmo("FV/TV")} style={{ ...ritmoBtn, background: "#7a1620" }}>FV/TV<span style={blk}>chocável</span></button>
+              <button onClick={() => selecionarRitmo("AESP")} style={{ ...ritmoBtn, background: "#1f2a3d" }}>AESP<span style={blk}>adrenalina</span></button>
+              <button onClick={() => selecionarRitmo("ASSISTOLIA")} style={{ ...ritmoBtn, background: "#1f2a3d", fontSize: 14 }}>Assistolia<span style={blk}>adrenalina</span></button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ width: "100%", maxWidth: 440, display: "flex", flexDirection: "column", gap: 8 }}>
+            {naoChocavel && <div style={{ textAlign: "center", color: "rgba(255,255,255,0.72)", fontSize: 13, fontWeight: 600 }}>Não chocável → Adrenalina + reiniciar massagem</div>}
+            {ultimoRitmo === "FV/TV" && (
+              <button onClick={registrarChoque} style={{ ...bigBtn, background: "#E11D2A", minHeight: 56 }}>
+                ⚡ Registrar choque{pcr.choques >= 2 ? " · Amiodarona após o 3º" : ""}
               </button>
-            ))}
+            )}
+            {/* Grade de medicações */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {MEDS.map((m) => (
+                <button
+                  key={m.k}
+                  onClick={() => registrarDroga(m)}
+                  style={{
+                    minHeight: 56, borderRadius: 13, border: "none", color: "#fff", cursor: "pointer", padding: "8px 10px",
+                    background: m.destaque ? (adrAlerta ? "#E11D2A" : "#9a1b24") : "#1f2a3d",
+                    fontWeight: 800, fontSize: 15, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1.2,
+                  }}
+                >
+                  {m.label}
+                  <span style={{ fontSize: 11.5, fontWeight: 600, opacity: 0.8, marginTop: 2 }}>{m.k === "ami" ? (pcr.amiodaronas === 0 ? "300 mg" : "150 mg") : m.dose}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      <div style={{ flex: 1, minHeight: 8 }} />
-
-      {/* Barra inferior: Relatório · Causas · Metrônomo */}
-      <div style={{ width: "100%", maxWidth: 440, display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
-        <button onClick={() => setPainel("causas")} style={barBtn}>Causas 5H/5T</button>
-        <div style={{ ...barBtn, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "default" }}>
-          <button onClick={() => upd({ bpm: Math.max(100, pcr.bpm - 5) })} style={miniBtn}>−</button>
-          <button onClick={() => { ensureAudio(); upd({ metronomo: !pcr.metronomo }); }} style={{ background: "none", border: "none", color: pcr.metronomo ? "#4ade80" : "rgba(255,255,255,0.7)", fontWeight: 800, fontSize: 13, cursor: "pointer", minWidth: 64 }}>
-            {pcr.metronomo ? "🔊" : "🔇"} {pcr.bpm} bpm
-          </button>
-          <button onClick={() => upd({ bpm: Math.min(120, pcr.bpm + 5) })} style={miniBtn}>+</button>
-        </div>
+        )}
       </div>
 
-      <div style={{ width: "100%", maxWidth: 440, display: "flex", gap: 8 }}>
-        {!pcr.emRce && <button onClick={entrarRce} style={{ ...bigBtn, background: "#1f8f4f", minHeight: 52, fontSize: 17 }}>RCE</button>}
-        <button onClick={() => setFinalizando(true)} style={{ ...ghostBtn, marginTop: 0, borderColor: "rgba(255,255,255,0.25)", color: "#fff", minHeight: 52, flex: 1 }}>Finalizar</button>
+      {/* ZONA 3 — causas · metrônomo · ações: SEMPRE visível no rodapé */}
+      <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, width: "100%", padding: "10px 16px calc(env(safe-area-inset-bottom) + 12px)", borderTop: "1px solid rgba(255,255,255,0.08)", background: "#0b1019" }}>
+        <div style={{ width: "100%", maxWidth: 440, display: "flex", gap: 8, alignItems: "center" }}>
+          <button onClick={() => setPainel("causas")} style={barBtn}>Causas 5H/5T</button>
+          <div style={{ ...barBtn, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "default" }}>
+            <button onClick={() => upd({ bpm: Math.max(100, pcr.bpm - 5) })} style={miniBtn}>−</button>
+            <button onClick={() => { ensureAudio(); upd({ metronomo: !pcr.metronomo }); }} style={{ background: "none", border: "none", color: pcr.metronomo ? "#4ade80" : "rgba(255,255,255,0.7)", fontWeight: 800, fontSize: 13, cursor: "pointer", minWidth: 64 }}>
+              {pcr.metronomo ? "🔊" : "🔇"} {pcr.bpm} bpm
+            </button>
+            <button onClick={() => upd({ bpm: Math.min(120, pcr.bpm + 5) })} style={miniBtn}>+</button>
+          </div>
+        </div>
+        <div style={{ width: "100%", maxWidth: 440, display: "flex", gap: 8 }}>
+          {!pcr.emRce && <button onClick={entrarRce} style={{ ...bigBtn, background: "#1f8f4f", minHeight: 52, fontSize: 17 }}>RCE</button>}
+          <button onClick={() => setFinalizando(true)} style={{ ...ghostBtn, marginTop: 0, borderColor: "rgba(255,255,255,0.25)", color: "#fff", minHeight: 52, flex: 1 }}>Finalizar</button>
+        </div>
       </div>
 
       {finalizando && (
