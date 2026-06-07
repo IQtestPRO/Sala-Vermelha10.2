@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
       id: u.id,
       name: u.name,
       crm: u.crm,
+      doc_type: u.doc_type ?? "crm",
       specialty: u.specialty,
       role: u.role,
       status: u.status,

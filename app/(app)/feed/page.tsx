@@ -50,7 +50,7 @@ export default function FeedPage() {
 
   return (
     <>
-      <TopBar brand title="Casos" subtitle={`${me.name} • ${isResponder ? "plantonista" : me.crm}`} right={<LogoutButton />} />
+      <TopBar brand title="Casos" subtitle={`${me.name} • ${isResponder ? "plantonista" : me.crm || "acadêmico"}`} right={<LogoutButton />} />
       <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
         <div className="welcome-banner">
           {/* eslint-disable-next-line @next/next/no-img-element */}

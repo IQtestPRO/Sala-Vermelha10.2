@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureTables, getDb, UserRow } from "@/lib/db";
 import { verifyPassword, signSession, setSessionCookie, errorResponse } from "@/lib/auth";
+import { normalizeCpf, validateCpf } from "@/lib/cpf";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,17 +11,19 @@ export async function POST(req: NextRequest) {
     await ensureTables();
     const db = getDb();
     const body = await req.json();
-    const crm = String(body.crm ?? "").trim();
+    // Campo único "CRM ou CPF": 11 dígitos com CPF válido → busca por cpf; senão por crm.
+    const identifier = String(body.identifier ?? body.crm ?? "").trim();
     const password = String(body.password ?? "");
 
-    if (!crm || !password) {
+    if (!identifier || !password) {
       return NextResponse.json({ error: "invalid_input" }, { status: 400 });
     }
 
-    const r = await db.execute({
-      sql: "SELECT * FROM users WHERE crm = ? LIMIT 1",
-      args: [crm],
-    });
+    const digits = normalizeCpf(identifier);
+    const r =
+      digits.length === 11 && validateCpf(digits)
+        ? await db.execute({ sql: "SELECT * FROM users WHERE cpf = ? AND doc_type = 'cpf' LIMIT 1", args: [digits] })
+        : await db.execute({ sql: "SELECT * FROM users WHERE crm = ? AND doc_type = 'crm' LIMIT 1", args: [identifier] });
     if (r.rows.length === 0) {
       return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
     }

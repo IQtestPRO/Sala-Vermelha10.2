@@ -3,7 +3,9 @@ import type { Role, UserStatus } from "./db";
 export type Me = {
   id: string;
   name: string;
-  crm: string;
+  crm: string; // "" para acadêmicos (login por CPF)
+  cpf?: string | null;
+  doc_type?: "crm" | "cpf" | null;
   specialty: string;
   phone?: string | null;
   email?: string | null;
@@ -46,7 +48,9 @@ export function friendlyError(code: string): string {
   const map: Record<string, string> = {
     invalid_input: "Confira os campos e tente de novo.",
     crm_taken: "Já existe cadastro com esse CRM.",
-    invalid_credentials: "CRM ou senha incorretos.",
+    cpf_taken: "Já existe cadastro com esse CPF.",
+    invalid_cpf: "CPF inválido. Confira os números.",
+    invalid_credentials: "CRM/CPF ou senha incorretos.",
     unauthorized: "Sessão expirada. Entre novamente.",
     forbidden: "Você não tem permissão para isso.",
     not_approved: "Seu cadastro ainda não foi aprovado.",

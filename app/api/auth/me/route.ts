@@ -12,6 +12,8 @@ export async function GET(req: NextRequest) {
         id: user.id,
         name: user.name,
         crm: user.crm,
+        cpf: user.cpf,
+        doc_type: user.doc_type ?? "crm",
         specialty: user.specialty,
         phone: user.phone,
         email: user.email,

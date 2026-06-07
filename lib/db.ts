@@ -46,7 +46,8 @@ export async function ensureTables() {
       updated_at    INTEGER NOT NULL
     )
   `);
-  await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_crm ON users(crm)`);
+  // Índice único de CRM é criado como PARCIAL mais abaixo (após a coluna doc_type existir),
+  // p/ não colidir com acadêmicos (login por CPF, crm vazio).
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status)`);
 
   // ---- PUSH SUBSCRIPTIONS (multi-dispositivo) ----
@@ -98,6 +99,16 @@ export async function ensureTables() {
   await addColumnIfMissing(db, "users", "email", "TEXT");
   await addColumnIfMissing(db, "users", "avatar_url", "TEXT");
   await addColumnIfMissing(db, "users", "perfil_medico", "TEXT");
+
+  // ---- Login por CPF (acadêmicos) além de CRM ----
+  // doc_type: 'crm' (médico → responder) | 'cpf' (acadêmico → requester, travado).
+  await addColumnIfMissing(db, "users", "cpf", "TEXT");
+  await addColumnIfMissing(db, "users", "doc_type", "TEXT");
+  await db.execute(`UPDATE users SET doc_type = 'crm' WHERE doc_type IS NULL OR doc_type = ''`);
+  await db.execute(`DROP INDEX IF EXISTS idx_users_crm`);
+  // Únicos PARCIAIS: CRM só entre médicos; CPF só entre acadêmicos (vazios/nulos não colidem).
+  await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_crm_doc ON users(crm) WHERE doc_type = 'crm'`);
+  await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_cpf_doc ON users(cpf) WHERE doc_type = 'cpf'`);
 
   // ---- CASE IMAGES (ECG etc.) ----
   await db.execute(`
@@ -252,11 +263,15 @@ async function maybeSeedResponder(db: Client) {
 export type Role = "requester" | "responder" | "admin";
 export type UserStatus = "pending" | "approved" | "rejected" | "disabled";
 
+export type DocType = "crm" | "cpf";
+
 export type UserRow = {
   id: string;
   name: string;
-  crm: string;
-  specialty: string;
+  crm: string; // "" para acadêmicos (login por CPF)
+  cpf: string | null;
+  doc_type: DocType | null; // null em linhas antigas = tratar como 'crm'
+  specialty: string; // para acadêmicos guarda faculdade/período
   phone: string | null;
   email: string | null;
   avatar_url: string | null;

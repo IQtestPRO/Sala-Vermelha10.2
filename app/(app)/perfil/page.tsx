@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck, ChevronDown } from "lucide-react";
+import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck, ChevronDown, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { ESPECIALIDADES } from "@/lib/especialidades";
+import { formatCpf } from "@/lib/cpf";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import { useMe, useUpdateMe } from "@/components/AppShell";
 import { BackgroundGradient } from "@/components/ui/background-gradient";
@@ -143,10 +144,11 @@ export default function PerfilPage() {
   const avatarSrc = avatarPreview ? `data:image/jpeg;base64,${avatarPreview}` : avatarUrl || "";
   // Inclui a especialidade atual (se vier de cadastro antigo, fora da lista) p/ não perder o valor.
   const opcoesEsp = specialty && !ESPECIALIDADES.includes(specialty) ? [specialty, ...ESPECIALIDADES] : ESPECIALIDADES;
+  const isAcad = me.doc_type === "cpf"; // acadêmico (login por CPF) — sem CRM/especialidade médica
 
   return (
     <>
-      <TopBar brand title="Perfil" subtitle={`${me.name} • ${me.crm}`} right={<LogoutButton />} />
+      <TopBar brand title="Perfil" subtitle={`${me.name}${me.crm ? " • " + me.crm : isAcad ? " • Acadêmico" : ""}`} right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 18, paddingBottom: 28 }}>
         {/* Avatar (Aceternity BackgroundGradient) */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
@@ -164,7 +166,7 @@ export default function PerfilPage() {
           <div style={{ textAlign: "center" }}>
             <div style={{ fontWeight: 800, fontSize: 17 }}>{me.name}</div>
             <div className="faint" style={{ fontSize: 12.5, display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
-              <BadgeCheck size={13} color="var(--primary)" /> {me.crm} · {me.role === "responder" ? "Plantonista" : "Solicitante"}
+              <BadgeCheck size={13} color="var(--primary)" /> {isAcad ? "Estudante / Acadêmico" : `${me.crm} · ${me.role === "responder" ? "Plantonista" : "Solicitante"}`}
             </div>
           </div>
         </div>
@@ -177,34 +179,40 @@ export default function PerfilPage() {
             <Field label="Telefone / WhatsApp" icon={<Phone size={16} />} value={phone} onChange={setPhone} placeholder="(00) 00000-0000" type="tel" />
             <Field label="Email" icon={<Mail size={16} />} value={email} onChange={setEmail} placeholder="você@exemplo.com" type="email" />
 
-            <div>
-              <label className="label">Especialidade</label>
-              <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)", pointerEvents: "none" }}>
-                  <Stethoscope size={16} />
-                </span>
-                <select
-                  className="field"
-                  value={specialty}
-                  onChange={(e) => setSpecialty(e.target.value)}
-                  style={{ paddingLeft: 38, paddingRight: 38, minHeight: 48, appearance: "none", WebkitAppearance: "none", MozAppearance: "none", background: "var(--surface)", cursor: "pointer" }}
-                >
-                  <option value="">Selecione a especialidade…</option>
-                  {opcoesEsp.map((esp) => (
-                    <option key={esp} value={esp}>{esp}</option>
-                  ))}
-                </select>
-                <ChevronDown size={16} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)", pointerEvents: "none" }} />
+            {isAcad ? (
+              <Field label="Faculdade / período" icon={<GraduationCap size={16} />} value={specialty} onChange={setSpecialty} placeholder="Ex.: USP — 9º período" />
+            ) : (
+              <div>
+                <label className="label">Especialidade</label>
+                <div style={{ position: "relative" }}>
+                  <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)", pointerEvents: "none" }}>
+                    <Stethoscope size={16} />
+                  </span>
+                  <select
+                    className="field"
+                    value={specialty}
+                    onChange={(e) => setSpecialty(e.target.value)}
+                    style={{ paddingLeft: 38, paddingRight: 38, minHeight: 48, appearance: "none", WebkitAppearance: "none", MozAppearance: "none", background: "var(--surface)", cursor: "pointer" }}
+                  >
+                    <option value="">Selecione a especialidade…</option>
+                    {opcoesEsp.map((esp) => (
+                      <option key={esp} value={esp}>{esp}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)", pointerEvents: "none" }} />
+                </div>
+                <div className="faint" style={{ fontSize: 11, marginTop: 4, lineHeight: 1.4 }}>
+                  A IA adapta as respostas à sua especialidade (profundidade, linguagem e diretrizes da área).
+                </div>
               </div>
-              <div className="faint" style={{ fontSize: 11, marginTop: 4, lineHeight: 1.4 }}>
-                A IA adapta as respostas à sua especialidade (profundidade, linguagem e diretrizes da área).
-              </div>
-            </div>
+            )}
 
             <div>
-              <label className="label">CRM</label>
-              <input className="field" value={me.crm} disabled style={{ minHeight: 48, opacity: 0.7 }} />
-              <div className="faint" style={{ fontSize: 11, marginTop: 4 }}>O CRM é seu login e não pode ser alterado aqui.</div>
+              <label className="label">{isAcad ? "Documento" : "CRM"}</label>
+              <input className="field" value={isAcad ? (me.cpf ? formatCpf(me.cpf) + " · CPF" : "CPF") : me.crm} disabled style={{ minHeight: 48, opacity: 0.7 }} />
+              <div className="faint" style={{ fontSize: 11, marginTop: 4 }}>
+                {isAcad ? "Você entra pelo CPF. Adicione um CRM futuramente para atuar como plantonista." : "O CRM é seu login e não pode ser alterado aqui."}
+              </div>
             </div>
           </div>
         </div>

@@ -56,15 +56,14 @@ export default function LoginPage() {
 
             <form onSubmit={submit} style={{ marginTop: 26, display: "flex", flexDirection: "column", gap: 18, maxWidth: 460 }}>
               <div>
-                <label className="auth-label">CRM</label>
+                <label className="auth-label">CRM ou CPF</label>
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <Stethoscope size={18} className="auth-ic" />
                   <input
                     className="auth-field"
-                    placeholder="CRM/UF 123456"
+                    placeholder="CRM/UF 123456 ou CPF"
                     value={crm}
                     onChange={(e) => setCrm(e.target.value)}
-                    autoCapitalize="characters"
                     autoComplete="username"
                     required
                   />

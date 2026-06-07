@@ -560,6 +560,8 @@ select.auth-field { padding-left: 14px; appearance: none; }
 .auth-role { text-align: left; cursor: pointer; border-radius: 13px; padding: 13px; border: 1.5px solid #243149; background: #101a2c; color: #eef2f8; }
 .auth-role-red { border-color: var(--red); background: color-mix(in srgb, var(--red) 20%, #101a2c); }
 .auth-role-blue { border-color: #3b6fc4; background: color-mix(in srgb, #3b6fc4 22%, #101a2c); }
+.auth-toggle { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 50px; border-radius: 12px; border: 1.5px solid #243149; background: #101a2c; color: #aebbd2; font-weight: 700; font-size: 14px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+.auth-toggle.on { background: #f4f8ff; color: #0d1830; border-color: #f4f8ff; }
 
 .auth-illus { position: relative; min-height: 430px; border-radius: 24px; overflow: hidden; background: #04060c; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; }
 .auth-tag { background: rgba(4,8,15,0.55); color: #dbe6f5; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 8px; backdrop-filter: blur(6px); }
