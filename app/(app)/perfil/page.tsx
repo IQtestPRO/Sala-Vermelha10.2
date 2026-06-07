@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck } from "lucide-react";
+import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { ESPECIALIDADES } from "@/lib/especialidades";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import { useMe, useUpdateMe } from "@/components/AppShell";
 import { BackgroundGradient } from "@/components/ui/background-gradient";
@@ -140,6 +141,8 @@ export default function PerfilPage() {
   }
 
   const avatarSrc = avatarPreview ? `data:image/jpeg;base64,${avatarPreview}` : avatarUrl || "";
+  // Inclui a especialidade atual (se vier de cadastro antigo, fora da lista) p/ não perder o valor.
+  const opcoesEsp = specialty && !ESPECIALIDADES.includes(specialty) ? [specialty, ...ESPECIALIDADES] : ESPECIALIDADES;
 
   return (
     <>
@@ -167,16 +170,42 @@ export default function PerfilPage() {
         </div>
 
         {/* Dados */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div>
           <div className="label">Dados</div>
-          <Field label="Nome" icon={<User size={16} />} value={name} onChange={setName} placeholder="Seu nome" />
-          <Field label="Telefone / WhatsApp" icon={<Phone size={16} />} value={phone} onChange={setPhone} placeholder="(00) 00000-0000" type="tel" />
-          <Field label="Email" icon={<Mail size={16} />} value={email} onChange={setEmail} placeholder="você@exemplo.com" type="email" />
-          <Field label="Especialidade" icon={<Stethoscope size={16} />} value={specialty} onChange={setSpecialty} placeholder="Ex.: Emergencista" />
-          <div>
-            <label className="label">CRM</label>
-            <input className="field" value={me.crm} disabled style={{ minHeight: 48, opacity: 0.7 }} />
-            <div className="faint" style={{ fontSize: 11, marginTop: 4 }}>O CRM é seu login e não pode ser alterado aqui.</div>
+          <div className="card" style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+            <Field label="Nome" icon={<User size={16} />} value={name} onChange={setName} placeholder="Seu nome" />
+            <Field label="Telefone / WhatsApp" icon={<Phone size={16} />} value={phone} onChange={setPhone} placeholder="(00) 00000-0000" type="tel" />
+            <Field label="Email" icon={<Mail size={16} />} value={email} onChange={setEmail} placeholder="você@exemplo.com" type="email" />
+
+            <div>
+              <label className="label">Especialidade</label>
+              <div style={{ position: "relative" }}>
+                <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)", pointerEvents: "none" }}>
+                  <Stethoscope size={16} />
+                </span>
+                <select
+                  className="field"
+                  value={specialty}
+                  onChange={(e) => setSpecialty(e.target.value)}
+                  style={{ paddingLeft: 38, paddingRight: 38, minHeight: 48, appearance: "none", WebkitAppearance: "none", MozAppearance: "none", background: "var(--surface)", cursor: "pointer" }}
+                >
+                  <option value="">Selecione a especialidade…</option>
+                  {opcoesEsp.map((esp) => (
+                    <option key={esp} value={esp}>{esp}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)", pointerEvents: "none" }} />
+              </div>
+              <div className="faint" style={{ fontSize: 11, marginTop: 4, lineHeight: 1.4 }}>
+                A IA adapta as respostas à sua especialidade (profundidade, linguagem e diretrizes da área).
+              </div>
+            </div>
+
+            <div>
+              <label className="label">CRM</label>
+              <input className="field" value={me.crm} disabled style={{ minHeight: 48, opacity: 0.7 }} />
+              <div className="faint" style={{ fontSize: 11, marginTop: 4 }}>O CRM é seu login e não pode ser alterado aqui.</div>
+            </div>
           </div>
         </div>
 
@@ -205,10 +234,12 @@ export default function PerfilPage() {
         </div>
 
         {/* Segurança */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div>
           <div className="label">Segurança</div>
-          <Field label="Senha atual" icon={<Lock size={16} />} value={curPass} onChange={setCurPass} placeholder="Só p/ trocar a senha" type="password" />
-          <Field label="Nova senha" icon={<Lock size={16} />} value={newPass} onChange={setNewPass} placeholder="Mín. 6 caracteres" type="password" />
+          <div className="card" style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+            <Field label="Senha atual" icon={<Lock size={16} />} value={curPass} onChange={setCurPass} placeholder="Só p/ trocar a senha" type="password" />
+            <Field label="Nova senha" icon={<Lock size={16} />} value={newPass} onChange={setNewPass} placeholder="Mín. 6 caracteres" type="password" />
+          </div>
         </div>
 
         <button className="btn btn-primary" disabled={saving} onClick={salvar} style={{ minHeight: 52 }}>

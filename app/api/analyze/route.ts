@@ -112,7 +112,7 @@ const SCHEMA = {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireUser(req);
+    const user = await requireUser(req);
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({ error: "ai_not_configured" }, { status: 503 });
     }
@@ -154,7 +154,17 @@ export async function POST(req: NextRequest) {
       max_tokens: 4000,
       // Sem thinking + effort baixo => resposta rapida (paciente na sala vermelha).
       output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-      system: buildSystem(condutaId, area, ctx, !!base64),
+      system:
+        buildSystem(condutaId, area, ctx, !!base64) +
+        (() => {
+          const m = [
+            user.specialty ? `Especialidade do médico: ${user.specialty}` : "",
+            user.perfil_medico ? `Como o médico trabalha: ${String(user.perfil_medico).slice(0, 1500)}` : "",
+          ]
+            .filter(Boolean)
+            .join(" · ");
+          return m ? `\n\nADAPTE AO MÉDICO — calibre a profundidade/terminologia pela especialidade dele e fundamente em artigos/diretrizes DA ÁREA; respeite como ele trabalha: ${m}` : "";
+        })(),
       messages: [{ role: "user", content: userContent }],
     } as Anthropic.MessageCreateParamsNonStreaming);
 

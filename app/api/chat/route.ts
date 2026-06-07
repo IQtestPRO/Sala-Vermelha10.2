@@ -33,9 +33,15 @@ export async function POST(req: NextRequest) {
     if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json({ error: "ai_not_configured" }, { status: 503 });
     }
-    // Memória do médico: adapta as respostas ao contexto/preferências dele.
-    const system = user.perfil_medico
-      ? `${SYSTEM}\n\nCONTEXTO DESTE MÉDICO (use para adaptar TODAS as respostas ao jeito dele de trabalhar — local, recursos, preferências): ${String(user.perfil_medico).slice(0, 2000)}`
+    // Especialidade + memória do médico: adapta profundidade, terminologia e contexto.
+    const ctxMed = [
+      user.specialty ? `Especialidade: ${user.specialty}` : "",
+      user.perfil_medico ? `Como trabalha: ${String(user.perfil_medico).slice(0, 2000)}` : "",
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    const system = ctxMed
+      ? `${SYSTEM}\n\nADAPTE A ESTE MÉDICO — calibre a PROFUNDIDADE e a TERMINOLOGIA pela especialidade dele e fundamente em artigos/diretrizes DA ÁREA; respeite o contexto de trabalho: ${ctxMed}`
       : SYSTEM;
     const body = await req.json();
     const msgs: InMsg[] = Array.isArray(body.messages) ? body.messages.slice(-24) : [];
