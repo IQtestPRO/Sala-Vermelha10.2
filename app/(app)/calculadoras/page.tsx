@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, ChevronRight, ChevronLeft, FlaskConical, Baby, Activity, ListChecks, Droplet, AlertTriangle } from "lucide-react";
+import { Search, ChevronRight, ChevronLeft, FlaskConical, Baby, Activity, ListChecks, Droplet, AlertTriangle, Gauge } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import ScoreCalculator from "@/components/ScoreCalculator";
 import { SCORES, type ScoreDef } from "@/lib/scores";
@@ -18,13 +18,13 @@ function num(v: string): number | undefined {
   return Number.isFinite(x) && x > 0 ? x : undefined;
 }
 
-const TABS: { key: Tab; label: string; icon: React.ReactNode; novo?: boolean }[] = [
-  { key: "escores", label: "Escores", icon: <ListChecks size={16} /> },
-  { key: "medicacoes", label: "Medicações", icon: <Droplet size={16} />, novo: true },
-  { key: "formulas", label: "Fórmulas", icon: <FlaskConical size={16} /> },
-  { key: "gaso", label: "Gasometria", icon: <Activity size={16} />, novo: true },
-  { key: "pediatria", label: "Pediatria", icon: <Baby size={16} /> },
-  { key: "renal", label: "Renal", icon: <Activity size={16} /> },
+const TABS: { key: Tab; label: string; icon: React.ReactNode; desc: string; novo?: boolean }[] = [
+  { key: "escores", label: "Escores", icon: <ListChecks size={24} />, desc: "NIHSS, qSOFA, Glasgow, Wells, CHA₂DS₂…" },
+  { key: "medicacoes", label: "Medicações", icon: <Droplet size={24} />, desc: "Diluição em bomba (BIC) com a SUA concentração", novo: true },
+  { key: "formulas", label: "Fórmulas", icon: <FlaskConical size={24} />, desc: "Sódio, heparina, hidantalização, glicêmico" },
+  { key: "gaso", label: "Gasometria", icon: <Activity size={24} />, desc: "Interpreta pH, pCO₂ e HCO₃ passo a passo", novo: true },
+  { key: "pediatria", label: "Pediatria", icon: <Baby size={24} />, desc: "Doses por idade e peso" },
+  { key: "renal", label: "Renal", icon: <Gauge size={24} />, desc: "Clearance de creatinina (Cockcroft-Gault)" },
 ];
 
 function Disclaimer() {
@@ -210,7 +210,7 @@ function Renal() {
 }
 
 export default function CalculadorasPage() {
-  const [tab, setTab] = useState<Tab>("escores");
+  const [tab, setTab] = useState<Tab | null>(null);
   const [seen, setSeen] = useState<string[]>([]);
   useEffect(() => {
     try {
@@ -232,27 +232,42 @@ export default function CalculadorasPage() {
       }
     }
   }
+  const atual = TABS.find((t) => t.key === tab);
+
   return (
     <>
-      <TopBar brand title="Calculadoras" subtitle="Escores, medicações e cálculos" right={<LogoutButton />} />
+      <TopBar brand title="Calculadoras" subtitle={atual ? atual.label : "Toque na calculadora que precisa"} right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14, paddingBottom: 96 }}>
-        <div className="scroll-x" style={{ scrollSnapType: "x proximity" }}>
-          {TABS.map((t) => (
-            <button key={t.key} className={`chip ${tab === t.key ? "chip-on" : ""}`} onClick={() => abrir(t.key)} style={{ flex: "0 0 auto", gap: 5 }}>
-              {t.icon} {t.label}
-              {t.novo && !seen.includes(t.key) && (
-                <span style={{ fontSize: 9, fontWeight: 800, background: "var(--primary)", color: "#fff", borderRadius: 999, padding: "1px 5px", marginLeft: 1, letterSpacing: "0.03em" }}>NOVO</span>
-              )}
-            </button>
-          ))}
-        </div>
-        <Disclaimer />
-        {tab === "escores" && <Escores />}
-        {tab === "medicacoes" && <CalcInfusao />}
-        {tab === "formulas" && <CalcFormulas />}
-        {tab === "gaso" && <CalcGaso />}
-        {tab === "pediatria" && <Pediatria />}
-        {tab === "renal" && <Renal />}
+        {!tab ? (
+          <>
+            <Disclaimer />
+            {/* Grade: todas as seções já visíveis (sem scroll lateral) */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 11 }}>
+              {TABS.map((t) => {
+                const novo = t.novo && !seen.includes(t.key);
+                return (
+                  <button key={t.key} onClick={() => abrir(t.key)} className="card" style={{ position: "relative", textAlign: "left", display: "flex", flexDirection: "column", gap: 8, padding: "14px 14px 13px", cursor: "pointer", minHeight: 118 }}>
+                    {novo && <span style={{ position: "absolute", top: 10, right: 10, fontSize: 9, fontWeight: 800, background: "var(--primary)", color: "#fff", borderRadius: 999, padding: "2px 6px", letterSpacing: "0.03em" }}>NOVO</span>}
+                    <span style={{ width: 44, height: 44, borderRadius: 12, background: "var(--navy-tint)", color: "var(--navy)", display: "grid", placeItems: "center" }}>{t.icon}</span>
+                    <span style={{ fontWeight: 800, fontSize: 15.5 }}>{t.label}</span>
+                    <span className="faint" style={{ fontSize: 12, lineHeight: 1.35 }}>{t.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <>
+            <button className="btn btn-ghost btn-sm" onClick={() => setTab(null)} style={{ alignSelf: "flex-start" }}><ChevronLeft size={16} /> Calculadoras</button>
+            <Disclaimer />
+            {tab === "escores" && <Escores />}
+            {tab === "medicacoes" && <CalcInfusao />}
+            {tab === "formulas" && <CalcFormulas />}
+            {tab === "gaso" && <CalcGaso />}
+            {tab === "pediatria" && <Pediatria />}
+            {tab === "renal" && <Renal />}
+          </>
+        )}
       </div>
     </>
   );
