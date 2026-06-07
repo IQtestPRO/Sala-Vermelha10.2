@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, ImagePlus, Loader2, X, Sparkles, Stethoscope, History, SquarePen, Trash2 } from "lucide-react";
+import { Send, ImagePlus, Loader2, X, Stethoscope, History, SquarePen, Trash2 } from "lucide-react";
+import EcgIcon from "@/components/icons/EcgIcon";
 import { toast } from "sonner";
 import { resizeToJpegBase64 } from "@/lib/image";
 import VoiceButton from "@/components/VoiceButton";
@@ -179,7 +180,7 @@ export default function ChatPage() {
   return (
     <div className="chat-root">
       <div className="chat-top">
-        <span className="chat-top-badge"><Sparkles size={15} /></span>
+        <span className="chat-top-badge"><EcgIcon size={20} stroke={2} /></span>
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15, flex: 1, minWidth: 0 }}>
           <span style={{ fontWeight: 800, fontSize: 15 }}>STAT IA</span>
           <span className="faint" style={{ fontSize: 11.5 }}>Discuta o caso — análise, perguntas e conduta</span>
