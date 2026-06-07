@@ -1,14 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, X, Loader2 } from "lucide-react";
+import { Camera, Images, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { resizeToJpegBase64 } from "@/lib/image";
 
 export type CapturedPhoto = { url: string; base64: string };
 
-// 1 foto: câmera (tira na hora) ou galeria → redimensiona → sobe ao Blob (url p/ o caso)
-// e mantém o base64 (p/ a IA analisar). Best-effort no upload (sem Blob, ainda guarda base64).
+// 1 foto: a pessoa ESCOLHE — Tirar foto (câmera) ou Galeria (fototeca do iPhone).
+// Redimensiona → sobe ao Blob (url p/ o caso) e mantém o base64 (p/ a IA). Upload best-effort.
 export default function PhotoCapture({
   photo,
   onChange,
@@ -18,11 +18,12 @@ export default function PhotoCapture({
   onChange: (p: CapturedPhoto | null) => void;
   label?: string;
 }) {
-  const ref = useRef<HTMLInputElement>(null);
+  const camRef = useRef<HTMLInputElement>(null);
+  const galRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
-  async function pick(files: FileList | null) {
-    const file = files?.[0];
+  async function pick(input: HTMLInputElement | null) {
+    const file = input?.files?.[0];
     if (!file || !file.type.startsWith("image/")) return;
     setBusy(true);
     try {
@@ -44,35 +45,29 @@ export default function PhotoCapture({
       toast.error("Não consegui ler a imagem.");
     } finally {
       setBusy(false);
-      if (ref.current) ref.current.value = "";
+      if (input) input.value = "";
     }
   }
+
+  const pickStyle: React.CSSProperties = {
+    minHeight: 116,
+    display: "grid",
+    placeItems: "center",
+    gap: 8,
+    borderRadius: 16,
+    border: "1.5px dashed var(--border-strong)",
+    background: "var(--surface-2)",
+    color: "var(--text-dim)",
+    cursor: "pointer",
+    fontSize: 13.5,
+    fontWeight: 700,
+  };
 
   return (
     <div>
       {label && <label className="label">{label}</label>}
-      {!photo ? (
-        <button
-          type="button"
-          onClick={() => ref.current?.click()}
-          disabled={busy}
-          style={{
-            width: "100%",
-            minHeight: 128,
-            display: "grid",
-            placeItems: "center",
-            gap: 7,
-            borderRadius: 16,
-            border: "1.5px dashed var(--border-strong)",
-            background: "var(--surface-2)",
-            color: "var(--text-dim)",
-            cursor: "pointer",
-          }}
-        >
-          {busy ? <Loader2 size={28} className="spin" /> : <Camera size={30} />}
-          <span style={{ fontSize: 13.5, fontWeight: 700 }}>{busy ? "Enviando…" : "Tirar foto ou enviar da galeria"}</span>
-        </button>
-      ) : (
+
+      {photo ? (
         <div style={{ position: "relative" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -89,8 +84,28 @@ export default function PhotoCapture({
             <X size={17} />
           </button>
         </div>
+      ) : busy ? (
+        <div style={{ ...pickStyle, gridTemplateColumns: "auto", gridAutoFlow: "column", color: "var(--text-dim)" }}>
+          <Loader2 size={26} className="spin" />
+          <span>Enviando…</span>
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <button type="button" onClick={() => camRef.current?.click()} style={pickStyle}>
+            <Camera size={28} color="var(--primary)" />
+            <span>Tirar foto</span>
+          </button>
+          <button type="button" onClick={() => galRef.current?.click()} style={pickStyle}>
+            <Images size={28} color="var(--primary)" />
+            <span>Galeria</span>
+          </button>
+        </div>
       )}
-      <input ref={ref} type="file" accept="image/*" capture="environment" hidden onChange={(e) => pick(e.target.files)} />
+
+      {/* câmera (tira na hora) */}
+      <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={() => pick(camRef.current)} />
+      {/* galeria / fototeca (sem capture → iOS abre a Fototeca/Arquivos) */}
+      <input ref={galRef} type="file" accept="image/*" hidden onChange={() => pick(galRef.current)} />
     </div>
   );
 }
