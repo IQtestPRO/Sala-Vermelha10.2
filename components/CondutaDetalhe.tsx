@@ -290,7 +290,7 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
                       {d.infusao.titulacao && <div className="faint" style={{ fontSize: 12 }}>Titulação: {d.infusao.titulacao}</div>}
                       {d.infusao.gatilho && <div className="faint" style={{ fontSize: 12 }}>Quando: {d.infusao.gatilho}</div>}
                       {inf ? (
-                        <div className="data" style={{ marginTop: 3, color: "var(--red)", fontWeight: 800, fontSize: 15.5 }}>
+                        <div className="data" style={{ marginTop: 3, color: "var(--primary-press)", fontWeight: 800, fontSize: 15.5 }}>
                           {inf.faixaLabel} → {inf.mlh}
                         </div>
                       ) : (

@@ -606,7 +606,9 @@ function Passagem() {
       )}
 
       {list.length === 0 ? (
-        <div className="muted" style={{ textAlign: "center", padding: 24 }}>Nenhuma passagem ativa.</div>
+        <div style={{ textAlign: "center", padding: "32px 24px", color: "var(--text-dim)", fontSize: 14, lineHeight: 1.5, maxWidth: "32ch", marginInline: "auto" }}>
+          Nenhuma passagem ativa. Toque em <b>+ Nova passagem</b> para registrar o primeiro paciente.
+        </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {list.map((h) => (

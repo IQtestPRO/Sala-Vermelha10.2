@@ -112,7 +112,7 @@ function Medicacoes() {
           <input className="field" inputMode="decimal" placeholder="kg" value={peso} onChange={(e) => setPeso(e.target.value)} style={{ minHeight: 44, paddingRight: 32 }} />
           <span className="faint" style={{ position: "absolute", right: 12, top: 13, fontSize: 12 }}>kg</span>
         </div>
-        <span className="faint" style={{ fontSize: 11.5, flex: 1 }}>libera o mL/h das drogas por peso</span>
+        <span className="faint" style={{ fontSize: 11.5, flex: 1 }}>Calcula o mL/h dos fármacos conforme o peso.</span>
       </div>
 
       <div className="card" style={{ padding: "2px 14px" }}>
@@ -127,7 +127,7 @@ function Medicacoes() {
                   <span className="faint" style={{ display: "block", fontSize: 12 }}>{d.classe} · {d.infusao.concentracao}</span>
                 </span>
                 {inf ? (
-                  <span className="data" style={{ flex: "0 0 auto", color: "var(--red)", fontWeight: 800, fontSize: 14 }}>{inf.mlh}</span>
+                  <span className="data" style={{ flex: "0 0 auto", color: "var(--primary-press)", fontWeight: 800, fontSize: 14 }}>{inf.mlh}</span>
                 ) : (
                   <ChevronRight size={18} className="faint" style={{ flex: "0 0 auto", transform: open ? "rotate(90deg)" : "none" }} />
                 )}
@@ -139,7 +139,7 @@ function Medicacoes() {
                   {d.infusao.titulacao && <div className="faint">Titulação: {d.infusao.titulacao}</div>}
                   {d.infusao.gatilho && <div className="faint">Quando: {d.infusao.gatilho}</div>}
                   {inf ? (
-                    <div className="data" style={{ color: "var(--red)", fontWeight: 800, fontSize: 15, marginTop: 2 }}>{inf.faixaLabel} → {inf.mlh}</div>
+                    <div className="data" style={{ color: "var(--primary-press)", fontWeight: 800, fontSize: 15, marginTop: 2 }}>{inf.faixaLabel} → {inf.mlh}</div>
                   ) : (
                     <div className="faint" style={{ fontSize: 11.5 }}>Informe o peso acima para ver os mL/h.</div>
                   )}
@@ -270,7 +270,7 @@ export default function CalculadorasPage() {
   return (
     <>
       <TopBar brand title="Calculadoras" subtitle="Escores, medicações e cálculos" right={<LogoutButton />} />
-      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14, paddingBottom: 28 }}>
+      <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14, paddingBottom: 96 }}>
         <div className="scroll-x" style={{ scrollSnapType: "x proximity" }}>
           {TABS.map((t) => (
             <button key={t.key} className={`chip ${tab === t.key ? "chip-on" : ""}`} onClick={() => setTab(t.key)} style={{ flex: "0 0 auto", gap: 5 }}>
