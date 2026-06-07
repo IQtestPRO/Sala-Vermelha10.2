@@ -1,11 +1,11 @@
 import React from "react";
 
-// Marca "UPA 24h" (recriada do logotipo: UPA verde + 24h azul).
-export function UpaBadge({ size = 17 }: { size?: number }) {
+// Logo oficial "UPA 24h" (public/upa-24h.png), sobre um chip branco para destacar em qualquer tema.
+export function UpaBadge({ h = 28 }: { h?: number }) {
   return (
-    <span className="upa-badge" aria-label="UPA 24h">
-      <span className="upa-g" style={{ fontSize: size }}>UPA</span>
-      <span className="upa-b" style={{ fontSize: Math.round(size * 0.76) }}>24h</span>
+    <span className="upa-logo-chip" aria-label="UPA 24h">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/upa-24h.png" alt="UPA 24h" style={{ height: h, width: "auto", display: "block" }} />
     </span>
   );
 }

@@ -525,10 +525,8 @@ select.field {
 .perfil-avatar-edit { position: absolute; bottom: 0; right: 0; width: 32px; height: 32px; border-radius: 999px; background: var(--primary); color: #fff; display: grid; place-items: center; border: 3px solid var(--bg); }
 
 /* ===== UPA 24h — badge (recriação do logotipo) + seção escaneável ===== */
-.upa-badge { display: inline-flex; align-items: baseline; gap: 3px; font-family: "Code Pro", var(--font-mulish), system-ui, sans-serif; line-height: 1; }
-.upa-badge .upa-g { color: #009640; font-weight: 900; letter-spacing: -0.02em; }
-.upa-badge .upa-b { color: #0066b3; font-weight: 800; }
-.upa-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.upa-logo-chip { display: inline-flex; align-items: center; background: #fff; border-radius: 8px; padding: 4px 8px; border: 1px solid #e3e8f0; box-shadow: 0 1px 2px rgba(20,30,50,0.06); }
+.upa-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; flex-wrap: wrap; }
 .upa-list { display: flex; flex-direction: column; gap: 8px; }
 .upa-card { display: flex; gap: 10px; padding: 11px 13px; border-radius: 14px; border: 1px solid color-mix(in srgb, #009640 26%, var(--border)); background: color-mix(in srgb, #009640 6%, var(--surface)); }
 .upa-num { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 999px; background: #009640; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; margin-top: 1px; font-family: "Code Pro", var(--font-mulish), sans-serif; }

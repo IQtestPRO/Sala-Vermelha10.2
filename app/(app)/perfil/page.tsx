@@ -154,7 +154,7 @@ export default function PerfilPage() {
           <div className="label">Dados</div>
           <Field label="Nome" icon={<User size={16} />} value={name} onChange={setName} placeholder="Seu nome" />
           <Field label="Telefone / WhatsApp" icon={<Phone size={16} />} value={phone} onChange={setPhone} placeholder="(00) 00000-0000" type="tel" />
-          <Field label="Email" icon={<Mail size={16} />} value={email} onChange={setEmail} placeholder="voce@exemplo.com" type="email" />
+          <Field label="Email" icon={<Mail size={16} />} value={email} onChange={setEmail} placeholder="você@exemplo.com" type="email" />
           <Field label="Especialidade" icon={<Stethoscope size={16} />} value={specialty} onChange={setSpecialty} placeholder="Ex.: Emergencista" />
           <div>
             <label className="label">CRM</label>
@@ -187,8 +187,8 @@ export default function PerfilPage() {
         {/* Segurança */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div className="label">Segurança</div>
-          <Field label="Senha atual" icon={<Lock size={16} />} value={curPass} onChange={setCurPass} placeholder="só p/ trocar a senha" type="password" />
-          <Field label="Nova senha" icon={<Lock size={16} />} value={newPass} onChange={setNewPass} placeholder="mín. 6 caracteres" type="password" />
+          <Field label="Senha atual" icon={<Lock size={16} />} value={curPass} onChange={setCurPass} placeholder="Só p/ trocar a senha" type="password" />
+          <Field label="Nova senha" icon={<Lock size={16} />} value={newPass} onChange={setNewPass} placeholder="Mín. 6 caracteres" type="password" />
         </div>
 
         <button className="btn btn-primary" disabled={saving} onClick={salvar} style={{ minHeight: 52 }}>

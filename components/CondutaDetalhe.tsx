@@ -135,7 +135,7 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
                 }}
                 style={{ minHeight: 42, width: 90 }}
               />
-              <span className="faint" style={{ fontSize: 12 }}>libera as doses</span>
+              <span className="faint" style={{ fontSize: 12 }}>Libera as doses</span>
             </div>
           )}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
