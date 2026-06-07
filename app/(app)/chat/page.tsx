@@ -182,7 +182,7 @@ export default function ChatPage() {
         <span className="chat-top-badge"><EcgIcon size={20} stroke={2} /></span>
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15, flex: 1, minWidth: 0 }}>
           <span style={{ fontWeight: 800, fontSize: 15 }}>STAT IA</span>
-          <span className="faint" style={{ fontSize: 11.5 }}>Discuta o caso — análise, perguntas e conduta</span>
+          <span className="faint" style={{ fontSize: 12, fontStyle: "italic", letterSpacing: "0.02em" }}>Do it stat</span>
         </div>
         <button className="chat-top-btn" onClick={abrirHistorico} aria-label="Histórico de conversas"><History size={19} /></button>
         <button className="chat-top-btn" onClick={novaConversa} aria-label="Nova conversa"><SquarePen size={19} /></button>
