@@ -22,7 +22,7 @@ export const CATEGORIAS: { key: CondutaCategoria; label: string }[] = [
   { key: "METABOLICO", label: "Metabólico" },
 ];
 
-export type DoseUnidade = "mg/kg" | "mL/kg" | "mcg/kg/min" | "mEq/kg";
+export type DoseUnidade = "mg/kg" | "mL/kg" | "mcg/kg" | "mcg/kg/min" | "mEq/kg";
 
 // Unidade da dose de uma droga em INFUSÃO contínua (bomba).
 export type InfusaoUnidade = "mcg/kg/min" | "mcg/min" | "UI/min" | "mg/min" | "mg/h" | "mg/kg/h";
@@ -134,7 +134,7 @@ export const CONDUTAS: CondutaCard[] = [
       { farmaco: "Propofol", dose: "1,5–2,5 mg/kg", via: "IV", obs: "EVITAR no choque (vasodilata); reduzir no idoso/instável", mgPorKg: { min: 1.5, max: 2.5 }, concentracaoPadraoMgMl: 10 },
       { farmaco: "Succinilcolina", dose: "1–1,5 mg/kg", via: "IV", obs: "Início ~45 s. CONTRAINDICADA: hipercalemia, queimadura/trauma >48–72 h, lesão medular, rabdomiólise, hipertermia maligna, doença neuromuscular", mgPorKg: { min: 1, max: 1.5 }, concentracaoPadraoMgMl: 50 },
       { farmaco: "Rocurônio", dose: "1,2 mg/kg", via: "IV", obs: "Quando succinilcolina contraindicada; início ~60 s; duração longa — garantir sedação", mgPorKg: { min: 1.2 }, concentracaoPadraoMgMl: 10 },
-      { farmaco: "Fentanil (pré-tratamento)", dose: "1–3 mcg/kg", via: "IV", obs: "Opcional; cautela na hipotensão" },
+      { farmaco: "Fentanil (pré-tratamento)", dose: "1–3 mcg/kg", via: "IV", obs: "Opcional; cautela na hipotensão", mgPorKg: { min: 1, max: 3 }, unidade: "mcg/kg" },
     ],
     alertas: [
       "Otimize hemodinâmica e oxigenação ANTES de induzir.",
@@ -188,7 +188,7 @@ export const CONDUTAS: CondutaCard[] = [
     doses: [
       { farmaco: "Etomidato", dose: "0,1–0,15 mg/kg", via: "IV", obs: "Sedação de procedimento", mgPorKg: { min: 0.1, max: 0.15 }, concentracaoPadraoMgMl: 2 },
       { farmaco: "Cetamina", dose: "0,5–1 mg/kg", via: "IV", obs: "Boa opção no instável", mgPorKg: { min: 0.5, max: 1 }, concentracaoPadraoMgMl: 50 },
-      { farmaco: "Fentanil", dose: "1 mcg/kg", via: "IV", obs: "Analgesia; cautela na hipotensão" },
+      { farmaco: "Fentanil", dose: "1 mcg/kg", via: "IV", obs: "Analgesia; cautela na hipotensão", mgPorKg: { min: 1 }, unidade: "mcg/kg" },
     ],
     energia: [
       "FA: 120–200 J bifásico (iniciar 120–150 J)",

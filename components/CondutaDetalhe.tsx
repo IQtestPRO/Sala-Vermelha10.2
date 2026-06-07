@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Copy, Calculator, Zap, Droplet } from "lucide-react";
+import { AlertTriangle, Copy, Calculator, Zap, Droplet, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORIAS, CondutaCard } from "@/lib/condutas";
 import { UPA } from "@/lib/upa";
@@ -172,6 +172,11 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
                     </div>
                   )}
                   {d.obs && <div className="faint" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.4 }}>{d.obs}</div>}
+                  {peso && !d.mgPorKg && !d.infusao && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 6, fontSize: 11.5, color: "var(--text-faint)" }}>
+                      <Lock size={12} /> Dose fixa — não varia com o peso
+                    </div>
+                  )}
                   {d.infusao && (
                     <div
                       onClick={(e) => {

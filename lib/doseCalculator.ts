@@ -66,7 +66,7 @@ export function calcDose(d: Dose, pesoKg: number): DoseResult | null {
     return { label: `${mg}${tetoTxt}` };
   }
 
-  const unit = unidade === "mL/kg" ? "mL" : unidade === "mEq/kg" ? "mEq" : "mcg/min";
+  const unit = unidade === "mL/kg" ? "mL" : unidade === "mEq/kg" ? "mEq" : unidade === "mcg/kg" ? "mcg" : "mcg/min";
   const label = vMax != null ? `${fmt(vMin)}–${fmt(vMax)} ${unit}` : `${fmt(vMin)} ${unit}`;
   return { label };
 }
