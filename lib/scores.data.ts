@@ -7,10 +7,10 @@ export const SCORES: ScoreDef[] = [
     "id": "nihss",
     "nome": "NIHSS (AVC)",
     "categoria": "Neurologia / AVC",
-    "descricao": "A National Institutes of Health Stroke Scale (NIHSS) quantifica o deficit neurologico no acidente vascular cerebral agudo por meio de 11 itens pontuados (1a, 1b, 1c, 2-11), com total de 0 a 42 pontos. Pontuacoes mais altas indicam maior gravidade. E usada para avaliacao inicial, monitoramento da evolucao, decisao terapeutica (ex.: trombolise/trombectomia) e prognostico. Itens nao testaveis (amputacao, imobilizacao articular, intubacao, barreira de idioma) tem regras especificas; alguns recebem pontuacao 0 ou sao registrados como \"UN\" (untestable) sem somar ao total. Aplicar a escala na ordem indicada, registrar a primeira resposta e nao treinar o paciente.",
+    "descricao": "A National Institutes of Health Stroke Scale (NIHSS) quantifica o déficit neurológico no acidente vascular cerebral agudo por meio de 11 itens pontuados (1a, 1b, 1c, 2-11), com total de 0 a 42 pontos. Pontuações mais altas indicam maior gravidade. É usada para avaliação inicial, monitoramento da evolução, decisão terapêutica (ex.: trombólise/trombectomia) e prognóstico. Itens não testáveis (amputação, imobilização articular, intubação, barreira de idioma) têm regras específicas; alguns recebem pontuação 0 ou são registrados como \"UN\" (untestable) sem somar ao total. Aplicar a escala na ordem indicada, registrar a primeira resposta e não treinar o paciente.",
     "itens": [
       {
-        "label": "1a. Nivel de consciencia (vigilia)",
+        "label": "1a. Nível de consciência (vigília)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -18,21 +18,21 @@ export const SCORES: ScoreDef[] = [
             "pontos": 0
           },
           {
-            "label": "Sonolento; desperta com estimulo minimo (verbal) e obedece/responde",
+            "label": "Sonolento; desperta com estímulo mínimo (verbal) e obedece/responde",
             "pontos": 1
           },
           {
-            "label": "Torporoso; requer estimulo repetido ou doloroso para resposta nao estereotipada",
+            "label": "Torporoso; requer estímulo repetido ou doloroso para resposta não estereotipada",
             "pontos": 2
           },
           {
-            "label": "Coma; responde apenas com reflexos motores/autonomicos ou totalmente arreativo, flacido, arreflexo",
+            "label": "Coma; responde apenas com reflexos motores/autonômicos ou totalmente arreativo, flácido, arreflexo",
             "pontos": 3
           }
         ]
       },
       {
-        "label": "1b. NC - Perguntas (mes atual e idade)",
+        "label": "1b. NC - Perguntas (mês atual e idade)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -50,7 +50,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "1c. NC - Comandos (abrir/fechar olhos e abrir/fechar a mao nao paretica)",
+        "label": "1c. NC - Comandos (abrir/fechar olhos e abrir/fechar a mão não parética)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -62,7 +62,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 1
           },
           {
-            "label": "Nao executa nenhuma tarefa corretamente",
+            "label": "Não executa nenhuma tarefa corretamente",
             "pontos": 2
           }
         ]
@@ -76,17 +76,17 @@ export const SCORES: ScoreDef[] = [
             "pontos": 0
           },
           {
-            "label": "Paralisia parcial do olhar (desvio vencivel por estimulo/oculocefalico)",
+            "label": "Paralisia parcial do olhar (desvio vencível por estímulo/oculocefálico)",
             "pontos": 1
           },
           {
-            "label": "Desvio forcado ou paresia total do olhar nao vencivel pela manobra oculocefalica",
+            "label": "Desvio forçado ou paresia total do olhar não vencível pela manobra oculocefálica",
             "pontos": 2
           }
         ]
       },
       {
-        "label": "3. Campos visuais (por confrontacao)",
+        "label": "3. Campos visuais (por confrontação)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -112,7 +112,7 @@ export const SCORES: ScoreDef[] = [
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Movimentos normais simetricos",
+            "label": "Movimentos normais simétricos",
             "pontos": 0
           },
           {
@@ -124,7 +124,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 2
           },
           {
-            "label": "Paralisia completa de um ou ambos os lados (ausencia de movimento facial superior e inferior)",
+            "label": "Paralisia completa de um ou ambos os lados (ausência de movimento facial superior e inferior)",
             "pontos": 3
           }
         ]
@@ -134,7 +134,7 @@ export const SCORES: ScoreDef[] = [
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Sem queda; mantem por 10 s",
+            "label": "Sem queda; mantém por 10 s",
             "pontos": 0
           },
           {
@@ -142,11 +142,11 @@ export const SCORES: ScoreDef[] = [
             "pontos": 1
           },
           {
-            "label": "Algum esforco contra a gravidade; nao mantem e cai ao leito",
+            "label": "Algum esforço contra a gravidade; não mantém e cai ao leito",
             "pontos": 2
           },
           {
-            "label": "Sem esforco contra a gravidade; o membro cai",
+            "label": "Sem esforço contra a gravidade; o membro cai",
             "pontos": 3
           },
           {
@@ -154,7 +154,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 4
           },
           {
-            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "label": "Amputação ou fusão articular (não somar - UN)",
             "pontos": 0
           }
         ]
@@ -164,7 +164,7 @@ export const SCORES: ScoreDef[] = [
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Sem queda; mantem por 10 s",
+            "label": "Sem queda; mantém por 10 s",
             "pontos": 0
           },
           {
@@ -172,11 +172,11 @@ export const SCORES: ScoreDef[] = [
             "pontos": 1
           },
           {
-            "label": "Algum esforco contra a gravidade; nao mantem e cai ao leito",
+            "label": "Algum esforço contra a gravidade; não mantém e cai ao leito",
             "pontos": 2
           },
           {
-            "label": "Sem esforco contra a gravidade; o membro cai",
+            "label": "Sem esforço contra a gravidade; o membro cai",
             "pontos": 3
           },
           {
@@ -184,7 +184,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 4
           },
           {
-            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "label": "Amputação ou fusão articular (não somar - UN)",
             "pontos": 0
           }
         ]
@@ -194,7 +194,7 @@ export const SCORES: ScoreDef[] = [
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Sem queda; mantem 30 graus por 5 s",
+            "label": "Sem queda; mantém 30 graus por 5 s",
             "pontos": 0
           },
           {
@@ -202,11 +202,11 @@ export const SCORES: ScoreDef[] = [
             "pontos": 1
           },
           {
-            "label": "Algum esforco contra a gravidade; cai ao leito antes de 5 s",
+            "label": "Algum esforço contra a gravidade; cai ao leito antes de 5 s",
             "pontos": 2
           },
           {
-            "label": "Sem esforco contra a gravidade; cai imediatamente",
+            "label": "Sem esforço contra a gravidade; cai imediatamente",
             "pontos": 3
           },
           {
@@ -214,7 +214,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 4
           },
           {
-            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "label": "Amputação ou fusão articular (não somar - UN)",
             "pontos": 0
           }
         ]
@@ -224,7 +224,7 @@ export const SCORES: ScoreDef[] = [
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Sem queda; mantem 30 graus por 5 s",
+            "label": "Sem queda; mantém 30 graus por 5 s",
             "pontos": 0
           },
           {
@@ -232,11 +232,11 @@ export const SCORES: ScoreDef[] = [
             "pontos": 1
           },
           {
-            "label": "Algum esforco contra a gravidade; cai ao leito antes de 5 s",
+            "label": "Algum esforço contra a gravidade; cai ao leito antes de 5 s",
             "pontos": 2
           },
           {
-            "label": "Sem esforco contra a gravidade; cai imediatamente",
+            "label": "Sem esforço contra a gravidade; cai imediatamente",
             "pontos": 3
           },
           {
@@ -244,13 +244,13 @@ export const SCORES: ScoreDef[] = [
             "pontos": 4
           },
           {
-            "label": "Amputacao ou fusao articular (nao somar - UN)",
+            "label": "Amputação ou fusão articular (não somar - UN)",
             "pontos": 0
           }
         ]
       },
       {
-        "label": "7. Ataxia de membros (indice-nariz e calcanhar-joelho)",
+        "label": "7. Ataxia de membros (índice-nariz e calcanhar-joelho)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -268,7 +268,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "8. Sensibilidade (picada/retirada ao estimulo doloroso)",
+        "label": "8. Sensibilidade (picada/retirada ao estímulo doloroso)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -280,7 +280,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 1
           },
           {
-            "label": "Perda sensitiva grave a total (nao percebe toque na face, braco e perna)",
+            "label": "Perda sensitiva grave a total (não percebe toque na face, braço e perna)",
             "pontos": 2
           }
         ]
@@ -294,15 +294,15 @@ export const SCORES: ScoreDef[] = [
             "pontos": 0
           },
           {
-            "label": "Afasia leve a moderada (perda de fluencia/compreensao, sem limitacao significativa)",
+            "label": "Afasia leve a moderada (perda de fluência/compreensão, sem limitação significativa)",
             "pontos": 1
           },
           {
-            "label": "Afasia grave (comunicacao muito fragmentada; examinador infere com grande esforco)",
+            "label": "Afasia grave (comunicação muito fragmentada; examinador infere com grande esforço)",
             "pontos": 2
           },
           {
-            "label": "Mudo, afasia global; sem fala ou compreensao auditiva uteis",
+            "label": "Mudo, afasia global; sem fala ou compreensão auditiva úteis",
             "pontos": 3
           }
         ]
@@ -316,21 +316,21 @@ export const SCORES: ScoreDef[] = [
             "pontos": 0
           },
           {
-            "label": "Leve a moderada; arrasta algumas palavras, mas e compreendido com dificuldade",
+            "label": "Leve a moderada; arrasta algumas palavras, mas é compreendido com dificuldade",
             "pontos": 1
           },
           {
-            "label": "Grave; fala tao distorcida que e ininteligivel (ou mudo/anartrico)",
+            "label": "Grave; fala tão distorcida que é ininteligível (ou mudo/anártrico)",
             "pontos": 2
           },
           {
-            "label": "Intubado ou outra barreira fisica (nao somar - UN)",
+            "label": "Intubado ou outra barreira física (não somar - UN)",
             "pontos": 0
           }
         ]
       },
       {
-        "label": "11. Extincao e desatencao (negligencia)",
+        "label": "11. Extinção e desatenção (negligência)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -338,11 +338,11 @@ export const SCORES: ScoreDef[] = [
             "pontos": 0
           },
           {
-            "label": "Desatencao/extincao em uma modalidade (visual, tatil, auditiva ou espacial)",
+            "label": "Desatenção/extinção em uma modalidade (visual, tátil, auditiva ou espacial)",
             "pontos": 1
           },
           {
-            "label": "Hemi-desatencao profunda ou extincao em mais de uma modalidade; nao reconhece a propria mao ou orienta-se a um so lado do espaco",
+            "label": "Hemi-desatenção profunda ou extinção em mais de uma modalidade; não reconhece a própria mão ou orienta-se a um só lado do espaço",
             "pontos": 2
           }
         ]
@@ -491,14 +491,14 @@ export const SCORES: ScoreDef[] = [
     "id": "qsofa",
     "nome": "qSOFA (quick SOFA)",
     "categoria": "Sepse",
-    "descricao": "Escore rapido a beira do leito para identificar, entre pacientes com infeccao suspeita ou confirmada, aqueles sob maior risco de desfecho desfavoravel (mortalidade hospitalar e/ou internacao prolongada em UTI). Avalia 3 criterios clinicos, cada um valendo 1 ponto. Pontuacao total de 0 a 3; valor maior ou igual a 2 indica alto risco e deve motivar investigacao de disfuncao organica (SOFA completo) e intensificacao da monitorizacao. O qSOFA nao define sepse isoladamente, mas funciona como ferramenta de triagem rapida, preferencialmente fora da UTI.",
+    "descricao": "Escore rápido à beira do leito para identificar, entre pacientes com infecção suspeita ou confirmada, aqueles sob maior risco de desfecho desfavorável (mortalidade hospitalar e/ou internação prolongada em UTI). Avalia 3 critérios clínicos, cada um valendo 1 ponto. Pontuação total de 0 a 3; valor maior ou igual a 2 indica alto risco e deve motivar investigação de disfunção orgânica (SOFA completo) e intensificação da monitorização. O qSOFA não define sepse isoladamente, mas funciona como ferramenta de triagem rápida, preferencialmente fora da UTI.",
     "itens": [
       {
-        "label": "Frequencia respiratoria maior ou igual a 22 irpm",
+        "label": "Frequência respiratória maior ou igual a 22 irpm",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao (< 22 irpm)",
+            "label": "Não (< 22 irpm)",
             "pontos": 0
           },
           {
@@ -508,11 +508,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Alteracao do nivel de consciencia (Glasgow < 15)",
+        "label": "Alteração do nível de consciência (Glasgow < 15)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao (Glasgow = 15, sem alteracao)",
+            "label": "Não (Glasgow = 15, sem alteração)",
             "pontos": 0
           },
           {
@@ -522,11 +522,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Pressao arterial sistolica menor ou igual a 100 mmHg",
+        "label": "Pressão arterial sistólica menor ou igual a 100 mmHg",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao (PAS > 100 mmHg)",
+            "label": "Não (PAS > 100 mmHg)",
             "pontos": 0
           },
           {
@@ -555,10 +555,10 @@ export const SCORES: ScoreDef[] = [
     "id": "sofa",
     "nome": "SOFA (Sequential Organ Failure Assessment)",
     "categoria": "Terapia intensiva",
-    "descricao": "Escore de avaliacao sequencial de falencia organica. Quantifica a gravidade da disfuncao de seis sistemas organicos (respiratorio, coagulacao, hepatico, cardiovascular, neurologico e renal) em pacientes criticos. Cada sistema e pontuado de 0 a 4; o total varia de 0 a 24. Usado para monitorar evolucao na UTI e, no contexto Sepsis-3, um aumento agudo >=2 pontos define disfuncao organica associada a sepse.",
+    "descricao": "Escore de avaliação sequencial de falência orgânica. Quantifica a gravidade da disfunção de seis sistemas orgânicos (respiratório, coagulação, hepático, cardiovascular, neurológico e renal) em pacientes críticos. Cada sistema é pontuado de 0 a 4; o total varia de 0 a 24. Usado para monitorar evolução na UTI e, no contexto Sepsis-3, um aumento agudo >=2 pontos define disfunção orgânica associada à sepse.",
     "itens": [
       {
-        "label": "Respiratorio - PaO2/FiO2 (mmHg)",
+        "label": "Respiratório - PaO2/FiO2 (mmHg)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -574,17 +574,17 @@ export const SCORES: ScoreDef[] = [
             "pontos": 2
           },
           {
-            "label": "PaO2/FiO2 100-199 (< 200) com suporte ventilatorio",
+            "label": "PaO2/FiO2 100-199 (< 200) com suporte ventilatório",
             "pontos": 3
           },
           {
-            "label": "PaO2/FiO2 < 100 com suporte ventilatorio",
+            "label": "PaO2/FiO2 < 100 com suporte ventilatório",
             "pontos": 4
           }
         ]
       },
       {
-        "label": "Coagulacao - Plaquetas (x10^3/uL)",
+        "label": "Coagulação - Plaquetas (x10^3/uL)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -610,7 +610,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Hepatico - Bilirrubina (mg/dL)",
+        "label": "Hepático - Bilirrubina (mg/dL)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -662,7 +662,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Neurologico - Escala de Coma de Glasgow",
+        "label": "Neurológico - Escala de Coma de Glasgow",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -688,7 +688,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Renal - Creatinina (mg/dL) ou debito urinario",
+        "label": "Renal - Creatinina (mg/dL) ou débito urinário",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -704,11 +704,11 @@ export const SCORES: ScoreDef[] = [
             "pontos": 2
           },
           {
-            "label": "Creatinina 3,5-4,9 OU debito urinario < 500 mL/dia",
+            "label": "Creatinina 3,5-4,9 OU débito urinário < 500 mL/dia",
             "pontos": 3
           },
           {
-            "label": "Creatinina >= 5,0 OU debito urinario < 200 mL/dia",
+            "label": "Creatinina >= 5,0 OU débito urinário < 200 mL/dia",
             "pontos": 4
           }
         ]
@@ -718,24 +718,24 @@ export const SCORES: ScoreDef[] = [
       {
         "min": 0,
         "max": 6,
-        "rotulo": "Disfuncao leve (mortalidade < 10%)",
+        "rotulo": "Disfunção leve (mortalidade < 10%)",
         "cor": "green"
       },
       {
         "min": 7,
         "max": 9,
-        "rotulo": "Disfuncao moderada (mortalidade ~15-20%)",
+        "rotulo": "Disfunção moderada (mortalidade ~15-20%)",
         "cor": "amber"
       },
       {
         "min": 10,
         "max": 12,
-        "rotulo": "Disfuncao grave (mortalidade ~40-50%)",
+        "rotulo": "Disfunção grave (mortalidade ~40-50%)",
         "cor": "red"
       },
       {
         "min": 13,
-        "rotulo": "Disfuncao muito grave (mortalidade > 50-80%)",
+        "rotulo": "Disfunção muito grave (mortalidade > 50-80%)",
         "cor": "red"
       }
     ],
@@ -744,11 +744,11 @@ export const SCORES: ScoreDef[] = [
   {
     "id": "news2",
     "nome": "NEWS 2 (National Early Warning Score 2)",
-    "categoria": "Deterioracao clinica",
-    "descricao": "Escore de alerta precoce para deteccao de deterioracao clinica em adultos (>=16 anos), padronizado pelo Royal College of Physicians do Reino Unido. Agrega 6 parametros fisiologicos (a suplementacao de oxigenio adiciona 2 pontos, totalizando 7 itens nesta calculadora). Possui duas escalas de SpO2: a Escala 1 para a maioria dos pacientes e a Escala 2 para pacientes com risco de insuficiencia respiratoria hipercapnica (ex.: DPOC) com alvo de saturacao de 88-92%. Esta calculadora utiliza a Escala 1 de SpO2 (pontuacao maxima agregada = 19).",
+    "categoria": "Deterioração clínica",
+    "descricao": "Escore de alerta precoce para detecção de deterioração clínica em adultos (>=16 anos), padronizado pelo Royal College of Physicians do Reino Unido. Agrega 6 parâmetros fisiológicos (a suplementação de oxigênio adiciona 2 pontos, totalizando 7 itens nesta calculadora). Possui duas escalas de SpO2: a Escala 1 para a maioria dos pacientes e a Escala 2 para pacientes com risco de insuficiência respiratória hipercápnica (ex.: DPOC) com alvo de saturação de 88-92%. Esta calculadora utiliza a Escala 1 de SpO2 (pontuação máxima agregada = 19).",
     "itens": [
       {
-        "label": "Frequencia respiratoria (irpm)",
+        "label": "Frequência respiratória (irpm)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -774,7 +774,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Saturacao de O2 - Escala 1 (%)",
+        "label": "Saturação de O2 - Escala 1 (%)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -796,7 +796,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Suplementacao de oxigenio",
+        "label": "Suplementação de oxigênio",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -804,13 +804,13 @@ export const SCORES: ScoreDef[] = [
             "pontos": 0
           },
           {
-            "label": "Em uso de oxigenio suplementar",
+            "label": "Em uso de oxigênio suplementar",
             "pontos": 2
           }
         ]
       },
       {
-        "label": "Pressao arterial sistolica (mmHg)",
+        "label": "Pressão arterial sistólica (mmHg)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -836,7 +836,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Frequencia cardiaca (bpm)",
+        "label": "Frequência cardíaca (bpm)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -866,7 +866,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Nivel de consciencia (ACVPU)",
+        "label": "Nível de consciência (ACVPU)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -874,7 +874,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 0
           },
           {
-            "label": "Nova confusao, Resposta a Voz, Dor ou Inconsciente (C/V/P/U)",
+            "label": "Nova confusão, Resposta a Voz, Dor ou Inconsciente (C/V/P/U)",
             "pontos": 3
           }
         ]
@@ -922,7 +922,7 @@ export const SCORES: ScoreDef[] = [
       {
         "min": 5,
         "max": 6,
-        "rotulo": "Risco medio",
+        "rotulo": "Risco médio",
         "cor": "amber"
       },
       {
@@ -936,11 +936,11 @@ export const SCORES: ScoreDef[] = [
   {
     "id": "news",
     "nome": "NEWS - National Early Warning Score",
-    "categoria": "Deterioracao clinica",
-    "descricao": "Escore de alerta precoce do Royal College of Physicians para deteccao e resposta a deterioracao clinica aguda em pacientes adultos. Baseado em 7 itens pontuaveis (6 parametros fisiologicos mais o uso de oxigenio suplementar). Esta versao reproduz o NEWS original (2012), usando a Escala 1 de SpO2. No NEWS2 (2017) a diferenca relevante e a adicao de uma 2a escala de SpO2 (Scale 2) para pacientes com risco de insuficiencia respiratoria hipercapnica e a substituicao do AVPU por ACVPU, que pontua 3 tambem para nova confusao (\"new confusion\"). O uso de O2 suplementar ja pontuava 2 no NEWS 2012 (mantido no NEWS2), e os limiares de temperatura sao os mesmos nas duas versoes.",
+    "categoria": "Deterioração clínica",
+    "descricao": "Escore de alerta precoce do Royal College of Physicians para detecção e resposta a deterioração clínica aguda em pacientes adultos. Baseado em 7 itens pontuáveis (6 parâmetros fisiológicos mais o uso de oxigênio suplementar). Esta versão reproduz o NEWS original (2012), usando a Escala 1 de SpO2. No NEWS2 (2017) a diferença relevante é a adição de uma 2a escala de SpO2 (Scale 2) para pacientes com risco de insuficiência respiratória hipercápnica e a substituição do AVPU por ACVPU, que pontua 3 também para nova confusão (\"new confusion\"). O uso de O2 suplementar já pontuava 2 no NEWS 2012 (mantido no NEWS2), e os limiares de temperatura são os mesmos nas duas versões.",
     "itens": [
       {
-        "label": "Frequencia respiratoria (irpm)",
+        "label": "Frequência respiratória (irpm)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -966,7 +966,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Saturacao de O2 - SpO2 (%) - Escala 1",
+        "label": "Saturação de O2 - SpO2 (%) - Escala 1",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -988,7 +988,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Oxigenio suplementar",
+        "label": "Oxigênio suplementar",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -996,7 +996,7 @@ export const SCORES: ScoreDef[] = [
             "pontos": 2
           },
           {
-            "label": "Nao (ar ambiente)",
+            "label": "Não (ar ambiente)",
             "pontos": 0
           }
         ]
@@ -1028,7 +1028,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Pressao arterial sistolica (mmHg)",
+        "label": "Pressão arterial sistólica (mmHg)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -1054,7 +1054,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Frequencia cardiaca (bpm)",
+        "label": "Frequência cardíaca (bpm)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -1084,7 +1084,7 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Nivel de consciencia (AVPU)",
+        "label": "Nível de consciência (AVPU)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -1102,7 +1102,7 @@ export const SCORES: ScoreDef[] = [
       {
         "min": 0,
         "max": 0,
-        "rotulo": "Risco baixo - monitoramento minimo",
+        "rotulo": "Risco baixo - monitoramento mínimo",
         "cor": "green"
       },
       {
@@ -1114,7 +1114,7 @@ export const SCORES: ScoreDef[] = [
       {
         "min": 5,
         "max": 6,
-        "rotulo": "Risco medio - resposta urgente",
+        "rotulo": "Risco médio - resposta urgente",
         "cor": "amber"
       },
       {
@@ -1866,14 +1866,14 @@ export const SCORES: ScoreDef[] = [
     "id": "hasbled",
     "nome": "HAS-BLED",
     "categoria": "Cardiologia / FA",
-    "descricao": "Estima o risco de sangramento maior em 1 ano em pacientes com fibrilacao atrial (FA) em uso ou candidatos a anticoagulacao oral. Acronimo: Hypertension, Abnormal renal/liver function, Stroke, Bleeding, Labile INR, Elderly, Drugs/alcohol. Pontuacao maxima de 9. Um escore alto nao contraindica a anticoagulacao, mas sinaliza fatores de risco modificaveis e a necessidade de acompanhamento mais frequente.",
+    "descricao": "Estima o risco de sangramento maior em 1 ano em pacientes com fibrilação atrial (FA) em uso ou candidatos a anticoagulação oral. Acrônimo: Hypertension, Abnormal renal/liver function, Stroke, Bleeding, Labile INR, Elderly, Drugs/alcohol. Pontuação máxima de 9. Um escore alto não contraindica a anticoagulação, mas sinaliza fatores de risco modificáveis e a necessidade de acompanhamento mais frequente.",
     "itens": [
       {
-        "label": "Hipertensao (PAS > 160 mmHg nao controlada)",
+        "label": "Hipertensão (PAS > 160 mmHg não controlada)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1883,11 +1883,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Funcao renal anormal (dialise, transplante renal ou creatinina >= 2,26 mg/dL / 200 umol/L)",
+        "label": "Função renal anormal (diálise, transplante renal ou creatinina >= 2,26 mg/dL / 200 umol/L)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1897,11 +1897,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Funcao hepatica anormal (cirrose, bilirrubina > 2x LSN, ou TGO/TGP/FA > 3x LSN)",
+        "label": "Função hepática anormal (cirrose, bilirrubina > 2x LSN, ou TGO/TGP/FA > 3x LSN)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1911,11 +1911,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "AVC previo",
+        "label": "AVC prévio",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1925,11 +1925,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Sangramento previo ou predisposicao a sangramento (anemia, diatese hemorragica)",
+        "label": "Sangramento prévio ou predisposição a sangramento (anemia, diátese hemorrágica)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1939,11 +1939,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "INR labil (TTR < 60% no uso de varfarina)",
+        "label": "INR lábil (TTR < 60% no uso de varfarina)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1957,7 +1957,7 @@ export const SCORES: ScoreDef[] = [
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1967,11 +1967,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Medicamentos que predispoem a sangramento (antiplaquetarios, AINEs)",
+        "label": "Medicamentos que predispõem a sangramento (antiplaquetários, AINEs)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -1981,11 +1981,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Uso abusivo de alcool (>= 8 doses/semana)",
+        "label": "Uso abusivo de álcool (>= 8 doses/semana)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -2005,7 +2005,7 @@ export const SCORES: ScoreDef[] = [
       {
         "min": 1,
         "max": 2,
-        "rotulo": "Risco intermediario",
+        "rotulo": "Risco intermediário",
         "cor": "amber"
       },
       {
@@ -2020,10 +2020,10 @@ export const SCORES: ScoreDef[] = [
     "id": "curb65",
     "nome": "CURB-65",
     "categoria": "Pneumologia / PAC",
-    "descricao": "Escore de gravidade da pneumonia adquirida na comunidade (PAC) que estratifica o risco de mortalidade em 30 dias e orienta a decisao de tratamento ambulatorial, internacao ou cuidado intensivo. Cada um dos 5 criterios (acronimo CURB-65: Confusion, Urea, Respiratory rate, Blood pressure, 65 anos) vale 1 ponto, total 0 a 5. Confusao = confusao mental de inicio recente (AMTS menor ou igual a 8 ou desorientacao em pessoa, lugar ou tempo).",
+    "descricao": "Escore de gravidade da pneumonia adquirida na comunidade (PAC) que estratifica o risco de mortalidade em 30 dias e orienta a decisão de tratamento ambulatorial, internação ou cuidado intensivo. Cada um dos 5 critérios (acrônimo CURB-65: Confusion, Urea, Respiratory rate, Blood pressure, 65 anos) vale 1 ponto, total 0 a 5. Confusão = confusão mental de início recente (AMTS menor ou igual a 8 ou desorientação em pessoa, lugar ou tempo).",
     "itens": [
       {
-        "label": "Confusao mental (de inicio recente; AMTS menor ou igual a 8 ou desorientacao)",
+        "label": "Confusão mental (de início recente; AMTS menor ou igual a 8 ou desorientação)",
         "tipo": "opcoes",
         "opcoes": [
           {
@@ -2037,11 +2037,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Ureia (Urea) serica > 7 mmol/L (BUN > 19 mg/dL; ureia > ~42-50 mg/dL)",
+        "label": "Ureia (Urea) sérica > 7 mmol/L (BUN > 19 mg/dL; ureia > ~42-50 mg/dL)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao (ureia menor ou igual ao limiar)",
+            "label": "Não (ureia menor ou igual ao limiar)",
             "pontos": 0
           },
           {
@@ -2051,11 +2051,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Frequencia respiratoria maior ou igual a 30 irpm",
+        "label": "Frequência respiratória maior ou igual a 30 irpm",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao (< 30 irpm)",
+            "label": "Não (< 30 irpm)",
             "pontos": 0
           },
           {
@@ -2065,11 +2065,11 @@ export const SCORES: ScoreDef[] = [
         ]
       },
       {
-        "label": "Pressao arterial baixa (PAS < 90 mmHg ou PAD menor ou igual a 60 mmHg)",
+        "label": "Pressão arterial baixa (PAS < 90 mmHg ou PAD menor ou igual a 60 mmHg)",
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao",
+            "label": "Não",
             "pontos": 0
           },
           {
@@ -2083,7 +2083,7 @@ export const SCORES: ScoreDef[] = [
         "tipo": "opcoes",
         "opcoes": [
           {
-            "label": "Nao (< 65 anos)",
+            "label": "Não (< 65 anos)",
             "pontos": 0
           },
           {
@@ -2103,12 +2103,12 @@ export const SCORES: ScoreDef[] = [
       {
         "min": 2,
         "max": 2,
-        "rotulo": "Risco intermediario (mortalidade ~9.2%) - internacao breve ou supervisao",
+        "rotulo": "Risco intermediário (mortalidade ~9.2%) - internação breve ou supervisão",
         "cor": "amber"
       },
       {
         "min": 3,
-        "rotulo": "Alto risco (mortalidade ~22%; 3=~14.5%, 4-5=ate ~40%) - internacao, avaliar UTI (sobretudo 4-5)",
+        "rotulo": "Alto risco (mortalidade ~22%; 3=~14.5%, 4-5=até ~40%) - internação, avaliar UTI (sobretudo 4-5)",
         "cor": "red"
       }
     ],
