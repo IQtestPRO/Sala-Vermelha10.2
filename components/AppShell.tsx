@@ -24,7 +24,7 @@ export function useUpdateMe(): (m: Me) => void {
 }
 
 // Pendente (plantonista não aprovado) pode usar o toolkit, só não a fila de casos.
-const ALLOWED_WHEN_PENDING = ["/pending", "/condutas", "/calculadoras", "/chat", "/plantao", "/perfil", "/rapido", "/analisar"];
+const ALLOWED_WHEN_PENDING = ["/pending", "/condutas", "/calculadoras", "/chat", "/plantao", "/perfil", "/suporte", "/protocolos", "/rapido", "/analisar"];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [me, setMe] = useState<Me | null>(null);

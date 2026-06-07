@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck, ChevronDown, GraduationCap } from "lucide-react";
+import Link from "next/link";
+import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck, ChevronDown, GraduationCap, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 import { ESPECIALIDADES } from "@/lib/especialidades";
 import { formatCpf } from "@/lib/cpf";
@@ -257,6 +258,9 @@ export default function PerfilPage() {
         <button className="btn btn-ghost" onClick={() => window.dispatchEvent(new Event("stat-open-tutorial"))} style={{ minHeight: 46 }}>
           <GraduationCap size={18} /> Ver tutorial do app
         </button>
+        <Link href="/suporte" className="btn btn-ghost" style={{ minHeight: 46 }}>
+          <Lightbulb size={18} /> Ideias e suporte
+        </Link>
       </div>
 
       <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pickAvatar(e.target.files)} />

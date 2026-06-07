@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, Check, X, Users, ClipboardList } from "lucide-react";
+import { ShieldCheck, Check, X, Users, ClipboardList, Lightbulb } from "lucide-react";
 import SlaCountdown from "@/components/SlaCountdown";
 import { statusLabel, statusBadgeClass } from "@/lib/labels";
 import { questionMeta } from "@/lib/types/case";
@@ -19,13 +19,18 @@ type AdminUser = {
   status: string;
   created_at: number;
 };
+type FB = { id: string; user_name: string | null; tipo: string; texto: string; app_ref: string | null; status: string; created_at: number };
+const fbTipoLabel = (t: string) => (t === "problema" ? "Problema" : t === "melhoria" ? "Melhoria" : "Ideia");
+const fbWhen = (ts: number) => new Date(ts).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
 
 export default function AdminPage() {
   const [pw, setPw] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<"users" | "cases">("users");
+  const [tab, setTab] = useState<"users" | "cases" | "feedback">("users");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [cases, setCases] = useState<PublicCase[]>([]);
+  const [feedback, setFeedback] = useState<FB[]>([]);
+  const [fbTipo, setFbTipo] = useState("");
   const [serverNow, setServerNow] = useState(Date.now());
   const [checking, setChecking] = useState(false);
 
@@ -47,6 +52,12 @@ export default function AdminPage() {
     setCases(data.cases || []);
     setServerNow(data.serverNow || Date.now());
   }, [headers]);
+
+  const loadFeedback = useCallback(async () => {
+    const res = await fetch("/api/admin/feedback" + (fbTipo ? `?tipo=${fbTipo}` : ""), { headers: headers(), cache: "no-store" });
+    const data = await res.json();
+    setFeedback(data.feedback || []);
+  }, [headers, fbTipo]);
 
   async function tryLogin(p: string, silent = false) {
     setChecking(true);
@@ -71,14 +82,11 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authed) return;
-    if (tab === "users") loadUsers();
-    else loadCases();
-    const t = setInterval(() => {
-      if (tab === "users") loadUsers().catch(() => {});
-      else loadCases().catch(() => {});
-    }, 6000);
+    const run = () => (tab === "users" ? loadUsers() : tab === "cases" ? loadCases() : loadFeedback());
+    run().catch(() => {});
+    const t = setInterval(() => run().catch(() => {}), 6000);
     return () => clearInterval(t);
-  }, [authed, tab, loadUsers, loadCases]);
+  }, [authed, tab, loadUsers, loadCases, loadFeedback]);
 
   async function act(id: string, action: "approve" | "reject") {
     try {
@@ -88,6 +96,10 @@ export default function AdminPage() {
     } catch {
       toast.error("Falha na ação.");
     }
+  }
+  async function setFbStatus(id: string, status: string) {
+    setFeedback((arr) => arr.map((x) => (x.id === id ? { ...x, status } : x)));
+    await fetch("/api/admin/feedback", { method: "PATCH", headers: { ...headers(), "content-type": "application/json" }, body: JSON.stringify({ id, status }) }).catch(() => {});
   }
 
   if (!authed) {
@@ -138,12 +150,15 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <div style={{ display: "flex", gap: 8, padding: "12px 16px 0" }}>
-        <button className={`chip ${tab === "users" ? "chip-on" : ""}`} onClick={() => setTab("users")}>
+      <div className="scroll-x" style={{ gap: 8, padding: "12px 16px 0" }}>
+        <button className={`chip ${tab === "users" ? "chip-on" : ""}`} onClick={() => setTab("users")} style={{ flex: "0 0 auto" }}>
           <Users size={15} /> Aprovações ({pendentes.length})
         </button>
-        <button className={`chip ${tab === "cases" ? "chip-on" : ""}`} onClick={() => setTab("cases")}>
+        <button className={`chip ${tab === "cases" ? "chip-on" : ""}`} onClick={() => setTab("cases")} style={{ flex: "0 0 auto" }}>
           <ClipboardList size={15} /> Casos
+        </button>
+        <button className={`chip ${tab === "feedback" ? "chip-on" : ""}`} onClick={() => setTab("feedback")} style={{ flex: "0 0 auto" }}>
+          <Lightbulb size={15} /> Ideias ({feedback.filter((f) => f.status === "novo").length})
         </button>
       </div>
 
@@ -194,6 +209,37 @@ export default function AdminPage() {
               </div>
             ))
           ))}
+
+        {tab === "feedback" && (
+          <>
+            <div className="scroll-x" style={{ gap: 6, marginBottom: 2 }}>
+              {([["", "Todos"], ["ideia", "Ideias"], ["problema", "Problemas"], ["melhoria", "Melhorias"]] as const).map(([k, lbl]) => (
+                <button key={k} className={`chip ${fbTipo === k ? "chip-on" : ""}`} onClick={() => setFbTipo(k)} style={{ flex: "0 0 auto" }}>{lbl}</button>
+              ))}
+            </div>
+            {feedback.length === 0 ? (
+              <div className="card" style={{ textAlign: "center", padding: 28 }}><div className="muted">Nenhuma mensagem ainda.</div></div>
+            ) : (
+              feedback.map((m) => (
+                <div key={m.id} className="card-2" style={{ opacity: m.status === "feito" ? 0.6 : 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+                    <span style={{ fontWeight: 800, fontSize: 12.5, color: m.tipo === "problema" ? "var(--red)" : "var(--primary)" }}>{fbTipoLabel(m.tipo)}</span>
+                    <span className="faint" style={{ fontSize: 11 }}>{m.user_name || "—"} · {fbWhen(m.created_at)}</span>
+                  </div>
+                  <div style={{ fontSize: 14, lineHeight: 1.45, marginTop: 5, whiteSpace: "pre-wrap" }}>{m.texto}</div>
+                  {m.app_ref && <div className="faint" style={{ fontSize: 12, marginTop: 4 }}>Ref.: {m.app_ref}</div>}
+                  <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                    {(["novo", "visto", "feito"] as const).map((s) => (
+                      <button key={s} className={`chip ${m.status === s ? "chip-on" : ""}`} onClick={() => setFbStatus(m.id, s)} style={{ flex: 1, minHeight: 34, fontSize: 12 }}>
+                        {s === "novo" ? "Novo" : s === "visto" ? "Em análise" : "Feito"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </>
+        )}
       </div>
     </div>
   );

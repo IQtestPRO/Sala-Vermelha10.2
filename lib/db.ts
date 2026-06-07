@@ -259,6 +259,21 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_dilutions_user_droga ON user_dilutions(user_id, droga_nome)`);
 
+  // ---- FEEDBACK (ideias / problemas / melhorias enviados pelos usuários → admin) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS feedback (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT,
+      user_name  TEXT,
+      tipo       TEXT NOT NULL,
+      texto      TEXT NOT NULL,
+      app_ref    TEXT,
+      status     TEXT NOT NULL DEFAULT 'novo',
+      created_at INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback(created_at DESC)`);
+
   await maybeSeedResponder(db);
   tableReady = true;
 }
