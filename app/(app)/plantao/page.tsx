@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { CalendarClock, ClipboardList, Plus, ChevronLeft, ChevronRight, Trash2, Share2, Check, MapPin } from "lucide-react";
+import { CalendarClock, CalendarDays, List, ClipboardList, Plus, ChevronLeft, ChevronRight, Trash2, Share2, Check } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import VoiceButton from "@/components/VoiceButton";
 import { apiGet, apiPost } from "@/lib/client";
@@ -16,22 +16,31 @@ type Handoff = { token: string; paciente: string; idade: string | null; leito: s
 const CORES = ["#15294C", "#E11D2A", "#1a8f4f", "#c77d11", "#6d28d9"];
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const ddmm = (iso: string) => (/^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : iso);
-const MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const MES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const SEM = ["D", "S", "T", "Q", "Q", "S", "S"];
+const pad = (n: number) => String(n).padStart(2, "0");
 
+// --- datas SEM timezone implícito (nunca new Date("YYYY-MM-DD")) ---
 function curMonth(): string {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 }
 function shiftMonth(m: string, delta: number): string {
   const [y, mo] = m.split("-").map(Number);
-  const d = new Date(y, mo - 1 + delta, 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const d = new Date(y, mo - 1 + delta, 1); // construtor local — seguro
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+}
+function todayISO(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 // ---------------- Plantões (agenda + financeiro) ----------------
 function Plantoes() {
   const [month, setMonth] = useState(curMonth());
+  const [view, setView] = useState<"cal" | "lista">("cal");
   const [shifts, setShifts] = useState<Shift[]>([]);
+  const [selDay, setSelDay] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [f, setF] = useState({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
   const [saving, setSaving] = useState(false);
@@ -47,6 +56,10 @@ function Plantoes() {
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => {
+    setSelDay(null);
+    setShowForm(false);
+  }, [month]);
 
   const recebido = shifts.filter((s) => s.pago).reduce((a, s) => a + (s.valor || 0), 0);
   const aReceber = shifts.filter((s) => !s.pago).reduce((a, s) => a + (s.valor || 0), 0);
@@ -74,8 +87,43 @@ function Plantoes() {
     setShifts((arr) => arr.filter((x) => x.id !== s.id));
     await fetch(`/api/shifts?id=${s.id}`, { method: "DELETE" });
   }
+  function novoNoDia(iso: string) {
+    setF((p) => ({ ...p, data: iso }));
+    setShowForm(true);
+    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 100);
+  }
 
   const [y, mo] = month.split("-").map(Number);
+  const firstWeekday = new Date(y, mo - 1, 1).getDay(); // 0=Dom (local, seguro)
+  const daysInMonth = new Date(y, mo, 0).getDate();
+  const hoje = todayISO();
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  while (cells.length % 7) cells.push(null);
+
+  const shiftsDoDia = (iso: string) => shifts.filter((s) => s.data === iso);
+  const selShifts = selDay ? shiftsDoDia(selDay) : [];
+
+  function ShiftRow({ s }: { s: Shift }) {
+    return (
+      <div className="card" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
+        <div style={{ width: 6, alignSelf: "stretch", borderRadius: 4, background: s.cor || CORES[0] }} />
+        <div style={{ textAlign: "center", minWidth: 38 }}>
+          <div className="data" style={{ fontSize: 18, fontWeight: 800 }}>{ddmm(s.data).slice(0, 2)}</div>
+          <div className="faint" style={{ fontSize: 10 }}>{ddmm(s.data).slice(3)}</div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.local || "Plantão"}</div>
+          <div className="faint" style={{ fontSize: 12 }}>{[s.inicio && s.fim ? `${s.inicio}–${s.fim}` : s.inicio, s.valor != null ? brl(s.valor) : null].filter(Boolean).join(" · ")}</div>
+        </div>
+        <button onClick={() => togglePago(s)} className="chip" style={{ flex: "0 0 auto", background: s.pago ? "color-mix(in srgb, var(--green) 16%, var(--surface))" : "var(--surface-sunken)", color: s.pago ? "var(--green)" : "var(--text-dim)", fontWeight: 700 }}>
+          {s.pago ? <><Check size={13} /> Pago</> : "A receber"}
+        </button>
+        <button onClick={() => remover(s)} className="btn btn-ghost btn-sm" style={{ flex: "0 0 auto", padding: 6 }}><Trash2 size={15} /></button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -91,12 +139,86 @@ function Plantoes() {
         </div>
       </div>
 
-      {/* Navegação de mês */}
+      {/* Navegação de mês + toggle de visão */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <button className="btn btn-ghost btn-sm" onClick={() => setMonth(shiftMonth(month, -1))}><ChevronLeft size={18} /></button>
-        <span style={{ fontWeight: 800, fontSize: 15 }}>{MES[mo - 1]} {y}</span>
+        <span style={{ fontWeight: 800, fontSize: 15, textTransform: "capitalize" }}>{MES[mo - 1]} {y}</span>
         <button className="btn btn-ghost btn-sm" onClick={() => setMonth(shiftMonth(month, 1))}><ChevronRight size={18} /></button>
       </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button className={`btn btn-sm ${view === "cal" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("cal")} style={{ flex: 1 }}><CalendarDays size={16} /> Calendário</button>
+        <button className={`btn btn-sm ${view === "lista" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("lista")} style={{ flex: 1 }}><List size={16} /> Lista</button>
+      </div>
+
+      {view === "cal" ? (
+        <>
+          {/* Grade do mês */}
+          <div className="card" style={{ padding: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3, marginBottom: 4 }}>
+              {SEM.map((w, i) => (
+                <div key={i} className="faint" style={{ textAlign: "center", fontSize: 11, fontWeight: 700 }}>{w}</div>
+              ))}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
+              {cells.map((d, i) => {
+                if (d == null) return <div key={i} />;
+                const iso = `${month}-${pad(d)}`;
+                const ds = shiftsDoDia(iso);
+                const isToday = iso === hoje;
+                const isSel = iso === selDay;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setSelDay(isSel ? null : iso)}
+                    style={{
+                      minHeight: 46,
+                      borderRadius: 10,
+                      border: isToday ? "2px solid var(--primary)" : "1px solid var(--border)",
+                      background: isSel ? "var(--primary)" : ds.length ? "var(--navy-tint)" : "var(--surface)",
+                      color: isSel ? "#fff" : "var(--text)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 3,
+                      padding: 2,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, fontWeight: isToday || ds.length ? 800 : 500 }}>{d}</span>
+                    <span style={{ display: "flex", gap: 2, height: 6 }}>
+                      {ds.slice(0, 4).map((s, k) => (
+                        <span key={k} style={{ width: 5, height: 5, borderRadius: 999, background: isSel ? "#fff" : s.cor || CORES[0] }} />
+                      ))}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Dia selecionado */}
+          {selDay && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="eyebrow" style={{ margin: 0 }}>{ddmm(selDay)} — {selShifts.length} plantão{selShifts.length === 1 ? "" : "s"}</div>
+              {selShifts.map((s) => <ShiftRow key={s.id} s={s} />)}
+              <button className="btn btn-ghost btn-sm" onClick={() => novoNoDia(selDay)} style={{ alignSelf: "flex-start" }}>
+                <Plus size={15} /> Novo plantão em {ddmm(selDay)}
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          {shifts.length === 0 ? (
+            <div className="muted" style={{ textAlign: "center", padding: 24 }}>Nenhum plantão neste mês.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {shifts.map((s) => <ShiftRow key={s.id} s={s} />)}
+            </div>
+          )}
+        </>
+      )}
 
       <button className="btn btn-primary" onClick={() => setShowForm((v) => !v)} style={{ minHeight: 46 }}>
         <Plus size={18} /> Novo plantão
@@ -143,30 +265,6 @@ function Plantoes() {
             </div>
           </div>
           <button className="btn btn-primary" disabled={saving} onClick={salvar} style={{ minHeight: 48 }}>{saving ? "Salvando…" : "Salvar plantão"}</button>
-        </div>
-      )}
-
-      {shifts.length === 0 ? (
-        <div className="muted" style={{ textAlign: "center", padding: 24 }}>Nenhum plantão neste mês.</div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {shifts.map((s) => (
-            <div key={s.id} className="card" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px" }}>
-              <div style={{ width: 6, alignSelf: "stretch", borderRadius: 4, background: s.cor || CORES[0] }} />
-              <div style={{ textAlign: "center", minWidth: 40 }}>
-                <div className="data" style={{ fontSize: 18, fontWeight: 800 }}>{ddmm(s.data).slice(0, 2)}</div>
-                <div className="faint" style={{ fontSize: 10 }}>{ddmm(s.data).slice(3)}</div>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.local || "Plantão"}</div>
-                <div className="faint" style={{ fontSize: 12 }}>{[s.inicio && s.fim ? `${s.inicio}–${s.fim}` : s.inicio, s.valor != null ? brl(s.valor) : null].filter(Boolean).join(" · ")}</div>
-              </div>
-              <button onClick={() => togglePago(s)} className="chip" style={{ flex: "0 0 auto", background: s.pago ? "color-mix(in srgb, var(--green) 16%, var(--surface))" : "var(--surface-sunken)", color: s.pago ? "var(--green)" : "var(--text-dim)", fontWeight: 700 }}>
-                {s.pago ? <><Check size={13} /> Pago</> : "A receber"}
-              </button>
-              <button onClick={() => remover(s)} className="btn btn-ghost btn-sm" style={{ flex: "0 0 auto", padding: 6 }}><Trash2 size={15} /></button>
-            </div>
-          ))}
         </div>
       )}
     </div>
