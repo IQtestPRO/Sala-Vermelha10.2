@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LoaderThree } from "@/components/ui/loader";
 
-// Abertura curta com a marca STAT (logo exata). Some sozinha (~1,1s).
+// Abertura cinematográfica: logo (SVG) + loader-three (raio vermelho). Some sozinha.
 export default function Splash() {
   const [gone, setGone] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setGone(true), 1150);
+    const t = setTimeout(() => setGone(true), 1700);
     return () => clearTimeout(t);
   }, []);
   if (gone) return null;
@@ -14,8 +15,13 @@ export default function Splash() {
     <div className="splash" aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/stat-hero.jpg" alt="" className="splash-bg" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/stat-logo.png" alt="STAT" className="splash-logo" />
+      <div className="splash-stack">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/stat-logo.svg" alt="STAT" className="splash-logo" />
+        <div className="splash-loader">
+          <LoaderThree className="h-11 w-11" />
+        </div>
+      </div>
     </div>
   );
 }

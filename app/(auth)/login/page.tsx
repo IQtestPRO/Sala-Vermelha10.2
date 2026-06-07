@@ -42,7 +42,7 @@ export default function LoginPage() {
           {/* Coluna do formulário */}
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stat-logo.png" alt="STAT" style={{ height: 60, width: "auto", display: "block" }} />
+            <img src="/stat-logo.svg" alt="STAT" style={{ height: 64, width: "auto", display: "block" }} />
             <div className="login-flip">
               <LayoutTextFlip
                 text="STAT:"

@@ -50,7 +50,7 @@ export default function RegisterPage() {
           {/* Formulário */}
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stat-logo.png" alt="STAT" style={{ height: 46, width: "auto", display: "block" }} />
+            <img src="/stat-logo.svg" alt="STAT" style={{ height: 50, width: "auto", display: "block" }} />
             <h1 className="auth-h1" style={{ fontSize: "clamp(28px, 5vw, 40px)" }}>Criar conta</h1>
             <p className="auth-sub">Para médicos. Um único cadastro para acessar a plataforma.</p>
 
