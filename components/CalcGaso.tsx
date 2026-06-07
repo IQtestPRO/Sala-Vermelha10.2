@@ -5,6 +5,7 @@ import { ChevronDown, Activity, AlertTriangle } from "lucide-react";
 import { interpretarGaso, type GasoInput } from "@/lib/gasometria";
 
 const num = (v: string): number | undefined => {
+  if (String(v).trim() === "") return undefined; // vazio = não informado (Number("") seria 0!)
   const x = Number(String(v).replace(",", "."));
   return Number.isFinite(x) ? x : undefined;
 };
