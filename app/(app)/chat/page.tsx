@@ -11,15 +11,23 @@ type Msg = { role: "user" | "assistant"; text: string; image?: string };
 const GREETING =
   "Sou o STAT. Mande a foto do ECG/monitor/exame + uma descrição breve do caso. Eu faço a leitura, te pergunto o que falta e devolvo conduta padrão-ouro e a alternativa para UPA/SUS.";
 
-// Render simples: negrito **assim** + quebras de linha.
+// Render leve de markdown: títulos (#), negrito (**), bullets e quebras de linha.
+function inline(s: string, key: string) {
+  return s.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
+    p.startsWith("**") && p.endsWith("**") ? <b key={key + i}>{p.slice(2, -2)}</b> : <span key={key + i}>{p}</span>
+  );
+}
 function RichText({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  const lines = text.split("\n");
   return (
-    <span style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-      {parts.map((p, i) =>
-        p.startsWith("**") && p.endsWith("**") ? <b key={i}>{p.slice(2, -2)}</b> : <span key={i}>{p}</span>
-      )}
-    </span>
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {lines.map((line, i) => {
+        const h = line.match(/^\s*(#{1,6})\s+(.*)/);
+        if (h) return <div key={i} style={{ fontWeight: 800, fontSize: 14, margin: i ? "8px 0 2px" : "0 0 2px" }}>{inline(h[2], "h" + i)}</div>;
+        if (!line.trim()) return <div key={i} style={{ height: 5 }} />;
+        return <div key={i} style={{ whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.5 }}>{inline(line, "l" + i)}</div>;
+      })}
+    </div>
   );
 }
 
