@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Copy, Calculator, Zap } from "lucide-react";
+import { AlertTriangle, Copy, Calculator, Zap, Droplet } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORIAS, CondutaCard } from "@/lib/condutas";
-import { calcDose } from "@/lib/doseCalculator";
+import { calcDose, calcInfusao } from "@/lib/doseCalculator";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import AcaoRapidaCard from "./AcaoRapidaCard";
 import ImageAnalyzer from "./ImageAnalyzer";
@@ -34,7 +34,7 @@ export function categoriaLabel(card: CondutaCard) {
 
 export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
   const [peso, setPeso] = useState<number | undefined>(undefined);
-  const temCalculo = card.doses.some((d) => d.mgPorKg);
+  const temCalculo = card.doses.some((d) => d.mgPorKg || d.infusao);
 
   function copiar() {
     const linhas: string[] = [card.titulo, ""];
@@ -138,6 +138,7 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {card.doses.map((d, k) => {
               const calc = peso ? calcDose(d, peso) : null;
+              const inf = d.infusao ? calcInfusao(d.infusao, peso) : null;
               return (
                 <div
                   key={k}
@@ -168,6 +169,53 @@ export default function CondutaDetalhe({ card }: { card: CondutaCard }) {
                     </div>
                   )}
                   {d.obs && <div className="faint" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.4 }}>{d.obs}</div>}
+                  {d.infusao && (
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const linhas = [
+                          d.farmaco,
+                          `${d.infusao!.diluicao} = ${d.infusao!.concentracao}`,
+                          d.infusao!.inicio ? `Início: ${d.infusao!.inicio}` : "",
+                          inf ? `${inf.faixaLabel} → ${inf.mlh}` : "",
+                        ].filter(Boolean);
+                        navigator.clipboard?.writeText(linhas.join("\n")).then(
+                          () => {
+                            toast.success("Diluição copiada.");
+                            if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(12);
+                          },
+                          () => toast.error("Não consegui copiar.")
+                        );
+                      }}
+                      style={{
+                        marginTop: 9,
+                        padding: "10px 12px",
+                        borderRadius: 12,
+                        background: "color-mix(in srgb, var(--primary) 7%, var(--surface))",
+                        border: "1px solid color-mix(in srgb, var(--primary) 22%, var(--border))",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 5,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 800, fontSize: 11, letterSpacing: "0.05em", color: "var(--primary-press)", textTransform: "uppercase" }}>
+                        <Droplet size={13} /> Diluição & bomba (BIC)
+                      </div>
+                      <div style={{ fontSize: 13, lineHeight: 1.45 }}>
+                        {d.infusao.diluicao} <b>= {d.infusao.concentracao}</b>
+                      </div>
+                      {d.infusao.inicio && <div className="faint" style={{ fontSize: 12 }}>Início: {d.infusao.inicio}</div>}
+                      {d.infusao.titulacao && <div className="faint" style={{ fontSize: 12 }}>Titulação: {d.infusao.titulacao}</div>}
+                      {d.infusao.gatilho && <div className="faint" style={{ fontSize: 12 }}>Quando: {d.infusao.gatilho}</div>}
+                      {inf ? (
+                        <div className="data" style={{ marginTop: 3, color: "var(--red)", fontWeight: 800, fontSize: 15.5 }}>
+                          {inf.faixaLabel} → {inf.mlh}
+                        </div>
+                      ) : (
+                        <div className="faint" style={{ fontSize: 11.5 }}>Informe o peso acima para ver os mL/h.</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}

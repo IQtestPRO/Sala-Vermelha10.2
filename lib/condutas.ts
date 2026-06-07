@@ -24,6 +24,23 @@ export const CATEGORIAS: { key: CondutaCategoria; label: string }[] = [
 
 export type DoseUnidade = "mg/kg" | "mL/kg" | "mcg/kg/min" | "mEq/kg";
 
+// Unidade da dose de uma droga em INFUSÃO contínua (bomba).
+export type InfusaoUnidade = "mcg/kg/min" | "mcg/min" | "UI/min" | "mg/min" | "mg/h" | "mg/kg/h";
+
+// Diluição padrão + dados para calcular mL/h na bomba (BIC) por peso.
+export type Infusao = {
+  diluicao: string; // "16 mg (4 amp de 4 mg/4 mL) + 234 mL SG 5% = 250 mL"
+  concentracao: string; // rótulo legível, ex.: "64 mcg/mL"
+  concMcgMl?: number; // mcg/mL — drogas dosadas em mcg
+  concUiMl?: number; // UI/mL — vasopressina
+  concMgMl?: number; // mg/mL — amiodarona, diltiazem, magnésio, fenitoína...
+  unidade: InfusaoUnidade;
+  faixa?: { min: number; max?: number }; // faixa de referência na unidade
+  inicio?: string; // "0,05–0,1 mcg/kg/min"
+  titulacao?: string; // "subir 0,05 a cada 5 min até PAM ≥ 65"
+  gatilho?: string; // quando começar / adicionar
+};
+
 export type Dose = {
   farmaco: string;
   dose: string;
@@ -33,6 +50,7 @@ export type Dose = {
   mgPorKg?: { min: number; max?: number };
   unidade?: DoseUnidade; // default mg/kg
   concentracaoPadraoMgMl?: number; // so para mg/kg -> converte em mL
+  infusao?: Infusao; // se a droga corre em bomba: diluição + cálculo de mL/h
 };
 
 // Passo de acao imediata (modo panico): o que fazer AGORA, com dose em ampolas.
@@ -292,8 +310,14 @@ export const CONDUTAS: CondutaCard[] = [
     ],
     doses: [
       { farmaco: "Atropina", dose: "1 mg a cada 3–5 min (máx 3 mg)", via: "IV", obs: "Pouco eficaz em BAV de alto grau — não retardar o marca-passo" },
-      { farmaco: "Dopamina", dose: "5–20 mcg/kg/min", via: "IV (BIC)", obs: "Infusão titulável", mgPorKg: { min: 5, max: 20 }, unidade: "mcg/kg/min" },
-      { farmaco: "Adrenalina", dose: "2–10 mcg/min", via: "IV (BIC)", obs: "Infusão titulável" },
+      {
+        farmaco: "Dopamina", dose: "5–20 mcg/kg/min", via: "IV (BIC)",
+        infusao: { diluicao: "250 mg (5 amp de 50 mg/10 mL) + 200 mL SG 5% = 250 mL", concentracao: "1.000 mcg/mL", concMcgMl: 1000, unidade: "mcg/kg/min", faixa: { min: 5, max: 20 }, inicio: "5 mcg/kg/min", titulacao: "subir até FC/PA alvo (máx ~20)", gatilho: "bradicardia instável sem resposta à atropina (ou enquanto prepara o marca-passo)" },
+      },
+      {
+        farmaco: "Adrenalina", dose: "2–10 mcg/min", via: "IV (BIC)",
+        infusao: { diluicao: "4 mg (4 amp de 1 mg/mL) + 246 mL SG 5% = 250 mL", concentracao: "16 mcg/mL", concMcgMl: 16, unidade: "mcg/min", faixa: { min: 2, max: 10 }, inicio: "2 mcg/min", titulacao: "subir até FC alvo (2–10 mcg/min)", gatilho: "bradicardia instável (alternativa à dopamina / marca-passo)" },
+      },
     ],
     alertas: [
       "BAV 2º Mobitz II e BAVT: prepare marca-passo precocemente.",
@@ -319,9 +343,15 @@ export const CONDUTAS: CondutaCard[] = [
     ],
     doses: [
       { farmaco: "Adenosina", dose: "6 mg → 12 mg → 12 mg", via: "IV bolus rápido + flush", obs: "TSV regular QRS estreito; CUIDADO em FA pré-excitada (WPW)" },
-      { farmaco: "Amiodarona", dose: "150 mg em 10 min, depois 1 mg/min", via: "IV", obs: "TV monomórfica estável" },
+      {
+        farmaco: "Amiodarona", dose: "150 mg em 10 min (bólus), depois manutenção", via: "IV", obs: "TV monomórfica estável / FA",
+        infusao: { diluicao: "900 mg (6 amp de 150 mg/3 mL) + 500 mL SG 5% = 1,8 mg/mL", concentracao: "1,8 mg/mL", concMgMl: 1.8, unidade: "mg/min", faixa: { min: 0.5, max: 1 }, inicio: "1 mg/min por 6 h, depois 0,5 mg/min por 18 h", titulacao: "fases fixas (6 h + 18 h) — máx 2,2 g/24 h", gatilho: "manutenção após o bólus" },
+      },
       { farmaco: "Sulfato de magnésio", dose: "1–2 g em 10–15 min", via: "IV", obs: "Torsades de pointes" },
-      { farmaco: "Diltiazem", dose: "0,25 mg/kg em 2 min", via: "IV", obs: "Controle de FC na FA estável (cautela na IC/hipotensão)", mgPorKg: { min: 0.25 } },
+      {
+        farmaco: "Diltiazem", dose: "0,25 mg/kg em 2 min (bólus)", via: "IV", obs: "Controle de FC na FA estável (cautela na IC/hipotensão)", mgPorKg: { min: 0.25 },
+        infusao: { diluicao: "100 mg + 100 mL SF 0,9% = 1 mg/mL", concentracao: "1 mg/mL", concMgMl: 1, unidade: "mg/h", faixa: { min: 5, max: 15 }, inicio: "5 mg/h", titulacao: "titular FC (5–15 mg/h)", gatilho: "manter o controle de FC após o bólus" },
+      },
     ],
     alertas: [
       "Instável com pulso = cardioversão; não perder tempo com drogas.",
@@ -374,10 +404,23 @@ export const CONDUTAS: CondutaCard[] = [
     ],
     doses: [
       { farmaco: "Cristaloide (RL/SF)", dose: "30 mL/kg", via: "IV", obs: "Reavaliar responsividade a volume", mgPorKg: { min: 30 }, unidade: "mL/kg" },
-      { farmaco: "Noradrenalina (1ª droga)", dose: "0,05–0,5 mcg/kg/min", via: "IV (BIC)", obs: "Diluição padrão: 16 mg (4 amp) + 234 mL SG5% = 250 mL → 64 mcg/mL. Início 0,05–0,1, titular até PAM ≥ 65. mL/h = mcg/kg/min × peso × 60 ÷ 64 (70 kg: 0,1≈6,5 · 0,3≈20 · 0,5≈33 mL/h)." },
-      { farmaco: "Vasopressina (2ª droga, fixa)", dose: "0,03 UI/min", via: "IV (BIC)", obs: "ADICIONE quando a noradrenalina passar de ~0,25–0,5 mcg/kg/min. Diluição: 20 UI + 100 mL SF0,9% = 0,2 UI/mL → 0,03 UI/min = 9 mL/h FIXO (não titula)." },
+      {
+        farmaco: "Noradrenalina (1ª droga)", dose: "0,05–0,5 mcg/kg/min", via: "IV (BIC)",
+        infusao: { diluicao: "16 mg (4 amp de 4 mg/4 mL) + 234 mL SG 5% = 250 mL", concentracao: "64 mcg/mL", concMcgMl: 64, unidade: "mcg/kg/min", faixa: { min: 0.05, max: 0.5 }, inicio: "0,05–0,1 mcg/kg/min", titulacao: "subir 0,05 a cada ~5 min até PAM ≥ 65", gatilho: "PAM < 65 após volume adequado" },
+      },
+      {
+        farmaco: "Vasopressina (2ª droga, fixa)", dose: "0,03 UI/min", via: "IV (BIC)",
+        infusao: { diluicao: "20 UI (1 amp) + 100 mL SF 0,9% = 100 mL", concentracao: "0,2 UI/mL", concUiMl: 0.2, unidade: "UI/min", faixa: { min: 0.03 }, inicio: "0,03 UI/min", titulacao: "dose FIXA — não titula", gatilho: "noradrenalina ~0,25–0,5 mcg/kg/min (para poupar a noradrenalina)" },
+      },
+      {
+        farmaco: "Adrenalina (3ª linha)", dose: "0,02–0,5 mcg/kg/min", via: "IV (BIC)",
+        infusao: { diluicao: "4 mg (4 amp de 1 mg/mL) + 246 mL SG 5% = 250 mL", concentracao: "16 mcg/mL", concMcgMl: 16, unidade: "mcg/kg/min", faixa: { min: 0.02, max: 0.5 }, inicio: "0,02–0,05 mcg/kg/min", titulacao: "titular ao efeito", gatilho: "choque refratário após NA + vasopressina" },
+      },
+      {
+        farmaco: "Dobutamina (se baixo débito)", dose: "2,5–20 mcg/kg/min", via: "IV (BIC)",
+        infusao: { diluicao: "250 mg (1 amp de 250 mg/20 mL) + 230 mL SG 5% = 250 mL", concentracao: "1.000 mcg/mL", concMcgMl: 1000, unidade: "mcg/kg/min", faixa: { min: 2.5, max: 20 }, inicio: "2,5–5 mcg/kg/min", titulacao: "titular à perfusão / débito", gatilho: "hipoperfusão com débito baixo apesar de volume + noradrenalina" },
+      },
       { farmaco: "Hidrocortisona", dose: "50 mg 6/6 h (200 mg/dia)", via: "IV", obs: "Choque refratário a vasopressor." },
-      { farmaco: "Adrenalina", dose: "0,02–0,5 mcg/kg/min", via: "IV (BIC)", obs: "3ª linha, se ainda refratário após NA + vasopressina." },
     ],
     alertas: [
       "Não atrasar o ATB para coletar exames.",
@@ -445,7 +488,7 @@ export const CONDUTAS: CondutaCard[] = [
       "5. Controle pressórico: alvo < 185/110 se for trombolisar; senão permissivo.",
     ],
     doses: [
-      { farmaco: "Alteplase (rtPA)", dose: "0,9 mg/kg (máx 90 mg); 10% bolus, resto em 60 min", via: "IV", obs: "Dentro da janela; checar contraindicações", mgPorKg: { min: 0.9 } },
+      { farmaco: "Alteplase (rtPA)", dose: "0,9 mg/kg (máx 90 mg)", via: "IV", obs: "Reconstituir a 1 mg/mL. 10% da dose em bólus em 1 min + 90% em bomba por 60 min. Ex.: 70 kg = 63 mg → 6,3 mg bólus + 56,7 mg (≈ 56,7 mL/h) em 60 min. Janela ≤ 4,5 h; PA < 185/110; checar contraindicações.", mgPorKg: { min: 0.9 } },
       { farmaco: "Tenecteplase", dose: "0,25 mg/kg (máx 25 mg)", via: "IV bolus", obs: "Alternativa conforme serviço", mgPorKg: { min: 0.25 } },
     ],
     alertas: [
@@ -533,7 +576,7 @@ export const CONDUTAS: CondutaCard[] = [
     doses: [
       { farmaco: "Diazepam", dose: "0,15–0,2 mg/kg (máx 10 mg)", via: "IV", obs: "Repetir 1×", mgPorKg: { min: 0.15, max: 0.2 } },
       { farmaco: "Midazolam", dose: "10 mg (0,2 mg/kg)", via: "IM/IN", obs: "Quando sem acesso IV", mgPorKg: { min: 0.2 } },
-      { farmaco: "Fenitoína", dose: "20 mg/kg", via: "IV (≤ 50 mg/min)", obs: "Monitorizar; risco de hipotensão/arritmia", mgPorKg: { min: 20 } },
+      { farmaco: "Fenitoína", dose: "20 mg/kg (ataque)", via: "IV (≤ 50 mg/min)", obs: "Diluir em SF 0,9% (NUNCA em SG — precipita); correr ≤ 50 mg/min (idoso/cardiopata ≤ 20 mg/min). Ex.: 70 kg = 1.400 mg. Monitor (hipotensão/bradi/arritmia).", mgPorKg: { min: 20 } },
       { farmaco: "Levetiracetam", dose: "60 mg/kg (máx 4,5 g)", via: "IV", obs: "Alternativa", mgPorKg: { min: 60 } },
     ],
     alertas: [
@@ -603,7 +646,7 @@ export const CONDUTAS: CondutaCard[] = [
     ],
     doses: [
       { farmaco: "Naloxona (opioide)", dose: "0,04–0,4 mg, titular", via: "IV/IM/IN", obs: "Reverter depressão respiratória" },
-      { farmaco: "N-acetilcisteína (paracetamol)", dose: "Protocolo 21 h IV", via: "IV", obs: "Guiar por nomograma/tempo" },
+      { farmaco: "N-acetilcisteína (paracetamol)", dose: "Protocolo IV 21 h (3 bolsas)", via: "IV", obs: "150 mg/kg em 200 mL SG5% em 1 h → 50 mg/kg em 500 mL em 4 h → 100 mg/kg em 1.000 mL em 16 h. Guiar pelo nomograma de Rumack-Matthew/tempo." },
       { farmaco: "Bicarbonato de sódio (tricíclico)", dose: "1–2 mEq/kg em bolus", via: "IV", obs: "QRS alargado/arritmia", mgPorKg: { min: 1, max: 2 }, unidade: "mEq/kg" },
       { farmaco: "Glucagon (betabloqueador)", dose: "3–10 mg", via: "IV", obs: "BB/BCC; considerar Ca, insulina-euglicemia" },
       { farmaco: "Atropina + pralidoxima (organofosforado)", dose: "Atropina titular; pralidoxima conforme protocolo", via: "IV", obs: "Síndrome colinérgica" },
