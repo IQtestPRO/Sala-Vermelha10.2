@@ -8,6 +8,7 @@ import { Stethoscope, Lock, Eye, EyeOff } from "lucide-react";
 import { apiPost, friendlyError, ApiError, Me } from "@/lib/client";
 import AuthIllustration from "@/components/AuthIllustration";
 import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
+import StatPreview from "@/components/StatPreview";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,8 +36,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-wrap">
+    <div className="auth-page" style={{ display: "block" }}>
+      <div className="auth-wrap" style={{ minHeight: "100dvh", display: "flex", alignItems: "center" }}>
         <div className="auth-grid">
           {/* Coluna do formulário */}
           <div>
@@ -105,6 +106,7 @@ export default function LoginPage() {
           <AuthIllustration />
         </div>
       </div>
+      <StatPreview />
     </div>
   );
 }
