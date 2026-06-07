@@ -86,7 +86,7 @@ function Hiponatremia() {
           <Res titulo="Água corporal total (ACT)" valor={`${f(act)} L`} nota={`peso × ${sexo === "M" ? "0,6" : "0,5"}`} />
           <Res titulo="↑ Na por 1 L de SF 0,9% (Na 154)" valor={`${f(dPerL(154) as number, 1)} mEq/L`} nota="Adrogué-Madias: (Na_infusato − Na) / (ACT + 1)" />
           <Res titulo="↑ Na por 1 L de NaCl 3% (Na 513)" valor={`${f(dPerL(513) as number, 1)} mEq/L`} />
-          <Alerta>Correção MÁXIMA de <b>8–10 mEq/L em 24 h</b> (risco de mielinólise pontina). Sintomático grave: NaCl 3% 100–150 mL em bolus. Reavalie o Na a cada 2–4 h.</Alerta>
+          <Alerta>Correção ≤ <b>8 mEq/L/24 h</b> em alto risco (alcoolismo, desnutrição, hipoK⁺, Na &lt; 105, hiponatremia crônica), teto <b>10 mEq/L/24 h</b> e <b>≤ 18 em 48 h</b> — risco de síndrome de desmielinização osmótica (SDO). Sintomático grave: NaCl 3% 100–150 mL em bolus. A fórmula só ESTIMA (perdas urinárias aceleram a subida) — dose o Na a cada 2–4 h; se exceder a meta, considere DDAVP/água livre.</Alerta>
         </>
       ) : (
         <div className="faint" style={{ fontSize: 12.5 }}>Informe Na atual e peso.</div>
@@ -127,20 +127,20 @@ function Heparina() {
       <Campo label="Peso" value={peso} onChange={setPeso} suffix="kg" placeholder="ex.: 70" />
       {p ? (
         <>
-          <Res titulo="Bólus inicial (80 U/kg)" valor={`${f(80 * p, 0)} UI IV`} nota="máx usual 10.000 UI" />
+          <Res titulo="Bólus inicial (80 U/kg)" valor={`${f(80 * p, 0)} UI IV`} nota="dose para TEV · teto institucional ~10.000 UI" />
           <Res titulo="Infusão inicial (18 U/kg/h)" valor={`${f(18 * p, 0)} UI/h`} />
         </>
       ) : (
         <div className="faint" style={{ fontSize: 12.5 }}>Informe o peso para o bólus e a infusão inicial.</div>
       )}
-      <div className="label" style={{ margin: "2px 0 0" }}>Ajuste por TTPa (nomograma de Raschke)</div>
+      <div className="label" style={{ margin: "2px 0 0" }}>Ajuste pela RAZÃO do TTPa (nomograma de Raschke)</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12.5 }}>
         {[
-          ["TTPa < 35 s (< 1,2×)", "Bólus 80 U/kg + ↑ 4 U/kg/h"],
-          ["35–45 s (1,2–1,5×)", "Bólus 40 U/kg + ↑ 2 U/kg/h"],
-          ["46–70 s (1,5–2,3× — alvo)", "Manter"],
-          ["71–90 s (2,3–3×)", "↓ 2 U/kg/h"],
-          ["> 90 s (> 3×)", "Suspender 1 h, depois ↓ 3 U/kg/h"],
+          ["< 1,2× o controle", "Bólus 80 U/kg + ↑ 4 U/kg/h"],
+          ["1,2–1,5×", "Bólus 40 U/kg + ↑ 2 U/kg/h"],
+          ["1,5–2,3× (alvo)", "Manter"],
+          ["2,3–3,0×", "↓ 2 U/kg/h (não suspende)"],
+          ["> 3,0×", "Suspender 1 h, depois ↓ 3 U/kg/h"],
         ].map(([t, a], i) => (
           <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 10px", borderRadius: 9, background: "var(--surface-sunken)" }}>
             <span style={{ fontWeight: 600 }}>{t}</span>
@@ -148,7 +148,7 @@ function Heparina() {
           </div>
         ))}
       </div>
-      <Alerta>TTPa 6 h após o início e após cada ajuste. Alvo varia com o reagente local — confira a faixa terapêutica da sua instituição.</Alerta>
+      <Alerta>O nomograma usa a RAZÃO TTPa/controle (não segundos fixos) — calibre ao reagente do seu laboratório (idealmente anti-Xa 0,3–0,7 UI/mL). TTPa 6 h após início e após cada ajuste. Coeficientes 80/18 são para <b>TEV</b>; na <b>SCA</b> são menores (60 U/kg, máx 4.000 + 12 U/kg/h).</Alerta>
     </>
   );
 }
@@ -157,19 +157,18 @@ function Heparina() {
 function Hidantalizacao() {
   const [peso, setPeso] = useState("");
   const p = num(peso);
-  const cap = (x: number) => Math.min(x, 1500);
   return (
     <>
       <Campo label="Peso" value={peso} onChange={setPeso} suffix="kg" placeholder="ex.: 70" />
       {p ? (
         <>
-          <Res titulo="Dose de ataque (15–20 mg/kg)" valor={`${f(cap(15 * p), 0)}–${f(cap(20 * p), 0)} mg IV`} nota={20 * p > 1500 ? "teto de 1.500 mg atingido" : "fenitoína"} />
-          <Res titulo="Velocidade máxima" valor="≤ 50 mg/min (≤ 25 no idoso/cardiopata)" nota={`tempo mín. ≈ ${f(cap(15 * p) / 50, 0)}–${f(cap(20 * p) / 50, 0)} min`} />
+          <Res titulo="Dose de ataque (15–20 mg/kg)" valor={`${f(15 * p, 0)}–${f(20 * p, 0)} mg IV`} nota="dose pelo peso real · limite de segurança ~30 mg/kg total" />
+          <Res titulo="Velocidade" valor="≤ 50 mg/min (≤ 20 no idoso/cardiopata)" nota={`tempo mín. ≈ ${f((15 * p) / 50, 0)}–${f((20 * p) / 50, 0)} min`} />
         </>
       ) : (
         <div className="faint" style={{ fontSize: 12.5 }}>Informe o peso.</div>
       )}
-      <Alerta>Infundir em SF 0,9% (precipita em SG). Monitorize ECG e PA (risco de hipotensão/arritmia). Fosfenitoína é alternativa mais segura (dose em EF — equivalente de fenitoína).</Alerta>
+      <Alerta>Diluir em SF 0,9% (precipita em SG); monitorize ECG e PA. <b>Contraindicada</b> em bradicardia sinusal e BAV de 2º/3º grau. Risco de hipotensão e de extravasamento (purple glove syndrome). Fosfenitoína é alternativa mais segura (dose em EF — equivalente de fenitoína).</Alerta>
     </>
   );
 }
