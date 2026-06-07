@@ -168,7 +168,7 @@ function Plantoes() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginBottom: 14, padding: "0 4px" }}>
               <button onClick={() => { setMonth(curMonth()); setSelDay(todayISO()); }} style={{ justifySelf: "start", background: "none", border: "none", color: "var(--primary)", fontWeight: 600, fontSize: 15, cursor: "pointer", padding: 0, fontFamily: SF }}>Hoje</button>
               <span style={{ gridColumn: 2, justifySelf: "center", fontWeight: 700, fontSize: 16, letterSpacing: "0.01em", whiteSpace: "nowrap" }}>{MES[mo - 1].toUpperCase()} {y}</span>
-              <button onClick={() => novoNoDia(selDay || todayISO())} aria-label="novo plantão" style={{ justifySelf: "end", background: "var(--primary)", border: "none", color: "#fff", width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center", cursor: "pointer" }}><Plus size={20} strokeWidth={2.5} /></button>
+              <button onClick={() => novoNoDia(selDay || todayISO())} aria-label="novo plantão" style={{ justifySelf: "end", background: "var(--primary)", border: "none", color: "#fff", width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center", cursor: "pointer" }}><Plus size={20} strokeWidth={2} /></button>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", marginBottom: 10 }}>
@@ -177,12 +177,12 @@ function Plantoes() {
               ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: "repeat(6, 48px)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: "repeat(6, 48px)", alignContent: "start" }}>
               {cells.map((c, i) => {
                 if (!c.inMonth)
                   return (
                     <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 16, color: "#C7CCD1" }}>{c.d}</span>
+                      <span style={{ fontSize: 16, color: "#C7CCD1", fontVariantNumeric: "tabular-nums" }}>{c.d}</span>
                     </div>
                   );
                 const iso = `${month}-${pad(c.d)}`;
@@ -190,11 +190,14 @@ function Plantoes() {
                 const isToday = iso === hoje;
                 const isSel = iso === selDay && !isToday;
                 return (
-                  <button key={i} onClick={() => setSelDay(selDay === iso ? null : iso)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, fontFamily: SF }}>
-                    <span style={{ width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center", fontSize: 16, fontWeight: isToday ? 700 : 400, background: isToday ? "var(--primary)" : isSel ? "var(--navy-tint)" : "transparent", color: isToday ? "#fff" : "var(--text)" }}>{c.d}</span>
-                    <span style={{ display: "flex", gap: 4, height: 6 }}>
-                      {ds.slice(0, 3).map((s, k) => (<span key={k} style={{ width: 6, height: 6, borderRadius: 999, background: s.cor || CORES[0] }} />))}
-                    </span>
+                  // número SEMPRE centralizado; bolinha é overlay absoluto (não consome altura) → linhas idênticas
+                  <button key={i} onClick={() => setSelDay(selDay === iso ? null : iso)} style={{ position: "relative", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: SF }}>
+                    <span style={{ width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center", fontSize: 16, fontWeight: isToday ? 700 : 400, fontVariantNumeric: "tabular-nums", background: isToday ? "var(--primary)" : isSel ? "var(--navy-tint)" : "transparent", color: isToday ? "#fff" : "var(--text)" }}>{c.d}</span>
+                    {ds.length > 0 && (
+                      <span style={{ position: "absolute", bottom: 2, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4 }}>
+                        {ds.slice(0, 3).map((s, k) => (<span key={k} style={{ width: 6, height: 6, borderRadius: 999, background: s.cor || CORES[0] }} />))}
+                      </span>
+                    )}
                   </button>
                 );
               })}
