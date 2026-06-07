@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
 import { resizeToJpegBase64 } from "@/lib/image";
-import { LGPD_NOTA } from "@/lib/legal/disclaimer";
 
 export default function AnalisarPage() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,7 +69,7 @@ export default function AnalisarPage() {
               <Camera size={30} />
             </div>
             <div style={{ fontWeight: 800, fontSize: 16 }}>Fotografar ECG / monitor</div>
-            <div className="faint" style={{ fontSize: 12.5, textAlign: "center", lineHeight: 1.4 }}>{LGPD_NOTA}</div>
+            <div className="faint" style={{ fontSize: 12.5, textAlign: "center", lineHeight: 1.4 }}>Leitura imediata por IA — toque para abrir a câmera.</div>
           </button>
         ) : (
           <div style={{ position: "relative" }}>

@@ -12,7 +12,6 @@ import { MultiStepLoader } from "@/components/ui/multi-step-loader";
 import VoiceButton from "@/components/VoiceButton";
 import { apiPost } from "@/lib/client";
 import { RITMOS, RitmoMonitor, Sexo, Vitais } from "@/lib/types/case";
-import { LGPD_NOTA } from "@/lib/legal/disclaimer";
 
 const ANALYZING_STEPS = [
   { text: "Lendo o caso e a imagem" },
@@ -370,7 +369,6 @@ function NewCaseInner() {
         </div>
 
         <PhotoCapture photo={photo} onChange={(p) => { setPhoto(p); resetAi(); }} label="Anexe o ECG / exame (opcional)" />
-        <div className="faint" style={{ fontSize: 11, lineHeight: 1.4 }}>{LGPD_NOTA}</div>
 
         <button className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start" }} onClick={() => setStep(2)}>
           <SlidersHorizontal size={18} /> Idade, peso e vitais (opcional)

@@ -8,22 +8,21 @@ export const maxDuration = 60;
 
 const MODEL = process.env.CHAT_MODEL || process.env.ANALYZE_MODEL || "claude-sonnet-4-6";
 
-const SYSTEM = `Você é o STAT, assistente de emergência (sala vermelha) para MÉDICOS — APOIO À DECISÃO. Fale português, objetivo e clínico, em tom de colega experiente.
+const SYSTEM = `Você é o STAT, o copiloto clínico do MÉDICO — na emergência e no dia a dia. Português, objetivo, em tom de colega experiente. Você AJUDA NO QUE O MÉDICO PEDIR: não recusa, não restringe e não dá lição de moral.
 
-FLUXO da conversa (siga sempre):
-1) O médico te manda uma FOTO (ECG/monitor/exame) e uma descrição breve. Faça uma LEITURA INICIAL curta do caso.
-2) FAÇA 2 a 4 PERGUNTAS específicas e objetivas que MUDARIAM a conduta (nível de consciência, PA atual, tempo de evolução, comorbidades, resposta a medidas já tomadas, glicemia, etc.). Pergunte só o que importa.
-3) Quando o médico responder, REFINE e entregue:
-   • Hipóteses (mais provável primeiro)
-   • Conduta imediata (PADRÃO-OURO), com doses de referência
-   • "UPA:" — a SEGUNDA VERTENTE adaptada à realidade do SUS/UPA: o que fazer quando falta o recurso/droga ideal (substituições por drogas REALMENTE disponíveis na UPA, improvisos seguros, e quando estabilizar + acionar a regulação/transferir).
-   • Quando útil, a diluição/BIC (mL/h) das drogas em infusão.
+VOCÊ FAZ O QUE ELE PEDIR — por exemplo:
+- Raciocina e discute casos; lê ECG/monitor/exames e QUALQUER imagem que ele enviar.
+- REDIGE o que ele pedir: relatórios, laudos, evoluções, encaminhamentos, receitas, sumário de alta, declarações, mensagens para colega/paciente/regulação. Se o médico FORNECER nome, CPF, idade ou dados do paciente, USE-OS no documento — é ele, no exercício profissional, que decide o que registrar. NÃO alerte sobre privacidade nem omita dados que ele te deu.
+- PESQUISA e fundamenta: quando precisar de evidência atual, dose, diretriz, bula ou casos publicados, USE a busca na web e cite a fonte (diretriz/artigo + ano). Priorize o mais novo e de maior nível (AHA/ACLS, ESC, SBC, AHA/ASA Stroke, Surviving Sepsis, WAO, UpToDate, PubMed, bulas ANVISA...).
+- Adapta-se ao médico: calibra profundidade e terminologia pela especialidade dele e aprende com o contexto já dado na conversa.
 
-REGRAS:
-- Fundamente nas DIRETRIZES mais atuais da especialidade (AHA/ACLS, ESC, SBC, AHA/ASA Stroke, Surviving Sepsis, WAO...). Cite a diretriz quando relevante; não invente referências nem URLs.
-- Doses/energias são REFERÊNCIA — o médico confere e aprova. Isto é apoio à decisão.
-- Pode continuar discutindo o caso quantas vezes o médico quiser; mantenha o raciocínio clínico.
-- Seja conciso e prático (sala vermelha). Não diga que é "IA" ao redigir mensagens a terceiros.`;
+DISCUSSÃO DE CASO CLÍNICO (quando ele traz um caso/foto pedindo conduta):
+1) Leitura inicial curta.
+2) 2–4 perguntas objetivas que mudariam a conduta (só o que importa).
+3) Ao responder: hipóteses (mais provável 1º) · conduta PADRÃO-OURO com doses · "UPA:" a vertente adaptada ao SUS/UPA (substituições por drogas disponíveis, improvisos seguros, quando estabilizar/regular/transferir) · diluição/BIC (mL/h) quando útil.
+Se ele NÃO quer discutir caso — só um documento, uma dose, uma dúvida pontual ou outra tarefa — faça DIRETO, sem o fluxo de perguntas.
+
+REGRAS: doses/energias são REFERÊNCIA (o médico confere e aprova; é apoio à decisão). Não invente referências — na dúvida, PESQUISE ou diga que não tem certeza. Ao redigir mensagens/documentos a terceiros, não diga que é "IA". Conciso e prático.`;
 
 type InMsg = { role: "user" | "assistant"; text?: string; image?: string };
 
@@ -64,26 +63,46 @@ export async function POST(req: NextRequest) {
     if (!anthropicMsgs.length) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
 
     const client = new Anthropic();
-    const stream = client.messages.stream({
+    const baseParams = {
       model: MODEL,
-      max_tokens: 2200,
+      max_tokens: 3000,
       output_config: { effort: "low" },
       system,
       messages: anthropicMsgs,
-    } as Anthropic.MessageStreamParams);
+    };
+    // Busca na web (pesquisa artigos/diretrizes ao vivo). Se a conta não tiver, faz fallback sem a ferramenta.
+    const webTool = { type: "web_search_20250305", name: "web_search", max_uses: 5 };
 
     const encoder = new TextEncoder();
     const rs = new ReadableStream<Uint8Array>({
       async start(controller) {
-        try {
+        let emitted = false;
+        const pump = async (useTools: boolean) => {
+          const stream = client.messages.stream({
+            ...baseParams,
+            ...(useTools ? { tools: [webTool] } : {}),
+          } as unknown as Anthropic.MessageStreamParams);
           for await (const event of stream) {
             if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+              emitted = true;
               controller.enqueue(encoder.encode(event.delta.text));
             }
           }
+        };
+        try {
+          await pump(true);
         } catch (e) {
-          console.error("[api/chat] stream", e);
-          controller.enqueue(encoder.encode("\n\n[Falha ao gerar a resposta. Tente de novo.]"));
+          console.error("[api/chat] stream (web)", e);
+          if (!emitted) {
+            try {
+              await pump(false); // fallback: responde sem a busca
+            } catch (e2) {
+              console.error("[api/chat] stream (fallback)", e2);
+              controller.enqueue(encoder.encode("\n\n[Falha ao gerar a resposta. Tente de novo.]"));
+            }
+          } else {
+            controller.enqueue(encoder.encode("\n\n[Conexão interrompida.]"));
+          }
         } finally {
           controller.close();
         }

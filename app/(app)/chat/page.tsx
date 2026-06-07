@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { resizeToJpegBase64 } from "@/lib/image";
 import VoiceButton from "@/components/VoiceButton";
 import { apiGet, apiPost } from "@/lib/client";
-import { LGPD_NOTA } from "@/lib/legal/disclaimer";
 
 type Msg = { role: "user" | "assistant"; text: string; image?: string; imageUrl?: string };
 type ChatRef = { id: string; title: string; updated_at: number };
@@ -245,7 +244,6 @@ export default function ChatPage() {
             {busy ? <Loader2 size={20} className="spin" /> : <Send size={20} />}
           </button>
         </div>
-        <div className="faint" style={{ fontSize: 10.5, lineHeight: 1.35, marginTop: 6 }}>{LGPD_NOTA}</div>
       </div>
 
       {showHist && (
