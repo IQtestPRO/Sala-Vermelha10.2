@@ -63,19 +63,34 @@ export default function ScoreCalculator({ def }: { def: ScoreDef }) {
         <div key={i}>
           <label className="label" style={{ marginBottom: 6 }}>{it.label}</label>
           {it.tipo === "opcoes" ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {it.opcoes!.map((o, k) => (
-                <button
-                  key={k}
-                  type="button"
-                  className={`chip ${sel[i] === k ? "chip-on" : ""}`}
-                  onClick={() => set(i, sel[i] === k ? undefined : k)}
-                  style={{ flex: "0 0 auto" }}
-                >
-                  {o.label}
-                  <span className="data" style={{ marginLeft: 6, opacity: 0.75, fontSize: 12 }}>{o.pontos >= 0 ? `+${o.pontos}` : o.pontos}</span>
-                </button>
-              ))}
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              {it.opcoes!.map((o, k) => {
+                const ativo = sel[i] === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => set(i, ativo ? undefined : k)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 10,
+                      width: "100%",
+                      textAlign: "left",
+                      padding: "11px 14px",
+                      borderRadius: 12,
+                      border: `1.5px solid ${ativo ? "var(--primary)" : "var(--border)"}`,
+                      background: ativo ? "var(--primary-tint)" : "var(--surface)",
+                      color: "var(--text)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span style={{ flex: 1, minWidth: 0, fontSize: 14, lineHeight: 1.4, whiteSpace: "normal", overflowWrap: "anywhere" }}>{o.label}</span>
+                    <span className="data" style={{ flex: "0 0 auto", fontWeight: 800, fontSize: 13, color: ativo ? "var(--primary-press)" : "var(--text-faint)" }}>{o.pontos >= 0 ? `+${o.pontos}` : o.pontos}</span>
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <div style={{ position: "relative", maxWidth: 200 }}>
