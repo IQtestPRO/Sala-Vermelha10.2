@@ -1,8 +1,9 @@
 "use client";
 
 import { Suspense, useMemo, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, ChevronRight, AlertTriangle, Zap, Activity } from "lucide-react";
+import { Search, ChevronRight, AlertTriangle, Zap, Calculator } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import CondutaDetalhe, { categoriaLabel } from "@/components/CondutaDetalhe";
 import ScreenHero from "@/components/ScreenHero";
@@ -55,6 +56,21 @@ function CondutasInner() {
       <TopBar brand title="Condutas" subtitle="Sala vermelha • referência rápida" right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
         <DisclaimerBar />
+
+        <Link
+          href="/calculadora"
+          className="card-2"
+          style={{ display: "flex", alignItems: "center", gap: 11, padding: "12px 14px", boxShadow: "none", textDecoration: "none" }}
+        >
+          <span style={{ width: 38, height: 38, borderRadius: 11, background: "var(--navy-tint)", color: "var(--navy)", display: "grid", placeItems: "center", flex: "0 0 auto" }}>
+            <Calculator size={20} />
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontWeight: 800, fontSize: 15, color: "var(--text)" }}>Calculadora pediátrica & idoso</span>
+            <span className="faint" style={{ display: "block", fontSize: 12.5, marginTop: 2 }}>Doses por idade/peso, tubo, J/kg, clearance renal</span>
+          </span>
+          <ChevronRight size={18} className="faint" style={{ flex: "0 0 auto" }} />
+        </Link>
 
         <div style={{ position: "relative" }}>
           <Search size={18} className="faint" style={{ position: "absolute", left: 14, top: 16 }} />
