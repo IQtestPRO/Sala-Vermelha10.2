@@ -50,6 +50,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
+  interactiveWidget: "resizes-content", // teclado mobile encolhe o dvh → input não fica escondido
 };
 
 // Aplica o tema antes do paint (evita flash). Default = claro; escolha em localStorage.

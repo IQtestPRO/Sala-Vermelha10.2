@@ -108,11 +108,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <MeCtx.Provider value={me}>
       <MeUpdateCtx.Provider value={setMe}>
-        <div className="app-main">
-          <InstallPrompt />
-          {children}
+        <div className="app-shell-frame">
+          <div className="app-main">
+            <InstallPrompt />
+            {children}
+          </div>
+          <BottomNav me={me} />
         </div>
-        <BottomNav me={me} />
         {showOnb && <Onboarding onDone={fecharOnb} />}
       </MeUpdateCtx.Provider>
     </MeCtx.Provider>
