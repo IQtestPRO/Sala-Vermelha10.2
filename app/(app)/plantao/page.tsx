@@ -1,17 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarClock, CalendarDays, List, ClipboardList, Plus, Trash2, Share2, Check, CheckCheck } from "lucide-react";
+import { CalendarClock, CalendarDays, List, ClipboardList, Plus, Trash2, Share2, Check, CheckCheck, X, Download, Image as ImageIcon } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import VoiceButton from "@/components/VoiceButton";
 import { apiGet, apiPost } from "@/lib/client";
+import { resizeToJpegBase64 } from "@/lib/image";
 import { toast } from "sonner";
 
 type Seg = "plantoes" | "passagem";
 
 type Shift = { id: string; data: string; inicio: string | null; fim: string | null; local: string | null; valor: number | null; pago: boolean; cor: string | null; nota: string | null };
 type Handoff = { token: string; paciente: string; idade: string | null; leito: string | null; situacao: string | null; status: string; author_name: string | null; updated_at: number };
+type Modelo = { local: string; inicio: string; fim: string; valor: string; cor: string; diaPag: string };
 
 const CORES = ["#15294C", "#E11D2A", "#1a8f4f", "#c77d11", "#6d28d9"];
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -44,7 +46,7 @@ function Plantoes() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [selDay, setSelDay] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [f, setF] = useState({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
+  const [f, setF] = useState({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica", diaPag: "" });
   const [saving, setSaving] = useState(false);
   const swipeX = useRef<number | null>(null);
   // Seleção em bloco (1c)
@@ -57,6 +59,107 @@ function Plantoes() {
     setSelMode(false);
     setBulkDays([]);
     setBulkShifts([]);
+  }
+  // Modelos de plantão (1d) — locais salvos no aparelho; diaPag alimenta a previsão (1e)
+  const [modelos, setModelos] = useState<Modelo[]>([]);
+  useEffect(() => {
+    try {
+      setModelos(JSON.parse(localStorage.getItem("stat_plantao_modelos") || "[]"));
+    } catch {
+      /* noop */
+    }
+  }, []);
+  function persistModelos(m: Modelo[]) {
+    setModelos(m);
+    try {
+      localStorage.setItem("stat_plantao_modelos", JSON.stringify(m));
+    } catch {
+      /* noop */
+    }
+  }
+  function salvarModelo() {
+    if (!f.local.trim()) return toast.error("Informe o local para salvar o modelo.");
+    const m: Modelo = { local: f.local.trim(), inicio: f.inicio, fim: f.fim, valor: f.valor, cor: f.cor, diaPag: f.diaPag };
+    persistModelos([...modelos.filter((x) => x.local.toLowerCase() !== m.local.toLowerCase()), m]);
+    toast.success("Modelo salvo.");
+  }
+  const aplicarModelo = (m: Modelo) => setF((p) => ({ ...p, local: m.local, inicio: m.inicio, fim: m.fim, valor: m.valor, cor: m.cor, diaPag: m.diaPag }));
+  const removerModelo = (local: string) => persistModelos(modelos.filter((x) => x.local !== local));
+
+  // Foto da escala original do mês (1g) — guardada no aparelho (a URL fica no Blob, permanente)
+  const escalaRef = useRef<HTMLInputElement>(null);
+  const [escalaUrl, setEscalaUrl] = useState<string | null>(null);
+  const [upEscala, setUpEscala] = useState(false);
+  useEffect(() => {
+    try {
+      setEscalaUrl(localStorage.getItem(`stat_escala_${month}`));
+    } catch {
+      setEscalaUrl(null);
+    }
+  }, [month]);
+  async function anexarEscala(files: FileList | null) {
+    const file = files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+    setUpEscala(true);
+    try {
+      const b = await resizeToJpegBase64(file);
+      const res = await fetch("/api/upload", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ base64: b }) });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.url) {
+        localStorage.setItem(`stat_escala_${month}`, d.url);
+        setEscalaUrl(d.url);
+        toast.success("Escala anexada.");
+      } else toast.error("Não consegui subir a imagem.");
+    } catch {
+      toast.error("Não consegui ler a imagem.");
+    } finally {
+      setUpEscala(false);
+      if (escalaRef.current) escalaRef.current.value = "";
+    }
+  }
+  function removerEscala() {
+    localStorage.removeItem(`stat_escala_${month}`);
+    setEscalaUrl(null);
+  }
+
+  // Exportar .ics (1f) — abre no Google Agenda / Apple Calendário (horário local flutuante)
+  function exportarICS() {
+    if (!shifts.length) return toast.error("Sem plantões neste mês.");
+    const p2 = (n: number) => String(n).padStart(2, "0");
+    const esc = (t: string) => t.replace(/([,;\\])/g, "\\$1");
+    const dt = (data: string, hm: string | null, nextDay = false) => {
+      const [Y, M, D] = data.split("-").map(Number);
+      if (!hm) return { allday: true, v: `${Y}${p2(M)}${p2(D)}` };
+      const [h, mi] = hm.split(":").map(Number);
+      let yy = Y, mm = M, dd = D;
+      if (nextDay) {
+        const nx = new Date(Y, M - 1, D + 1);
+        yy = nx.getFullYear(); mm = nx.getMonth() + 1; dd = nx.getDate();
+      }
+      return { allday: false, v: `${yy}${p2(mm)}${p2(dd)}T${p2(h)}${p2(mi)}00` };
+    };
+    const stamp = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 15) + "Z";
+    const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//STAT//Plantao//PT", "CALSCALE:GREGORIAN"];
+    for (const s of shifts) {
+      const overnight = !!(s.inicio && s.fim && s.fim < s.inicio);
+      const start = dt(s.data, s.inicio);
+      const end = s.fim ? dt(s.data, s.fim, overnight) : null;
+      L.push("BEGIN:VEVENT", `UID:${s.id}@statanalysis`, `DTSTAMP:${stamp}`);
+      L.push(start.allday ? `DTSTART;VALUE=DATE:${start.v}` : `DTSTART:${start.v}`);
+      if (end) L.push(end.allday ? `DTEND;VALUE=DATE:${end.v}` : `DTEND:${end.v}`);
+      L.push(`SUMMARY:${esc("Plantão" + (s.local ? " — " + s.local : ""))}`);
+      if (s.valor != null) L.push(`DESCRIPTION:${esc(brl(s.valor) + (s.pago ? " (pago)" : " (a receber)"))}`);
+      L.push("END:VEVENT");
+    }
+    L.push("END:VCALENDAR");
+    const blob = new Blob([L.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `plantoes-${month}.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Arquivo .ics gerado.");
   }
 
   const load = useCallback(async () => {
@@ -77,6 +180,16 @@ function Plantoes() {
 
   const recebido = shifts.filter((s) => s.pago).reduce((a, s) => a + (s.valor || 0), 0);
   const aReceber = shifts.filter((s) => !s.pago).reduce((a, s) => a + (s.valor || 0), 0);
+  // Previsão (1e): agrupa o "a receber" pelo dia de pagamento do modelo do local.
+  const previsao = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const s of shifts) {
+      if (s.pago || !s.valor) continue;
+      const m = modelos.find((x) => x.local.toLowerCase() === (s.local || "").toLowerCase());
+      if (m?.diaPag) map[m.diaPag] = (map[m.diaPag] || 0) + s.valor;
+    }
+    return Object.entries(map).map(([dia, v]) => ({ dia, v })).sort((a, b) => Number(a.dia) - Number(b.dia));
+  }, [shifts, modelos]);
 
   async function salvar() {
     const valor = f.valor ? Number(f.valor.replace(",", ".")) : null;
@@ -86,7 +199,7 @@ function Plantoes() {
       try {
         for (const data of bulkDays) await apiPost("/api/shifts", { ...f, data, recorrencia: "unica", valor });
         setShowForm(false);
-        setF({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
+        setF({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica", diaPag: "" });
         toast.success(`${bulkDays.length} plantões lançados.`);
         sairSelecao();
         load();
@@ -102,7 +215,7 @@ function Plantoes() {
     try {
       await apiPost("/api/shifts", { ...f, valor });
       setShowForm(false);
-      setF({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica" });
+      setF({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica", diaPag: "" });
       toast.success("Plantão salvo.");
       load();
     } catch {
@@ -200,6 +313,15 @@ function Plantoes() {
         </div>
       </div>
 
+      {previsao.length > 0 && (
+        <div className="card-2" style={{ padding: "9px 12px", boxShadow: "none", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, fontSize: 12.5 }}>
+          <span className="faint" style={{ fontWeight: 700 }}>Previsão de recebimento:</span>
+          {previsao.map((p) => (
+            <span key={p.dia}>dia {p.dia} · <b style={{ color: "var(--amber)" }}>{brl(p.v)}</b></span>
+          ))}
+        </div>
+      )}
+
       {/* Toggle de visão + seleção em bloco */}
       <div style={{ display: "flex", gap: 8 }}>
         <button className={`btn btn-sm ${view === "cal" ? "btn-primary" : "btn-ghost"}`} onClick={() => setView("cal")} style={{ flex: 1 }}><CalendarDays size={16} /> Calendário</button>
@@ -210,6 +332,20 @@ function Plantoes() {
         <button className={`btn btn-sm ${selMode ? "btn-primary" : "btn-ghost"}`} onClick={() => (selMode ? sairSelecao() : setSelMode(true))} style={{ flex: "0 0 auto" }}>
           <CheckCheck size={15} /> {selMode ? "Concluir" : "Selecionar"}
         </button>
+      </div>
+
+      {/* Exportar .ics (1f) + foto da escala do mês (1g) */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button className="btn btn-ghost btn-sm" onClick={exportarICS}><Download size={14} /> Exportar .ics</button>
+        {escalaUrl ? (
+          <>
+            <a href={escalaUrl} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm"><ImageIcon size={14} /> Ver escala</a>
+            <button className="btn btn-ghost btn-sm" onClick={removerEscala} style={{ color: "var(--red)" }} aria-label="remover escala"><Trash2 size={14} /></button>
+          </>
+        ) : (
+          <button className="btn btn-ghost btn-sm" onClick={() => escalaRef.current?.click()} disabled={upEscala}><ImageIcon size={14} /> {upEscala ? "Enviando…" : "Anexar escala"}</button>
+        )}
+        <input ref={escalaRef} type="file" accept="image/*" hidden onChange={(e) => anexarEscala(e.target.files)} />
       </div>
 
       {view === "cal" ? (
@@ -314,6 +450,19 @@ function Plantoes() {
 
       {showForm && (
         <div className="card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {modelos.length > 0 && (
+            <div>
+              <label className="label">Modelos</label>
+              <div className="scroll-x">
+                {modelos.map((m) => (
+                  <button key={m.local} className="chip" onClick={() => aplicarModelo(m)} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: 999, background: m.cor }} /> {m.local}
+                    <X size={12} onClick={(e) => { e.stopPropagation(); removerModelo(m.local); }} style={{ opacity: 0.5 }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div style={{ display: "flex", gap: 8 }}>
             <div style={{ flex: 1 }}>
               <label className="label">Data</label>
@@ -342,6 +491,10 @@ function Plantoes() {
             <label className="label">Local</label>
             <input className="field" placeholder="Hospital / UPA / unidade" value={f.local} onChange={(e) => setF({ ...f, local: e.target.value })} style={{ minHeight: 46 }} />
           </div>
+          <div>
+            <label className="label">Dia de pagamento (opcional)</label>
+            <input className="field" inputMode="numeric" placeholder="ex.: 10 — usado na previsão de recebimento" value={f.diaPag} onChange={(e) => setF({ ...f, diaPag: e.target.value.replace(/\D/g, "").slice(0, 2) })} style={{ minHeight: 46 }} />
+          </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             <span className="label" style={{ margin: 0 }}>Cor</span>
             {CORES.map((c) => (
@@ -356,7 +509,10 @@ function Plantoes() {
               ))}
             </div>
           </div>
-          <button className="btn btn-primary" disabled={saving} onClick={salvar} style={{ minHeight: 48 }}>{saving ? "Salvando…" : "Salvar plantão"}</button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button type="button" className="btn btn-ghost" onClick={salvarModelo} style={{ flex: "0 0 auto", minHeight: 48 }}>Salvar modelo</button>
+            <button className="btn btn-primary" disabled={saving} onClick={salvar} style={{ flex: 1, minHeight: 48 }}>{saving ? "Salvando…" : bulkDays.length ? `Lançar em ${bulkDays.length} dias` : "Salvar plantão"}</button>
+          </div>
         </div>
       )}
     </div>
