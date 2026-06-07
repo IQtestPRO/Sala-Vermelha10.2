@@ -23,8 +23,8 @@ export default function LoginPage() {
     try {
       const { user } = await apiPost<{ user: Me }>("/api/auth/login", { crm, password });
       toast.success(`Bem-vindo, ${user.name.split(" ")[0]}`);
-      if (user.role === "responder") {
-        router.replace(user.status === "approved" ? "/queue" : "/pending");
+      if (user.role === "responder" && user.status !== "approved") {
+        router.replace("/pending");
       } else {
         router.replace("/feed");
       }

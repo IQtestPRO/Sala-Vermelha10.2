@@ -73,8 +73,24 @@ export default function PerfilPage() {
       setAvatarPreview(b);
       const res = await fetch("/api/upload", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ base64: b }) });
       const d = await res.json().catch(() => ({}));
-      if (res.ok && d.url) setAvatarUrl(d.url);
-      else toast.error("Não consegui subir a imagem.");
+      if (res.ok && d.url) {
+        setAvatarUrl(d.url);
+        // Salva NA HORA — a foto fica no perfil mesmo sem clicar em "Salvar perfil".
+        try {
+          const pr = await fetch("/api/profile", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ avatar_url: d.url }) });
+          const pd = await pr.json().catch(() => ({}));
+          if (pr.ok && pd.user) {
+            updateMe(pd.user as Me);
+            toast.success("Foto de perfil salva!");
+          } else {
+            toast.error("Subi a foto, mas não consegui salvar. Toque em Salvar perfil.");
+          }
+        } catch {
+          toast.error("Subi a foto, mas não consegui salvar. Toque em Salvar perfil.");
+        }
+      } else {
+        toast.error("Não consegui subir a imagem.");
+      }
     } catch {
       toast.error("Não consegui ler a imagem.");
     } finally {
