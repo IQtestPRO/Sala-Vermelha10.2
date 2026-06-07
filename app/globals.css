@@ -4,6 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Code Pro (Fontfabric) — self-hospedada; titulo Light, destaque Bold */
+@font-face { font-family: "Code Pro"; font-weight: 300; font-style: normal; font-display: swap; src: url("/fonts/code-light.woff") format("woff"); }
+@font-face { font-family: "Code Pro"; font-weight: 700; font-style: normal; font-display: swap; src: url("/fonts/code-bold.woff") format("woff"); }
+
 :root {
   color-scheme: light;
 
@@ -464,7 +468,9 @@ select.field {
 
 .auth-h1 { margin: 20px 0 0; font-family: var(--font-archivo), var(--font-mulish), system-ui, sans-serif; font-size: clamp(30px, 5.5vw, 46px); font-weight: 900; letter-spacing: -0.02em; line-height: 1.04; color: #f6f9ff; }
 .auth-sub { margin: 14px 0 0; font-size: 15px; line-height: 1.55; color: #9bacc6; max-width: 460px; }
-.login-flip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; color: #f6f9ff; }
+.login-flip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; color: #f6f9ff; font-family: "Code Pro", var(--font-mulish), system-ui, sans-serif; font-weight: 300; }
+/* Subtitulo do login em Code Pro, caixa alta e espacado */
+.login-sub { margin: 16px 0 0; max-width: 460px; font-family: "Code Pro", var(--font-mulish), system-ui, sans-serif; font-weight: 300; font-size: 12.5px; line-height: 1.7; letter-spacing: 0.14em; text-transform: uppercase; color: #9bacc6; }
 
 /* Banner de boas-vindas (feed) — cinematografico */
 .welcome-banner { position: relative; overflow: hidden; border-radius: var(--r-lg); min-height: 92px; display: flex; align-items: flex-end; padding: 14px 16px; background: var(--navy-deep); box-shadow: var(--shadow-md); }

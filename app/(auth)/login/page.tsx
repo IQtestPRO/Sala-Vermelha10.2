@@ -41,7 +41,7 @@ export default function LoginPage() {
           {/* Coluna do formulário */}
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stat-logo.png" alt="STAT" style={{ height: 50, width: "auto", display: "block" }} />
+            <img src="/stat-logo.png" alt="STAT" style={{ height: 60, width: "auto", display: "block" }} />
             <div className="login-flip">
               <LayoutTextFlip
                 text="STAT:"
@@ -49,9 +49,7 @@ export default function LoginPage() {
                 duration={2600}
               />
             </div>
-            <p className="auth-sub" style={{ marginTop: 16 }}>
-              Bem-vindo de volta. Fotografe o ECG e receba a análise por IA em menos de 2 minutos.
-            </p>
+            <p className="login-sub">Bem-vindo de volta · análise de ECG por IA em menos de 2 minutos</p>
 
             <form onSubmit={submit} style={{ marginTop: 26, display: "flex", flexDirection: "column", gap: 18, maxWidth: 460 }}>
               <div>
