@@ -42,10 +42,10 @@ export default function LoginPage() {
           {/* Coluna do formulário */}
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stat-logo.svg" alt="STAT" style={{ height: 64, width: "auto", display: "block" }} />
+            <img src="/stat-logo.svg" alt="STAT" style={{ height: 58, width: "auto", display: "block", marginBottom: 14 }} />
             <div className="login-flip">
               <LayoutTextFlip
-                text="STAT:"
+                text=""
                 words={["Leitura de ECG por IA", "Resultado em menos de 2 min", "Conduta com evidência", "Apoio na sala vermelha"]}
                 duration={2600}
               />

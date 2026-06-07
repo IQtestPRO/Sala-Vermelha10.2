@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { LoaderThree } from "@/components/ui/loader";
 
-// Abertura cinematográfica: logo (SVG) + loader-three (raio vermelho). Some sozinha.
+// Abertura cinematográfica: logo (SVG) + loader (pulso de ECG do STAT se desenhando). Some sozinha.
 export default function Splash() {
   const [gone, setGone] = useState(false);
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function Splash() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/stat-logo.svg" alt="STAT" className="splash-logo" />
         <div className="splash-loader">
-          <LoaderThree className="h-11 w-11" />
+          <LoaderThree className="h-9 w-56" />
         </div>
       </div>
     </div>

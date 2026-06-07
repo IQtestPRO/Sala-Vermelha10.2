@@ -468,7 +468,7 @@ select.field {
 
 .auth-h1 { margin: 20px 0 0; font-family: var(--font-archivo), var(--font-mulish), system-ui, sans-serif; font-size: clamp(30px, 5.5vw, 46px); font-weight: 900; letter-spacing: -0.02em; line-height: 1.04; color: #f6f9ff; }
 .auth-sub { margin: 14px 0 0; font-size: 15px; line-height: 1.55; color: #9bacc6; max-width: 460px; }
-.login-flip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; color: #f6f9ff; font-family: "Code Pro", var(--font-mulish), system-ui, sans-serif; font-weight: 300; }
+.login-flip { display: flex; flex-wrap: wrap; align-items: center; gap: 0; margin-top: 2px; color: #f6f9ff; font-family: "Code Pro", var(--font-mulish), system-ui, sans-serif; font-weight: 300; }
 /* Subtitulo do login em Code Pro, caixa alta e espacado */
 .login-sub { margin: 16px 0 0; max-width: 460px; font-family: "Code Pro", var(--font-mulish), system-ui, sans-serif; font-weight: 300; font-size: 12.5px; line-height: 1.7; letter-spacing: 0.14em; text-transform: uppercase; color: #9bacc6; }
 
