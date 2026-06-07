@@ -222,6 +222,25 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_shifts_user_data ON shifts(user_id, data)`);
 
+  // ---- PCR REPORTS (relatório do Modo PCR/ACLS, por usuário) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS pcr_reports (
+      id          TEXT PRIMARY KEY,
+      user_id     TEXT NOT NULL,
+      started_at  INTEGER NOT NULL,
+      duracao_seg INTEGER,
+      ciclos      INTEGER,
+      choques     INTEGER,
+      desfecho    TEXT,
+      eventos     TEXT,
+      ritmos      TEXT,
+      causas      TEXT,
+      relatorio   TEXT,
+      created_at  INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_pcr_user ON pcr_reports(user_id, created_at DESC)`);
+
   await maybeSeedResponder(db);
   tableReady = true;
 }

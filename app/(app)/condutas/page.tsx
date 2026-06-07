@@ -1,21 +1,17 @@
 "use client";
 
 import { Suspense, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { Search, ChevronRight, AlertTriangle, Zap } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Search, ChevronRight, AlertTriangle } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import CondutaDetalhe, { categoriaLabel } from "@/components/CondutaDetalhe";
 import ScreenHero from "@/components/ScreenHero";
-import {
-  CONDUTAS,
-  CATEGORIAS,
-  CondutaCard,
-  CondutaCategoria,
-  condutaById,
-  searchCondutas,
-} from "@/lib/condutas";
+import { CondutaCard, condutaById, searchCondutas } from "@/lib/condutas";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import HfIcon from "@/components/icons/HfIcon";
+
+// Lista enxuta de protocolos (os demais ficam no código; readicionar depois). RCP abre o Modo PCR.
+const PROTOCOLOS_VISIVEIS = ["acls-pcr", "choque-sepse", "dor-toracica", "avc"];
 
 function DisclaimerBar() {
   return (
@@ -28,18 +24,15 @@ function DisclaimerBar() {
 
 function CondutasInner() {
   const params = useSearchParams();
+  const router = useRouter();
   const initial = params.get("c");
-  const rapidaParam = params.get("rapida") === "1";
   const [query, setQuery] = useState("");
-  const [cat, setCat] = useState<CondutaCategoria | "ALL" | "RAPIDA">(rapidaParam ? "RAPIDA" : "ALL");
   const [selected, setSelected] = useState<CondutaCard | null>(initial ? condutaById(initial) ?? null : null);
 
   const list = useMemo(() => {
-    let r = searchCondutas(query);
-    if (cat === "RAPIDA") r = r.filter((c) => c.acaoRapida);
-    else if (cat !== "ALL") r = r.filter((c) => c.categoria === cat);
-    return r;
-  }, [query, cat]);
+    const base = searchCondutas(query).filter((c) => PROTOCOLOS_VISIVEIS.includes(c.id));
+    return PROTOCOLOS_VISIVEIS.map((id) => base.find((c) => c.id === id)).filter(Boolean) as CondutaCard[];
+  }, [query]);
 
   if (selected) {
     return (
@@ -67,53 +60,40 @@ function CondutasInner() {
           />
         </div>
 
-        <div className="scroll-x" style={{ scrollSnapType: "x proximity" }}>
-          <button className={`chip ${cat === "RAPIDA" ? "chip-on" : ""}`} onClick={() => setCat("RAPIDA")} style={{ flex: "0 0 auto", scrollSnapAlign: "start" }}>
-            <Zap size={13} style={{ marginRight: 4, verticalAlign: "-2px" }} /> Ação rápida
-          </button>
-          <button className={`chip ${cat === "ALL" ? "chip-on" : ""}`} onClick={() => setCat("ALL")} style={{ flex: "0 0 auto", scrollSnapAlign: "start" }}>
-            Todas
-          </button>
-          {CATEGORIAS.map((c) => (
-            <button key={c.key} className={`chip ${cat === c.key ? "chip-on" : ""}`} onClick={() => setCat(c.key)} style={{ flex: "0 0 auto", scrollSnapAlign: "start" }}>
-              {c.label}
-            </button>
-          ))}
-        </div>
-
         <div className="eyebrow" style={{ margin: "2px 0 -4px" }}>
-          {list.length} {list.length === 1 ? "conduta" : "condutas"}
+          {list.length} {list.length === 1 ? "protocolo" : "protocolos"}
         </div>
 
         {list.length === 0 ? (
           <div className="muted" style={{ textAlign: "center", padding: 24 }}>Nada encontrado.</div>
         ) : (
           <div className="card" style={{ padding: "2px 14px" }}>
-            {list.map((c) => (
-              <button key={c.id} className="list-row" onClick={() => setSelected(c)}>
-                <span
-                  style={{
-                    width: 36, height: 36, borderRadius: 10, flex: "0 0 auto",
-                    display: "grid", placeItems: "center",
-                    background: c.acaoRapida ? "var(--red-tint)" : "var(--navy-tint)",
-                    color: c.acaoRapida ? "var(--red)" : "var(--navy)",
-                  }}
-                >
-                  {c.acaoRapida ? <HfIcon name="nav-rapida" size={20} /> : <HfIcon name="ecg" size={20} />}
-                </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: "block", fontWeight: 800, fontSize: 15, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {c.titulo}
+            {list.map((c) => {
+              const isRcp = c.id === "acls-pcr";
+              return (
+                <button key={c.id} className="list-row" onClick={() => (isRcp ? router.push("/protocolos/rcp") : setSelected(c))}>
+                  <span
+                    style={{
+                      width: 36, height: 36, borderRadius: 10, flex: "0 0 auto",
+                      display: "grid", placeItems: "center",
+                      background: isRcp ? "var(--red-tint)" : "var(--navy-tint)",
+                      color: isRcp ? "var(--red)" : "var(--navy)",
+                    }}
+                  >
+                    {isRcp ? <HfIcon name="nav-rapida" size={20} /> : <HfIcon name="ecg" size={20} />}
                   </span>
-                  {c.resumo && (
-                    <span style={{ display: "block", fontSize: 12.5, color: "var(--text-faint)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
-                      {c.resumo}
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: "block", fontWeight: 800, fontSize: 15, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {isRcp ? "RCP / ACLS — Modo PCR interativo" : c.titulo}
                     </span>
-                  )}
-                </span>
-                <ChevronRight size={18} className="faint" style={{ flex: "0 0 auto" }} />
-              </button>
-            ))}
+                    <span style={{ display: "block", fontSize: 12.5, color: "var(--text-faint)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }}>
+                      {isRcp ? "Cronômetro de ciclo, adrenalina e metrônomo" : c.resumo}
+                    </span>
+                  </span>
+                  <ChevronRight size={18} className="faint" style={{ flex: "0 0 auto" }} />
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
