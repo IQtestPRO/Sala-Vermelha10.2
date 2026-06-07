@@ -9,8 +9,9 @@ import { DROGAS_INFUSAO } from "@/lib/drogasInfusao";
 import { calcInfusao } from "@/lib/doseCalculator";
 import { estimarPeso, valoresPediatricos, clearanceCreatinina, bandaRenal, fmtNum } from "@/lib/pedCalc";
 import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
+import CalcFormulas from "@/components/CalcFormulas";
 
-type Tab = "escores" | "medicacoes" | "pediatria" | "renal";
+type Tab = "escores" | "medicacoes" | "formulas" | "pediatria" | "renal";
 
 function num(v: string): number | undefined {
   const x = Number(String(v).replace(",", "."));
@@ -20,6 +21,7 @@ function num(v: string): number | undefined {
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "escores", label: "Escores", icon: <ListChecks size={16} /> },
   { key: "medicacoes", label: "Medicações", icon: <Droplet size={16} /> },
+  { key: "formulas", label: "Fórmulas", icon: <FlaskConical size={16} /> },
   { key: "pediatria", label: "Pediatria", icon: <Baby size={16} /> },
   { key: "renal", label: "Renal", icon: <Activity size={16} /> },
 ];
@@ -279,6 +281,7 @@ export default function CalculadorasPage() {
         <Disclaimer />
         {tab === "escores" && <Escores />}
         {tab === "medicacoes" && <Medicacoes />}
+        {tab === "formulas" && <CalcFormulas />}
         {tab === "pediatria" && <Pediatria />}
         {tab === "renal" && <Renal />}
       </div>
