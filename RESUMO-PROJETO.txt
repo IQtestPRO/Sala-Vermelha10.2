@@ -174,6 +174,40 @@ Tema CLARO e limpo, inspirado no Whitebook:
     que ninguém abre a fila).
 [ ] Domínio próprio (em vez do *.vercel.app), se quiser.
 
+15) FEATURES JUN/2026 — pesquisa Web Summit Rio (5 features)
+--------------------------------------------------------------------------
+F1 CASO POR VOZ: bloco "Ditar caso" no Novo caso (components/DitarCaso.tsx,
+   Web Speech pt-BR) → /api/voice-case (Claude, extrator ESTRITO: nunca
+   inventa vital, pseudonimiza) preenche resumo/idade/sexo/peso/vitais →
+   o médico revisa antes de enviar.
+F2 ACHADOS CRÍTICOS: /api/analyze retorna critical_findings[]; laudo mostra
+   bloco vermelho "ACHADO CRÍTICO" no topo (ou badge "Sem achados críticos").
+F3 LOGBOOK (portfólio automático): tabela logbook_entries; registra sozinho
+   caso_criado / caso_respondido / pcr_conduzida (lib/logbook.ts, best-effort).
+   Tela /logbook (contadores, filtros, timeline por mês) + Exportar PDF
+   (/api/logbook/export = HTML de impressão). LGPD: pseudonimizado.
+F4 DEBRIEF educativo: ao encerrar caso → /api/cases/[id]/debrief (Claude;
+   tom respeitoso entre profissionais, nunca acusatório) → resumo, conduta
+   executada, referência de diretriz, pontos fortes/melhoria, aderência
+   (alta/parcial/baixa). Card colapsado na tela do caso; alimenta o logbook.
+F5 RESUMO DO MÊS (/resumo): agregados do mês vs anterior (casos por tipo,
+   tempo médio de resposta, PCRs, aderência média, financeiro) + card 9:16
+   p/ stories (/api/resumo/card, next/og). AUTOMAÇÕES DE PLANTÃO (varredura
+   preguiçosa em /api/shifts e /api/auth/me, gate 15 min, SEM cron):
+   push na véspera 20h com ação "Confirmar presença" (sw.js →
+   /api/shifts/confirm), push 2h antes do início, alerta semanal de
+   pagamento vencido; idempotente via shift_alerts UNIQUE(shift_id,type);
+   badges "Confirmado"/"Pgto. vencido" na agenda.
+Tabelas novas: logbook_entries, case_debriefs, shift_alerts (+ coluna
+   shifts.confirmado). Rotas novas: /api/voice-case, /api/logbook(+/export),
+   /api/cases/[id]/debrief, /api/resumo(+/card), /api/shifts/confirm.
+
+16) FASE 2 (deliberadamente fora desta entrega)
+--------------------------------------------------------------------------
+[ ] Painel do Plantão B2B (coordenador enxerga a equipe/fila — multi-conta).
+[ ] STAT no WhatsApp (Business API): abrir caso e receber resposta sem app.
+[ ] Troca/repasse de plantões entre médicos (marketplace interno da agenda).
+
 ==========================================================================
 Gerado como base de referência. Mantenha junto ao projeto.
 ==========================================================================
