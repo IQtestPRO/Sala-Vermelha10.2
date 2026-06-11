@@ -64,16 +64,33 @@ export default function EcgLine({
       className={className}
       style={{ display: "block", width: "100%", height, overflow: "visible", opacity, ...style }}
     >
-      <path
-        className={`${variant === "run" ? "ecg-run" : ""} ${glow ? "ecg-glow" : ""}`.trim() || undefined}
-        d={d}
-        fill="none"
-        stroke={color}
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
+      {variant === "run" ? (
+        <>
+          {/* monitor real: traçado-base sempre visível + janela varrendo por cima */}
+          <path d={d} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" opacity={0.3} />
+          <path
+            className={`ecg-run ${glow ? "ecg-glow" : ""}`.trim()}
+            d={d}
+            fill="none"
+            stroke={color}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </>
+      ) : (
+        <path
+          className={glow ? "ecg-glow" : undefined}
+          d={d}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      )}
     </svg>
   );
 }
