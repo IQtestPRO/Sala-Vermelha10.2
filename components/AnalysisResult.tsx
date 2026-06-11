@@ -5,6 +5,7 @@ import { DISCLAIMER_CURTO } from "@/lib/legal/disclaimer";
 import UpaSection from "./UpaSection";
 
 export type Analysis = {
+  critical_findings?: string[];
   condutaImediata?: string;
   resumo?: string;
   achados: string[];
@@ -56,6 +57,22 @@ export default function AnalysisResult({ a }: { a: Analysis }) {
         <span className={`badge ${grav.cls}`} style={critico ? { background: "oklch(0.98 0.01 255 / 0.18)", color: "#fff" } : undefined}>{grav.label}</span>
       </div>
       <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 12 }}>
+        {/* ACHADO CRÍTICO no TOPO do laudo — exige ação imediata (único vermelho pleno) */}
+        {a.critical_findings && a.critical_findings.length > 0 ? (
+          <div className="navy-material" style={{ background: "var(--red)", color: "#fff", borderRadius: "var(--r-sm)", padding: "12px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+              <AlertTriangle size={16} />
+              <span className="microlabel" style={{ color: "#fff", letterSpacing: "0.09em" }}>Achado crítico</span>
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 5, fontSize: 15, fontWeight: 700, lineHeight: 1.45 }}>
+              {a.critical_findings.map((t, i) => (
+                <li key={i}>{t}</li>
+              ))}
+            </ul>
+          </div>
+        ) : a.critical_findings ? (
+          <span className="badge badge-closed" style={{ alignSelf: "flex-start" }}>Sem achados críticos sinalizados</span>
+        ) : null}
         {a.condutaImediata && (
           <div
             className="card-2"

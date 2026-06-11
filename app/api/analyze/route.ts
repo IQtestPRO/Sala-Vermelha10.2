@@ -68,6 +68,7 @@ ${hasImage ? "- Leia APENAS o que está visível na imagem (não invente dados; 
 - Isto é APOIO À DECISÃO; o médico assistente lê, confirma e aprova.
 
 Responda em português, em JSON:
+- critical_findings: SÓ achados que exigem AÇÃO IMEDIATA (ex.: supra de ST, FV/TV sem pulso, BAVT, hipoxemia grave, hipotensão crítica, pneumotórax hipertensivo). NÃO repita achados gerais aqui; lista vazia [] se nenhum achado crítico.
 - condutaImediata: UMA linha decisiva — o que fazer AGORA (droga/dose/energia/marca-passo). A ação mais urgente, direto ao ponto.
 - resumo: parágrafo de laudo curto e bem escrito (3 a 5 frases), simples porém aprofundado.
 - achados: leituras objetivas da imagem (inclua alarmes e dados não confiáveis).
@@ -83,6 +84,7 @@ Responda em português, em JSON:
 const SCHEMA = {
   type: "object",
   properties: {
+    critical_findings: { type: "array", items: { type: "string" } },
     condutaImediata: { type: "string" },
     resumo: { type: "string" },
     achados: { type: "array", items: { type: "string" } },
@@ -106,7 +108,7 @@ const SCHEMA = {
       },
     },
   },
-  required: ["condutaImediata", "resumo", "achados", "hipoteses", "conduta", "alternativaUPA", "alertas", "gravidade", "fontes", "mensagemPlantonista"],
+  required: ["critical_findings", "condutaImediata", "resumo", "achados", "hipoteses", "conduta", "alternativaUPA", "alertas", "gravidade", "fontes", "mensagemPlantonista"],
   additionalProperties: false,
 } as const;
 
