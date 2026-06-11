@@ -129,7 +129,18 @@
   --shadow-md:    0 1px 2px oklch(0 0 0 / 0.50), 0 10px 30px oklch(0 0 0 / 0.45);
   --shadow-lg:    0 2px 4px oklch(0 0 0 / 0.50), 0 20px 50px oklch(0 0 0 / 0.55);
   --shadow-inset: inset 0 1px 2px oklch(0 0 0 / 0.35);
+
+  --blue-tint:  oklch(0.300 0.060 250);
+  --amber-tint: oklch(0.300 0.060 70);
+  --green-tint: oklch(0.300 0.060 150);
 }
+
+/* Badges de status legíveis no escuro (texto claro sobre as tints escuras acima) */
+[data-theme="dark"] .badge-open { color: oklch(0.780 0.110 250); }
+[data-theme="dark"] .badge-claimed { color: oklch(0.800 0.110 75); }
+[data-theme="dark"] .badge-answered { color: oklch(0.800 0.130 150); }
+[data-theme="dark"] .badge-closed { background: var(--surface-sunken); }
+[data-theme="dark"] .badge-expired { color: oklch(0.780 0.130 25); }
 
 /* specular highlight no topo dos cards (sensacao de hardware) + botao primario legivel no escuro */
 [data-theme="dark"] .card,
@@ -538,7 +549,7 @@ select.field {
 .chat-hist-list { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
 .chat-hist-item { display: flex; align-items: center; gap: 8px; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); cursor: pointer; }
 .chat-hist-item.on { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--surface)); }
-.chat-hist-del { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-faint); cursor: pointer; }
+.chat-hist-del { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-faint); cursor: pointer; }
 
 /* ===== Avatar de perfil (bottom-nav) + tela de Perfil ===== */
 .nav-avatar { width: 30px; height: 30px; border-radius: 999px; overflow: hidden; display: grid; place-items: center; background: var(--navy); border: 1.5px solid var(--hairline); }
@@ -578,7 +589,7 @@ select.field {
 .auth-field:focus { border-color: #3b6fc4; box-shadow: 0 0 0 3px rgba(59,111,196,0.25); }
 select.auth-field { padding-left: 14px; appearance: none; }
 .auth-ic { position: absolute; left: 15px; top: 17px; color: #6f7f99; pointer-events: none; }
-.auth-eye { position: absolute; right: 8px; top: 8px; width: 36px; height: 36px; border: none; background: none; color: #8294b0; display: grid; place-items: center; cursor: pointer; }
+.auth-eye { position: absolute; right: 4px; top: 4px; width: 44px; height: 44px; border: none; background: none; color: #8294b0; display: grid; place-items: center; cursor: pointer; }
 .auth-btn { width: 100%; height: 52px; border-radius: 13px; background: #f4f8ff; color: #0d1830; font-weight: 800; font-size: 16px; border: none; cursor: pointer; transition: transform .14s ease, opacity .14s; }
 .auth-btn:active { transform: scale(0.985); }
 .auth-btn:disabled { opacity: 0.55; cursor: default; }

@@ -52,11 +52,15 @@ export default function PushSetup() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID),
       });
-      await fetch("/api/push/subscribe", {
+      const r = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(sub),
       });
+      if (!r.ok) {
+        toast.error("Não consegui registrar os alertas no servidor — tente de novo.");
+        return;
+      }
       setState("on");
       toast.success("Alertas ativados! Você será avisado de casos novos.");
     } catch {

@@ -102,7 +102,7 @@ export default function ChatPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, text: m.text, image: m.image })) }),
+        body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, text: m.text, image: m.image, imageUrl: m.imageUrl })) }),
       });
       if (res.status === 503) {
         toast.error("IA ainda não configurada (ANTHROPIC_API_KEY).");
@@ -167,6 +167,7 @@ export default function ChatPage() {
 
   async function apagarChat(id: string, e: React.MouseEvent) {
     e.stopPropagation();
+    if (!window.confirm("Apagar esta conversa?")) return;
     try {
       await fetch(`/api/chats/${id}`, { method: "DELETE" });
       setHist((h) => h.filter((c) => c.id !== id));

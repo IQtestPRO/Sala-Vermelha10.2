@@ -69,13 +69,29 @@ export default function CalcInfusao() {
   const ativaDe = (nome: string) => dils.find((x) => x.droga_nome === nome && x.is_active);
   const presetsDe = (nome: string) => dils.filter((x) => x.droga_nome === nome);
 
+  // Falha de rede aqui é GRAVE: a UI não pode confirmar uma concentração que não persistiu (bomba errada).
+  async function syncFalhou() {
+    toast.error("Sem conexão — alteração não salva.");
+    await load();
+  }
   async function ativar(droga: string, id: string) {
     setDils((arr) => arr.map((x) => (x.droga_nome === droga ? { ...x, is_active: x.id === id } : x)));
-    await fetch("/api/dilutions", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ droga_nome: droga, id }) });
+    try {
+      const r = await fetch("/api/dilutions", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ droga_nome: droga, id }) });
+      if (!r.ok) throw new Error();
+    } catch {
+      await syncFalhou();
+    }
   }
   async function remover(d: Dilution) {
+    if (!window.confirm(`Apagar a diluição "${d.label}"?`)) return;
     setDils((arr) => arr.filter((x) => x.id !== d.id));
-    await fetch(`/api/dilutions?id=${d.id}`, { method: "DELETE" });
+    try {
+      const r = await fetch(`/api/dilutions?id=${d.id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error();
+    } catch {
+      await syncFalhou();
+    }
   }
   async function salvar(drug: DrogaInfusao) {
     if (!form) return;
@@ -166,11 +182,13 @@ export default function CalcInfusao() {
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     <button className={`chip ${!ativa ? "chip-on" : ""}`} onClick={() => ativar(d.nome, "padrao")} style={{ flex: "0 0 auto" }}>Padrão STAT</button>
                     {presetsDe(d.nome).map((x) => (
-                      <span key={x.id} className={`chip ${x.is_active ? "chip-on" : ""}`} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <span key={x.id} className={`chip ${x.is_active ? "chip-on" : ""}`} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 2 }}>
                         <button onClick={() => ativar(d.nome, x.id)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700, padding: 0 }}>
                           {x.is_active && <Check size={11} style={{ marginRight: 3, verticalAlign: "-1px" }} />}{x.label}
                         </button>
-                        <Trash2 size={12} onClick={() => remover(x)} style={{ opacity: 0.55, cursor: "pointer" }} />
+                        <button onClick={() => remover(x)} aria-label={`Apagar diluição ${x.label}`} style={{ background: "none", border: "none", color: "inherit", opacity: 0.55, cursor: "pointer", padding: 10, margin: -6, display: "grid", placeItems: "center" }}>
+                          <Trash2 size={13} />
+                        </button>
                       </span>
                     ))}
                   </div>

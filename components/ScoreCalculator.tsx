@@ -9,17 +9,26 @@ export default function ScoreCalculator({ def, stickyTop = "calc(env(safe-area-i
   // sel[i] = índice da opção (tipo "opcoes") OU valor numérico (tipo "numero").
   const [sel, setSel] = useState<(number | undefined)[]>(() => def.itens.map(() => undefined));
 
+  // Valor numérico fora de min/max NÃO entra no total (e o item não conta como respondido).
+  const foraFaixa = (i: number): boolean => {
+    const it = def.itens[i];
+    const v = sel[i];
+    if (it.tipo !== "numero" || v == null || Number.isNaN(v)) return false;
+    return (it.min != null && v < it.min) || (it.max != null && v > it.max);
+  };
+
   const total = def.itens.reduce((acc, it, i) => {
     const v = sel[i];
-    if (v == null || Number.isNaN(v)) return acc;
+    if (v == null || Number.isNaN(v) || foraFaixa(i)) return acc;
     if (it.tipo === "numero") return acc + v * (it.coef ?? 1);
     const op = it.opcoes?.[v];
     return acc + (op ? op.pontos : 0);
   }, 0);
 
-  const respondidos = sel.filter((v) => v != null && !Number.isNaN(v)).length;
+  const respondidos = sel.filter((v, i) => v != null && !Number.isNaN(v) && !foraFaixa(i)).length;
   const completo = respondidos === def.itens.length;
-  const faixa = faixaDoTotal(def, total);
+  // Interpretação SÓ com o escore completo — "Sem sintomas de AVC" com 0/15 respondidos engana.
+  const faixa = completo ? faixaDoTotal(def, total) : undefined;
   const cor = faixa ? `var(--${faixa.cor})` : "var(--text-dim)";
 
   const set = (i: number, v: number | undefined) =>
@@ -108,8 +117,13 @@ export default function ScoreCalculator({ def, stickyTop = "calc(env(safe-area-i
                   const n = e.target.value === "" ? undefined : Number(e.target.value.replace(",", "."));
                   set(i, n != null && Number.isNaN(n) ? undefined : n);
                 }}
-                style={{ minHeight: 44 }}
+                style={{ minHeight: 44, ...(foraFaixa(i) ? { borderColor: "var(--red)" } : {}) }}
               />
+              {foraFaixa(i) && (
+                <div style={{ fontSize: 11, color: "var(--red)", fontWeight: 700, marginTop: 4 }}>
+                  Fora da faixa ({it.min ?? "…"}–{it.max ?? "…"}) — não somado.
+                </div>
+              )}
             </div>
           )}
           {it.ajuda && it.tipo === "opcoes" && <div className="faint" style={{ fontSize: 11, marginTop: 4 }}>{it.ajuda}</div>}

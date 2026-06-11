@@ -71,7 +71,7 @@ export default function BottomNav({ me }: { me: Me }) {
               }}
             >
               {it.icon}
-              {novo && <span style={{ position: "absolute", top: 1, right: 7, width: 8, height: 8, borderRadius: 999, background: "var(--primary)", border: "1.5px solid var(--surface)" }} />}
+              {novo && <span style={{ position: "absolute", top: 0, right: 2, width: 8, height: 8, borderRadius: 999, background: "var(--primary)", border: "1.5px solid var(--surface)" }} />}
             </span>
             <span style={isChat && on ? { color: "#E11D2A" } : undefined}>{it.label}</span>
           </Link>

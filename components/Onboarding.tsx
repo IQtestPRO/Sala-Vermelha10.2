@@ -10,7 +10,7 @@ type Slide = { tipo: "logo" | "icon"; icon?: React.ReactNode; tint: string; cor:
 const SLIDES: Slide[] = [
   {
     tipo: "logo",
-    tint: "var(--navy-tint)",
+    tint: "var(--navy)", /* logo branco precisa do tile navy sólido (nos 2 temas) */
     cor: "var(--navy)",
     title: "Bem-vindo ao STAT",
     desc: "Seu apoio de sala vermelha: protocolos, calculadoras, IA e gestão de plantão — tudo num lugar só. Veja em 30 segundos onde fica cada coisa.",

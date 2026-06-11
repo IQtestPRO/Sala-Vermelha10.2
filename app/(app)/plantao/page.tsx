@@ -15,7 +15,8 @@ type Shift = { id: string; data: string; inicio: string | null; fim: string | nu
 type Handoff = { token: string; paciente: string; idade: string | null; leito: string | null; situacao: string | null; status: string; author_name: string | null; updated_at: number };
 type Modelo = { local: string; inicio: string; fim: string; valor: string; cor: string; diaPag: string };
 
-const CORES = ["#15294C", "#E11D2A", "#1a8f4f", "#c77d11", "#6d28d9"];
+// Vermelho é SÓ urgência/ECG (DESIGN.md) — petróleo no lugar; plantões antigos com a cor velha seguem renderizando.
+const CORES = ["#15294C", "#0e7490", "#1a8f4f", "#c77d11", "#6d28d9"];
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const ddmm = (iso: string) => (/^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso.slice(8, 10) + "/" + iso.slice(5, 7) : iso);
 const MES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -49,6 +50,7 @@ function Plantoes() {
   const [f, setF] = useState({ data: "", inicio: "", fim: "", local: "", valor: "", cor: CORES[0], recorrencia: "unica", diaPag: "" });
   const [saving, setSaving] = useState(false);
   const swipeX = useRef<number | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
   // Seleção em bloco (1c)
   const [selMode, setSelMode] = useState(false);
   const [bulkDays, setBulkDays] = useState<string[]>([]);
@@ -224,30 +226,60 @@ function Plantoes() {
       setSaving(false);
     }
   }
+  // Falhou a rede? Avisa e recarrega do servidor — financeiro NUNCA diverge em silêncio.
+  async function syncFalhou() {
+    toast.error("Não consegui sincronizar — tente de novo.");
+    await load();
+  }
   async function bulkPago(pago: boolean) {
     setShifts((arr) => arr.map((x) => (bulkShifts.includes(x.id) ? { ...x, pago } : x)));
-    for (const id of bulkShifts) await fetch("/api/shifts", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, pago }) });
-    toast.success(pago ? "Marcados como pagos." : "Marcados como a receber.");
+    try {
+      for (const id of bulkShifts) {
+        const r = await fetch("/api/shifts", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, pago }) });
+        if (!r.ok) throw new Error();
+      }
+      toast.success(pago ? "Marcados como pagos." : "Marcados como a receber.");
+    } catch {
+      await syncFalhou();
+    }
     sairSelecao();
   }
   async function bulkRemover() {
     const ids = bulkShifts;
     setShifts((arr) => arr.filter((x) => !ids.includes(x.id)));
     sairSelecao();
-    for (const id of ids) await fetch(`/api/shifts?id=${id}`, { method: "DELETE" });
+    try {
+      for (const id of ids) {
+        const r = await fetch(`/api/shifts?id=${id}`, { method: "DELETE" });
+        if (!r.ok) throw new Error();
+      }
+    } catch {
+      await syncFalhou();
+    }
   }
   async function togglePago(s: Shift) {
     setShifts((arr) => arr.map((x) => (x.id === s.id ? { ...x, pago: !x.pago } : x)));
-    await fetch("/api/shifts", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: s.id, pago: !s.pago }) });
+    try {
+      const r = await fetch("/api/shifts", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: s.id, pago: !s.pago }) });
+      if (!r.ok) throw new Error();
+    } catch {
+      await syncFalhou();
+    }
   }
   async function remover(s: Shift) {
     setShifts((arr) => arr.filter((x) => x.id !== s.id));
-    await fetch(`/api/shifts?id=${s.id}`, { method: "DELETE" });
+    try {
+      const r = await fetch(`/api/shifts?id=${s.id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error();
+    } catch {
+      await syncFalhou();
+    }
   }
   function novoNoDia(iso: string) {
     setF((p) => ({ ...p, data: iso }));
     setShowForm(true);
-    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 100);
+    // Quem rola é o .app-main (shell), não o window — scrollIntoView acha o form em qualquer container.
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   }
 
   const [y, mo] = month.split("-").map(Number);
@@ -294,7 +326,7 @@ function Plantoes() {
         <button onClick={() => togglePago(s)} className="chip" style={{ flex: "0 0 auto", background: s.pago ? "color-mix(in srgb, var(--green) 16%, var(--surface))" : "var(--surface-sunken)", color: s.pago ? "var(--green)" : "var(--text-dim)", fontWeight: 700 }}>
           {s.pago ? <><Check size={13} /> Pago</> : "A receber"}
         </button>
-        <button onClick={() => remover(s)} className="btn btn-ghost btn-sm" style={{ flex: "0 0 auto", padding: 6 }}><Trash2 size={15} /></button>
+        <button onClick={() => remover(s)} className="btn btn-ghost btn-sm" style={{ flex: "0 0 auto", padding: 12 }} aria-label="Excluir plantão"><Trash2 size={15} /></button>
       </div>
     );
   }
@@ -380,7 +412,7 @@ function Plantoes() {
                 if (!c.inMonth)
                   return (
                     <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ fontSize: 16, color: "#C7CCD1", fontVariantNumeric: "tabular-nums" }}>{c.d}</span>
+                      <span style={{ fontSize: 16, color: "var(--text-ghost)", fontVariantNumeric: "tabular-nums" }}>{c.d}</span>
                     </div>
                   );
                 const iso = `${month}-${pad(c.d)}`;
@@ -430,7 +462,7 @@ function Plantoes() {
       {selMode && view === "cal" && bulkDays.length > 0 && (
         <div className="card" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px" }}>
           <span style={{ flex: 1, fontWeight: 700, fontSize: 13 }}>{bulkDays.length} {bulkDays.length === 1 ? "dia" : "dias"}</span>
-          <button className="btn btn-primary btn-sm" onClick={() => { setShowForm(true); setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 100); }}><Plus size={15} /> Lançar plantão nos dias</button>
+          <button className="btn btn-primary btn-sm" onClick={() => { setShowForm(true); setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100); }}><Plus size={15} /> Lançar plantão nos dias</button>
         </div>
       )}
       {selMode && view === "lista" && bulkShifts.length > 0 && (
@@ -449,7 +481,7 @@ function Plantoes() {
       )}
 
       {showForm && (
-        <div className="card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div ref={formRef} className="card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {modelos.length > 0 && (
             <div>
               <label className="label">Modelos</label>

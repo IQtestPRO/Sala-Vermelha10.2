@@ -228,16 +228,17 @@ export default function PcrPage() {
   const now = Date.now();
   const total = pcr ? (now - pcr.startedAt) / 1000 : 0;
   const cicloRest = pcr ? CICLO_SEG - (now - pcr.cicloStart) / 1000 : CICLO_SEG;
-  const cicloAlerta = !!ativa && cicloRest <= 0;
+  // RCE = paciente com pulso: silencia alertas de ciclo/adrenalina e pausa o metrônomo.
+  const cicloAlerta = !!ativa && !pcr?.emRce && cicloRest <= 0;
   const adrRest = pcr?.adrenalinaStart != null ? pcr.adrenalinaIntervalSec - (now - pcr.adrenalinaStart) / 1000 : null;
-  const adrAlerta = !!ativa && adrRest != null && adrRest <= 0;
+  const adrAlerta = !!ativa && !pcr?.emRce && adrRest != null && adrRest <= 0;
   const ultimoRitmo = pcr?.ritmos[pcr.ritmos.length - 1]?.ritmo;
   const nAdr = pcr ? pcr.eventos.filter((e) => e.tipo === "droga" && e.label.startsWith("Adrenalina")).length : 0;
   const naoChocavel = ultimoRitmo === "AESP" || ultimoRitmo === "ASSISTOLIA";
 
   // ---- Metrônomo SAMPLE-ACCURATE (agenda os cliques pelo relógio do AudioContext → sem drift) ----
   useEffect(() => {
-    if (!ativa || !pcr?.metronomo) return;
+    if (!ativa || !pcr?.metronomo || pcr?.emRce) return;
     const ac = ensureAudio();
     if (!ac) return;
     const spb = 60 / (pcr.bpm || 110);
@@ -273,7 +274,7 @@ export default function PcrPage() {
       }
     }, 25);
     return () => clearInterval(lookahead);
-  }, [ativa, pcr?.metronomo, pcr?.bpm, pcr?.vibrar, ensureAudio]);
+  }, [ativa, pcr?.metronomo, pcr?.emRce, pcr?.bpm, pcr?.vibrar, ensureAudio]);
 
   // ---- Alertas (bipe periódico enquanto em alerta) ----
   useEffect(() => {
@@ -417,7 +418,18 @@ export default function PcrPage() {
       <div style={{ ...shell, justifyContent: "flex-start", paddingTop: "calc(env(safe-area-inset-top) + 18px)" }}>
         <div style={{ color: "#fff", fontWeight: 800, fontSize: 22, marginBottom: 12 }}>Relatório da PCR</div>
         <pre className="data" style={{ width: "100%", maxWidth: 440, whiteSpace: "pre-wrap", fontSize: 12.5, lineHeight: 1.5, color: "#cdd6e6", background: "#10131b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 14, padding: 14, overflowY: "auto", flex: 1 }}>{relatorioTxt}</pre>
-        <button onClick={compartilhar} style={{ ...bigBtn, background: "#1f8f4f", marginTop: 12 }}>Compartilhar no WhatsApp</button>
+        <button
+          onClick={() => {
+            navigator.clipboard?.writeText(relatorioTxt).then(
+              () => toast.success("Relatório copiado — cole no prontuário."),
+              () => toast.error("Não consegui copiar.")
+            );
+          }}
+          style={{ ...bigBtn, background: "#1f2a3d", marginTop: 12, minHeight: 52, fontSize: 16 }}
+        >
+          Copiar relatório
+        </button>
+        <button onClick={compartilhar} style={{ ...bigBtn, background: "#1f8f4f", marginTop: 8, minHeight: 52, fontSize: 16 }}>Compartilhar no WhatsApp</button>
         <button onClick={() => router.push("/condutas")} style={ghostBtn}>Concluir</button>
       </div>
     );
@@ -460,9 +472,9 @@ export default function PcrPage() {
           <span style={{ opacity: 0.5 }}>|</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
             Adr a cada
-            <button onClick={() => upd({ adrenalinaIntervalSec: Math.max(180, pcr.adrenalinaIntervalSec - 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>−</button>
+            <button onClick={() => upd({ adrenalinaIntervalSec: Math.max(180, pcr.adrenalinaIntervalSec - 60) })} style={{ ...miniBtn, width: 36, height: 36, fontSize: 16 }}>−</button>
             {Math.round(pcr.adrenalinaIntervalSec / 60)} min
-            <button onClick={() => upd({ adrenalinaIntervalSec: Math.min(300, pcr.adrenalinaIntervalSec + 60) })} style={{ ...miniBtn, width: 22, height: 22 }}>+</button>
+            <button onClick={() => upd({ adrenalinaIntervalSec: Math.min(300, pcr.adrenalinaIntervalSec + 60) })} style={{ ...miniBtn, width: 36, height: 36, fontSize: 16 }}>+</button>
           </span>
         </div>
       </div>
@@ -471,9 +483,10 @@ export default function PcrPage() {
       <div style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 16px", gap: 8 }}>
         {adrAlerta && !cicloAlerta && <div style={{ textAlign: "center", color: "#ffb020", fontWeight: 800, fontSize: 16 }}>💉 ADRENALINA AGORA?</div>}
 
-        {cicloAlerta ? (
+        {cicloAlerta || pcr.ritmos.length === 0 ? (
+          /* ritmos vazio = início da PCR: permite registrar o ritmo inicial já no 1º minuto (FV presenciada → choque imediato) */
           <div style={{ width: "100%", maxWidth: 440 }}>
-            <div style={{ textAlign: "center", color: "#ff5b64", fontWeight: 800, fontSize: 17, marginBottom: 8 }}>⚠ CHEQUE O RITMO</div>
+            <div style={{ textAlign: "center", color: "#ff5b64", fontWeight: 800, fontSize: 17, marginBottom: 8 }}>{pcr.ritmos.length === 0 && !cicloAlerta ? "Ritmo inicial?" : "⚠ CHEQUE O RITMO"}</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
               <button onClick={() => selecionarRitmo("FV/TV")} style={{ ...ritmoBtn, background: "#7a1620" }}>FV/TV<span style={blk}>chocável</span></button>
               <button onClick={() => selecionarRitmo("AESP")} style={{ ...ritmoBtn, background: "#1f2a3d" }}>AESP<span style={blk}>adrenalina</span></button>
@@ -522,7 +535,11 @@ export default function PcrPage() {
           </div>
         </div>
         <div style={{ width: "100%", maxWidth: 440, display: "flex", gap: 8 }}>
-          {!pcr.emRce && <button onClick={entrarRce} style={{ ...bigBtn, background: "#1f8f4f", minHeight: 52, fontSize: 17 }}>RCE</button>}
+          {!pcr.emRce ? (
+            <button onClick={entrarRce} style={{ ...bigBtn, background: "#1f8f4f", minHeight: 52, fontSize: 17 }}>RCE</button>
+          ) : (
+            <button onClick={() => setPainel("rce")} style={{ ...bigBtn, background: "#1f8f4f", minHeight: 52, fontSize: 17 }}>Pós-RCE</button>
+          )}
           <button onClick={() => setFinalizando(true)} style={{ ...ghostBtn, marginTop: 0, borderColor: "rgba(255,255,255,0.25)", color: "#fff", minHeight: 52, flex: 1 }}>Finalizar</button>
         </div>
       </div>
@@ -587,6 +604,7 @@ const ghostBtn: React.CSSProperties = { marginTop: 16, background: "none", borde
 const ritmoBtn: React.CSSProperties = { minHeight: 72, borderRadius: 14, border: "none", color: "#fff", fontWeight: 800, fontSize: 17, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", lineHeight: 1.1 };
 const blk: React.CSSProperties = { fontSize: 10.5, fontWeight: 600, opacity: 0.8, marginTop: 3 };
 const barBtn: React.CSSProperties = { flex: 1, minHeight: 46, borderRadius: 12, border: "1px solid rgba(255,255,255,0.14)", background: "#141a26", color: "rgba(255,255,255,0.85)", fontWeight: 700, fontSize: 13.5, cursor: "pointer" };
-const miniBtn: React.CSSProperties = { width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.18)", background: "none", color: "#fff", fontSize: 18, cursor: "pointer", lineHeight: 1 };
+// 40×40: alvo de toque mínimo p/ uso com luva durante a massagem.
+const miniBtn: React.CSSProperties = { width: 40, height: 40, borderRadius: 10, border: "1px solid rgba(255,255,255,0.18)", background: "none", color: "#fff", fontSize: 19, cursor: "pointer", lineHeight: 1 };
 const checkRow: React.CSSProperties = { display: "flex", alignItems: "center", gap: 11, width: "100%", textAlign: "left", padding: "12px 14px", borderRadius: 12, border: "1.5px solid rgba(255,255,255,0.14)", background: "#171c27", color: "#e7ecf5", fontWeight: 600, fontSize: 14.5, cursor: "pointer" };
 const checkBox: React.CSSProperties = { flex: "0 0 auto", width: 22, height: 22, borderRadius: 6, border: "2px solid", display: "grid", placeItems: "center", color: "#0a0e16", fontWeight: 900, fontSize: 13 };

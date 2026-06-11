@@ -24,7 +24,7 @@ Se ele NÃO quer discutir caso — só um documento, uma dose, uma dúvida pontu
 
 REGRAS: doses/energias são REFERÊNCIA (o médico confere e aprova; é apoio à decisão). Não invente referências — na dúvida, PESQUISE ou diga que não tem certeza. Ao redigir mensagens/documentos a terceiros, não diga que é "IA". Conciso e prático.`;
 
-type InMsg = { role: "user" | "assistant"; text?: string; image?: string };
+type InMsg = { role: "user" | "assistant"; text?: string; image?: string; imageUrl?: string };
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,6 +52,9 @@ export async function POST(req: NextRequest) {
         if (m.image && m.role === "user") {
           const data = m.image.length > 9_000_000 ? "" : m.image;
           if (data) content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data } });
+        } else if (m.imageUrl && m.role === "user" && /^https:\/\//.test(m.imageUrl)) {
+          // Conversa reaberta do histórico: só temos a URL do Blob — a IA precisa VER a imagem no follow-up.
+          content.push({ type: "image", source: { type: "url", url: m.imageUrl } });
         }
         const text = String(m.text || "").slice(0, 6000);
         if (text) content.push({ type: "text", text });

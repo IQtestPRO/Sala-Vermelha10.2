@@ -41,7 +41,7 @@ function NumField({
       <div style={{ position: "relative" }}>
         <input
           className="field"
-          inputMode="numeric"
+          inputMode="decimal"
           value={value ?? ""}
           onChange={(e) => {
             const n = e.target.value === "" ? undefined : Number(e.target.value.replace(",", "."));

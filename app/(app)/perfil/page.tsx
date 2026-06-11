@@ -8,7 +8,6 @@ import { ESPECIALIDADES } from "@/lib/especialidades";
 import { formatCpf } from "@/lib/cpf";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import { useMe, useUpdateMe } from "@/components/AppShell";
-import { BackgroundGradient } from "@/components/ui/background-gradient";
 import { resizeToJpegBase64 } from "@/lib/image";
 import VoiceButton from "@/components/VoiceButton";
 import type { Me } from "@/lib/client";
@@ -151,19 +150,17 @@ export default function PerfilPage() {
     <>
       <TopBar brand title="Perfil" subtitle={`${me.name}${me.crm ? " • " + me.crm : isAcad ? " • Acadêmico" : ""}`} right={<LogoutButton />} />
       <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 18, paddingBottom: 28 }}>
-        {/* Avatar (Aceternity BackgroundGradient) */}
+        {/* Avatar — anel navy sóbrio (sem ornamento, DESIGN.md) */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-          <BackgroundGradient containerClassName="rounded-full" className="rounded-full p-[3px]">
-            <div className="perfil-avatar" onClick={() => fileRef.current?.click()}>
-              {avatarSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarSrc} alt="avatar" />
-              ) : (
-                <span className="perfil-avatar-ini">{initials(me.name)}</span>
-              )}
-              <span className="perfil-avatar-edit">{uploadingAv ? <Loader2 size={15} className="spin" /> : <Camera size={15} />}</span>
-            </div>
-          </BackgroundGradient>
+          <div className="perfil-avatar" onClick={() => fileRef.current?.click()} style={{ boxShadow: "0 0 0 3px var(--navy-tint)" }}>
+            {avatarSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarSrc} alt="avatar" />
+            ) : (
+              <span className="perfil-avatar-ini">{initials(me.name)}</span>
+            )}
+            <span className="perfil-avatar-edit">{uploadingAv ? <Loader2 size={15} className="spin" /> : <Camera size={15} />}</span>
+          </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontWeight: 800, fontSize: 17 }}>{me.name}</div>
             <div className="faint" style={{ fontSize: 12.5, display: "flex", alignItems: "center", gap: 5, justifyContent: "center" }}>
