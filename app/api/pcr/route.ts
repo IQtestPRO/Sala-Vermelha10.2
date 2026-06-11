@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ensureTables, getDb } from "@/lib/db";
 import { requireUser, errorResponse } from "@/lib/auth";
 import { newId } from "@/lib/ids";
+import { logbookAdd } from "@/lib/logbook";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,6 +41,17 @@ export async function POST(req: NextRequest) {
         now,
       ],
     });
+
+    // Logbook automático (best-effort): a PCR conduzida entra no portfólio.
+    const desfecho = String(b.desfecho ?? "").slice(0, 40) || "—";
+    const min = Math.max(1, Math.round((Number(b.duracao_seg) || 0) / 60));
+    await logbookAdd(db, {
+      userId: user.id,
+      kind: "pcr_conduzida",
+      titulo: `PCR conduzida — ${desfecho} · ${min} min`,
+      meta: { desfecho, ciclos: Number(b.ciclos) || 0, choques: Number(b.choques) || 0, duracao_seg: Number(b.duracao_seg) || 0 },
+    });
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     return errorResponse(err);

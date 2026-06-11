@@ -4,6 +4,7 @@ import { requireApprovedResponder, AuthError, errorResponse } from "@/lib/auth";
 import { newId } from "@/lib/ids";
 import { insertEvent, jstr } from "@/lib/cases";
 import { sendToUser } from "@/lib/push";
+import { logbookAdd } from "@/lib/logbook";
 import { NewResponseInput } from "@/lib/types/answer";
 
 export const runtime = "nodejs";
@@ -45,6 +46,18 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     });
 
     await insertEvent(db, id, me.id, "responded", { response_id: respId });
+
+    // Logbook automático do plantonista (best-effort): tempo de resposta = agora − assumiu.
+    await logbookAdd(db, {
+      userId: me.id,
+      kind: "caso_respondido",
+      caseId: id,
+      titulo: String(caseRow.clinical_summary || caseRow.question_text || "Caso respondido").slice(0, 160),
+      meta: {
+        question_type: caseRow.question_type,
+        tempo_resposta_seg: caseRow.claimed_at ? Math.round((now - Number(caseRow.claimed_at)) / 1000) : undefined,
+      },
+    });
 
     try {
       await sendToUser(db, caseRow.requester_id, {

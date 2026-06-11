@@ -5,6 +5,7 @@ import { newId } from "@/lib/ids";
 import { computeSlaExpiry } from "@/lib/sla";
 import { insertEvent, jstr, toPublicCase, expireOverdueOpenCases } from "@/lib/cases";
 import { sendToApprovedResponders, escalateExpiredCases } from "@/lib/push";
+import { logbookAdd } from "@/lib/logbook";
 import { NewCaseInput, questionMeta } from "@/lib/types/case";
 
 export const runtime = "nodejs";
@@ -70,6 +71,15 @@ export async function POST(req: NextRequest) {
       args: [newId("ev"), id, user.id, jstr({ question_type }), now],
     });
     await db.batch(stmts);
+
+    // Logbook automático (best-effort, pseudonimizado).
+    await logbookAdd(db, {
+      userId: user.id,
+      kind: "caso_criado",
+      caseId: id,
+      titulo: (clinical_summary || finalQuestionText).slice(0, 160),
+      meta: { question_type, priority },
+    });
 
     // Fan-out push para plantonistas aprovados (best-effort).
     try {

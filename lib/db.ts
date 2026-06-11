@@ -274,6 +274,20 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback(created_at DESC)`);
 
+  // ---- LOGBOOK (portfólio automático do médico — casos pseudonimizados, LGPD) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS logbook_entries (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      kind       TEXT NOT NULL,
+      case_id    TEXT,
+      titulo     TEXT NOT NULL,
+      meta       TEXT,
+      created_at INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_logbook_user ON logbook_entries(user_id, created_at DESC)`);
+
   // ---- PASSWORD RESETS (esqueci minha senha — token de uso único, 60 min) ----
   await db.execute(`
     CREATE TABLE IF NOT EXISTS password_resets (

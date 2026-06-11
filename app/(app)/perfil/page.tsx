@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck, ChevronDown, GraduationCap, Lightbulb } from "lucide-react";
+import { Camera, Loader2, Save, Stethoscope, BrainCircuit, Lock, User, Phone, Mail, BadgeCheck, ChevronDown, GraduationCap, Lightbulb, BookMarked } from "lucide-react";
 import { toast } from "sonner";
 import { ESPECIALIDADES } from "@/lib/especialidades";
 import { formatCpf } from "@/lib/cpf";
@@ -252,6 +252,9 @@ export default function PerfilPage() {
           {saving ? <><Loader2 size={20} className="spin" /> Salvando…</> : <><Save size={20} /> Salvar perfil</>}
         </button>
 
+        <Link href="/logbook" className="btn btn-ghost" style={{ minHeight: 46 }}>
+          <BookMarked size={18} /> Logbook — portfólio clínico
+        </Link>
         <button className="btn btn-ghost" onClick={() => window.dispatchEvent(new Event("stat-open-tutorial"))} style={{ minHeight: 46 }}>
           <GraduationCap size={18} /> Ver tutorial do app
         </button>
