@@ -274,6 +274,19 @@ export async function ensureTables() {
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback(created_at DESC)`);
 
+  // ---- PASSWORD RESETS (esqueci minha senha — token de uso único, 60 min) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      token      TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      used       INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_resets_token ON password_resets(token)`);
+
   await maybeSeedResponder(db);
   tableReady = true;
 }

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, Check, X, Users, ClipboardList, Lightbulb } from "lucide-react";
+import { ShieldCheck, Check, X, Users, ClipboardList, Lightbulb, KeyRound } from "lucide-react";
 import SlaCountdown from "@/components/SlaCountdown";
 import { statusLabel, statusBadgeClass } from "@/lib/labels";
 import { questionMeta } from "@/lib/types/case";
@@ -20,16 +20,18 @@ type AdminUser = {
   created_at: number;
 };
 type FB = { id: string; user_name: string | null; tipo: string; texto: string; app_ref: string | null; status: string; created_at: number };
+type Reset = { id: string; token: string; expires_at: number; created_at: number; name: string; crm: string | null; cpf: string | null; doc_type: string; phone: string | null };
 const fbTipoLabel = (t: string) => (t === "problema" ? "Problema" : t === "melhoria" ? "Melhoria" : "Ideia");
 const fbWhen = (ts: number) => new Date(ts).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
 
 export default function AdminPage() {
   const [pw, setPw] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<"users" | "cases" | "feedback">("users");
+  const [tab, setTab] = useState<"users" | "cases" | "feedback" | "resets">("users");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [cases, setCases] = useState<PublicCase[]>([]);
   const [feedback, setFeedback] = useState<FB[]>([]);
+  const [resets, setResets] = useState<Reset[]>([]);
   const [fbTipo, setFbTipo] = useState("");
   const [serverNow, setServerNow] = useState(Date.now());
   const [checking, setChecking] = useState(false);
@@ -59,6 +61,12 @@ export default function AdminPage() {
     setFeedback(data.feedback || []);
   }, [headers, fbTipo]);
 
+  const loadResets = useCallback(async () => {
+    const res = await fetch("/api/admin/resets", { headers: headers(), cache: "no-store" });
+    const data = await res.json();
+    setResets(data.resets || []);
+  }, [headers]);
+
   async function tryLogin(p: string, silent = false) {
     setChecking(true);
     try {
@@ -82,11 +90,16 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authed) return;
-    const run = () => (tab === "users" ? loadUsers() : tab === "cases" ? loadCases() : loadFeedback());
+    const run = () => (tab === "users" ? loadUsers() : tab === "cases" ? loadCases() : tab === "feedback" ? loadFeedback() : loadResets());
     run().catch(() => {});
     const t = setInterval(() => run().catch(() => {}), 6000);
     return () => clearInterval(t);
-  }, [authed, tab, loadUsers, loadCases, loadFeedback]);
+  }, [authed, tab, loadUsers, loadCases, loadFeedback, loadResets]);
+
+  async function concluirReset(id: string) {
+    setResets((arr) => arr.filter((x) => x.id !== id));
+    await fetch(`/api/admin/resets?id=${id}`, { method: "DELETE", headers: headers() }).catch(() => {});
+  }
 
   async function act(id: string, action: "approve" | "reject") {
     try {
@@ -159,6 +172,9 @@ export default function AdminPage() {
         </button>
         <button className={`chip ${tab === "feedback" ? "chip-on" : ""}`} onClick={() => setTab("feedback")} style={{ flex: "0 0 auto" }}>
           <Lightbulb size={15} /> Ideias ({feedback.filter((f) => f.status === "novo").length})
+        </button>
+        <button className={`chip ${tab === "resets" ? "chip-on" : ""}`} onClick={() => setTab("resets")} style={{ flex: "0 0 auto" }}>
+          <KeyRound size={15} /> Senhas ({resets.length})
         </button>
       </div>
 
@@ -237,6 +253,55 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))
+            )}
+          </>
+        )}
+
+        {tab === "resets" && (
+          <>
+            <div className="faint" style={{ fontSize: 12.5, lineHeight: 1.5 }}>
+              Médicos que pediram redefinição de senha. Envie o link pelo WhatsApp cadastrado e toque em Concluir. O link vale 1 hora e é de uso único.
+            </div>
+            {resets.length === 0 ? (
+              <div className="card" style={{ textAlign: "center", padding: 28 }}><div className="muted">Nenhum pedido pendente.</div></div>
+            ) : (
+              resets.map((r) => {
+                const link = `${typeof window !== "undefined" ? window.location.origin : ""}/reset/${r.token}`;
+                const msg = encodeURIComponent(`Olá, ${r.name?.split(" ")[0] || ""}! Aqui é da equipe do STAT. Seu link para redefinir a senha (válido por 1 hora): ${link}`);
+                const tel = (r.phone || "").replace(/\D/g, "");
+                const min = Math.max(0, Math.round((r.expires_at - Date.now()) / 60000));
+                return (
+                  <div key={r.id} className="card-2">
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+                      <span style={{ fontWeight: 800 }}>{r.name}</span>
+                      <span className="faint" style={{ fontSize: 11 }}>expira em {min} min</span>
+                    </div>
+                    <div className="faint" style={{ fontSize: 12.5, marginTop: 2 }}>
+                      {r.doc_type === "cpf" ? `CPF •••${(r.cpf || "").slice(-4)}` : r.crm} {r.phone ? `· ${r.phone}` : "· sem telefone"}
+                    </div>
+                    <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                      <a
+                        className="btn btn-success btn-sm"
+                        style={{ flex: 1, textDecoration: "none" }}
+                        href={tel ? `https://wa.me/${tel.length <= 11 ? "55" + tel : tel}?text=${msg}` : `https://wa.me/?text=${msg}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Enviar no WhatsApp
+                      </a>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => { navigator.clipboard?.writeText(link); toast.success("Link copiado."); }}
+                      >
+                        Copiar link
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => concluirReset(r.id)}>
+                        <Check size={15} /> Concluir
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </>
         )}

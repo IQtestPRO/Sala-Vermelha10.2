@@ -68,7 +68,12 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="auth-label" htmlFor="login-pw">Senha</label>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <label className="auth-label" htmlFor="login-pw">Senha</label>
+                  <Link href="/esqueci" style={{ fontSize: 13, fontWeight: 700, color: "var(--text-faint)" }}>
+                    Esqueci minha senha
+                  </Link>
+                </div>
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <Lock size={18} className="auth-ic" />
                   <input
