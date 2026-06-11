@@ -9,7 +9,7 @@ export const maxDuration = 30;
 
 const MODEL = process.env.ANALYZE_MODEL || "claude-sonnet-4-6";
 
-const RITMO_KEYS = RITMOS.map((r) => r.key);
+const RITMO_KEYS: string[] = RITMOS.map((r) => r.key);
 
 // Extrator ESTRITO: estrutura o ditado do médico nos campos do caso.
 // Campo não mencionado fica AUSENTE — NUNCA inventar valor de vital.
