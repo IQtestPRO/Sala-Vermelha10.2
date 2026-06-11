@@ -764,9 +764,11 @@ a.list-row:active, button.list-row:active { transform: scale(0.99); background: 
 /* ===== Code Pro = tipografia de DISPLAY/titulos no app inteiro (corpo segue Mulish p/ leitura) ===== */
 h1, h2, h3, h4,
 .label, .eyebrow, .welcome-eyebrow, .vitals-label, .nav-item span, .badge,
-.auth-h1, .screen-hero-title, .welcome-title {
+.screen-hero-title, .welcome-title {
   font-family: "Code Pro", var(--font-mulish), system-ui, sans-serif;
 }
+/* Headlines longos do auth em Mulish (Code Pro é caps-only — frase inteira gritada perde o tom profissional) */
+.auth-h1, .stat-preview-title { font-family: var(--font-mulish), system-ui, sans-serif; }
 
 @theme inline {
   --font-heading: var(--font-sans);
