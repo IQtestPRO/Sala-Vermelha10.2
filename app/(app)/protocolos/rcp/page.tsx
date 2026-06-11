@@ -473,10 +473,10 @@ export default function PcrPage() {
           <span>Adrenalina ×{nAdr} · Choques {pcr.choques}</span>
           <span style={{ opacity: 0.5 }}>|</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-            Adr a cada
-            <button onClick={() => upd({ adrenalinaIntervalSec: Math.max(180, pcr.adrenalinaIntervalSec - 60) })} style={{ ...miniBtn, width: 36, height: 36, fontSize: 16 }}>−</button>
+            Adr
+            <button onClick={() => upd({ adrenalinaIntervalSec: Math.max(180, pcr.adrenalinaIntervalSec - 60) })} aria-label="Diminuir intervalo de adrenalina" style={{ ...miniBtn, fontSize: 16 }}>−</button>
             {Math.round(pcr.adrenalinaIntervalSec / 60)} min
-            <button onClick={() => upd({ adrenalinaIntervalSec: Math.min(300, pcr.adrenalinaIntervalSec + 60) })} style={{ ...miniBtn, width: 36, height: 36, fontSize: 16 }}>+</button>
+            <button onClick={() => upd({ adrenalinaIntervalSec: Math.min(300, pcr.adrenalinaIntervalSec + 60) })} aria-label="Aumentar intervalo de adrenalina" style={{ ...miniBtn, fontSize: 16 }}>+</button>
           </span>
         </div>
       </div>
@@ -592,7 +592,7 @@ function Sheet({ titulo, onClose, children }: { titulo: string; onClose: () => v
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", background: "#12161f", borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: "18px 16px calc(env(safe-area-inset-bottom) + 18px)", maxHeight: "82vh", overflowY: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <span style={{ color: "#fff", fontWeight: 800, fontSize: 17 }}>{titulo}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 22, cursor: "pointer" }}>✕</button>
+          <button onClick={onClose} aria-label="Fechar painel" style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontSize: 22, cursor: "pointer", width: 44, height: 44, display: "grid", placeItems: "center", margin: -10 }}>✕</button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{children}</div>
       </div>

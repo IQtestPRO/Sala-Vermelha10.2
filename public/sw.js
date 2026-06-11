@@ -1,5 +1,5 @@
 // Service worker do STAT — cache do shell + offline + Web Push.
-const CACHE = "stat-shell-v3";
+const CACHE = "stat-shell-v4";
 const SHELL = ["/", "/condutas", "/calculadoras", "/plantao", "/chat", "/perfil", "/protocolos/rcp", "/offline"];
 
 self.addEventListener("install", (event) => {
@@ -20,17 +20,26 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.pathname.startsWith("/api/")) return;
+  // Payloads RSC do Next mudam a cada deploy — cacheá-los serve rota velha p/ sempre.
+  if (url.searchParams.has("_rsc")) return;
 
-  // Navegação: network-first, atualiza o cache; offline cai na PRÓPRIA página cacheada (não em /offline).
+  // Navegação: network-first COM TIMEOUT (lie-fi de Wi-Fi hospitalar pendura 30-60s —
+  // abrir o Modo PCR numa parada não pode ficar em tela branca); offline/timeout cai no cache.
   if (event.request.mode === "navigate") {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3500);
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { signal: ctrl.signal })
         .then((res) => {
+          clearTimeout(timer);
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(event.request, copy)).catch(() => {});
           return res;
         })
-        .catch(async () => (await caches.match(event.request)) || (await caches.match(url.pathname)) || (await caches.match("/offline")))
+        .catch(async () => {
+          clearTimeout(timer);
+          return (await caches.match(event.request)) || (await caches.match(url.pathname)) || (await caches.match("/offline"));
+        })
     );
     return;
   }
@@ -47,6 +56,23 @@ self.addEventListener("fetch", (event) => {
         return res;
       });
     })
+  );
+});
+
+// FCM/APNs rotacionam a subscription — sem isto o plantonista para de receber
+// alertas SILENCIOSAMENTE. Reinscreve com as opções antigas e re-registra no servidor.
+self.addEventListener("pushsubscriptionchange", (event) => {
+  event.waitUntil(
+    self.registration.pushManager
+      .subscribe(event.oldSubscription ? event.oldSubscription.options : { userVisibleOnly: true })
+      .then((sub) =>
+        fetch("/api/push/subscribe", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(sub),
+        })
+      )
+      .catch(() => {})
   );
 });
 

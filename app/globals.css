@@ -428,7 +428,9 @@ select.field {
 .nav-item-on { color: var(--text); }
 .nav-ic { display: grid; place-items: center; width: 48px; height: 30px; border-radius: 11px; transition: background 0.18s var(--ease-out-quart); }
 .nav-item-on .nav-ic { color: var(--primary); background: var(--primary-tint); }
-.nav-item span { white-space: nowrap; font-size: 10px; letter-spacing: 0.07em; }
+.nav-item { min-width: 0; }
+.nav-item span { white-space: nowrap; font-size: 10px; letter-spacing: 0.07em; max-width: 100%; overflow: hidden; }
+@media (max-width: 380px) { .nav-item span { letter-spacing: 0.03em; font-size: 9.5px; } }
 
 /* Icones Higgsfield (raster navy transparente) — adaptam ao dark mode */
 .hf-icon { display: block; object-fit: contain; user-select: none; -webkit-user-drag: none; }
@@ -542,7 +544,7 @@ select.field {
 .chat-me { align-self: flex-end; background: var(--navy); color: #fff; border-bottom-right-radius: 5px; }
 .chat-bot-head { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 11px; letter-spacing: 0.04em; color: var(--primary-press); text-transform: uppercase; margin-bottom: 5px; }
 .chat-img { width: 100%; max-width: 220px; border-radius: 10px; margin-bottom: 7px; display: block; }
-.chat-input-bar { border-top: 1px solid var(--hairline); background: var(--surface); padding: 10px 12px; flex: 0 0 auto; }
+.chat-input-bar { border-top: 1px solid var(--hairline); background: var(--surface); padding: 10px 12px calc(10px + var(--kb, 0px)); flex: 0 0 auto; transition: padding-bottom 0.12s ease-out; }
 .chat-preview { position: relative; width: 64px; margin-bottom: 8px; }
 .chat-preview img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); display: block; }
 .chat-preview button { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 999px; background: var(--red); color: #fff; border: none; display: grid; place-items: center; }
@@ -550,12 +552,12 @@ select.field {
 .chat-send { background: var(--navy); color: #fff; border-color: var(--navy); }
 .chat-send:disabled, .chat-attach:disabled { opacity: 0.5; }
 .chat-textarea { flex: 1; min-height: 44px; max-height: 120px; resize: none; padding: 11px 13px; line-height: 1.4; }
-.chat-top-btn { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-dim); cursor: pointer; }
+.chat-top-btn { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-dim); cursor: pointer; }
 .chat-hist-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(8,14,26,0.5); backdrop-filter: blur(2px); display: flex; justify-content: flex-end; }
 .chat-hist { width: min(92vw, 380px); height: 100%; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: var(--shadow-lg); animation: hist-in 0.22s var(--ease-out-quart); }
 @keyframes hist-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .chat-hist-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 10px; }
-.chat-hist-list { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 10px 16px; display: flex; flex-direction: column; gap: 6px; }
+.chat-hist-list { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 10px calc(env(safe-area-inset-bottom) + 16px); display: flex; flex-direction: column; gap: 6px; }
 .chat-hist-item { display: flex; align-items: center; gap: 8px; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); cursor: pointer; }
 .chat-hist-item.on { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--surface)); }
 .chat-hist-del { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; border: none; background: transparent; color: var(--text-faint); cursor: pointer; }
@@ -583,7 +585,7 @@ select.field {
 .voice-btn { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-dim); cursor: pointer; transition: background .15s, color .15s; }
 .voice-btn.on { background: var(--red); border-color: var(--red); color: #fff; animation: voice-pulse 1.3s ease-in-out infinite; }
 @keyframes voice-pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--red-halo); } 50% { box-shadow: 0 0 0 7px transparent; } }
-.voice-in-area { position: absolute; bottom: 8px; right: 8px; width: 38px; height: 38px; border-radius: 10px; box-shadow: var(--shadow-xs); }
+.voice-in-area { position: absolute; bottom: 8px; right: 8px; width: 44px; height: 44px; border-radius: 10px; box-shadow: var(--shadow-xs); }
 
 /* Banner de boas-vindas (feed) — cinematografico */
 .welcome-banner { position: relative; overflow: hidden; border-radius: var(--r-lg); min-height: 92px; display: flex; align-items: flex-end; padding: 14px 16px; background: var(--navy-deep); box-shadow: var(--shadow-md); }

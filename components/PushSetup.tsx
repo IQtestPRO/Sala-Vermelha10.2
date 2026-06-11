@@ -33,7 +33,25 @@ export default function PushSetup() {
       setState(isIOS && !standalone ? "ios-install" : "unsupported");
       return;
     }
-    if (Notification.permission === "granted") setState("on");
+    if (Notification.permission === "granted") {
+      setState("on");
+      // Permissão ≠ subscription viva: FCM/APNs rotacionam e o servidor pode ter perdido o registro.
+      // A cada abertura: se morreu, reinscreve; se vive, re-POSTa (servidor e aparelho sincronizados).
+      (async () => {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          let sub = await reg.pushManager.getSubscription();
+          if (!sub && VAPID) {
+            sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID) });
+          }
+          if (sub) {
+            await fetch("/api/push/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(sub) });
+          }
+        } catch {
+          /* silencioso: o botão de ativar continua disponível se algo falhar de verdade */
+        }
+      })();
+    }
   }, []);
 
   async function enable() {

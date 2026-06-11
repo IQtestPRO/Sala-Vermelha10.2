@@ -29,7 +29,7 @@ export default function ThemeToggle() {
       className="chip"
       title={dark ? "Sair do Modo Plantão" : "Modo Plantão"}
       aria-label={dark ? "Sair do Modo Plantão (tema claro)" : "Ativar Modo Plantão (tema escuro)"}
-      style={{ minHeight: 38, width: 38, padding: 0, justifyContent: "center" }}
+      style={{ minHeight: 44, width: 44, padding: 0, justifyContent: "center" }}
     >
       {dark ? <Sun size={17} /> : <Moon size={17} />}
     </button>

@@ -15,7 +15,7 @@ type Item = { href: string; label: string; icon: React.ReactNode; novo?: boolean
 // STAT IA usa o traçado de ECG vermelho — único item vermelho da nav (acento da marca).
 const items: Item[] = [
   { href: "/condutas", label: "Protocolos", icon: <HfIcon name="nav-condutas" size={26} /> },
-  { href: "/calculadoras", label: "Calculadoras", icon: <Calculator size={24} /> },
+  { href: "/calculadoras", label: "Cálculos", icon: <Calculator size={24} /> },
   { href: "/chat", label: "STAT IA", icon: <EcgIcon size={24} /> },
   { href: "/plantao", label: "Plantão", icon: <CalendarClock size={24} />, novo: true },
 ];

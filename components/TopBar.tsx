@@ -68,7 +68,7 @@ export function LogoutButton() {
     }
   }
   return (
-    <button onClick={logout} className="chip" style={{ minHeight: 38, padding: "0 12px" }} aria-label="Sair">
+    <button onClick={logout} className="chip" style={{ minHeight: 44, padding: "0 14px" }} aria-label="Sair">
       <LogOut size={16} />
     </button>
   );

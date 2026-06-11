@@ -58,6 +58,25 @@ export default function ChatPage() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, busy]);
 
+  // iOS PWA: o teclado NÃO encolhe o 100dvh (interactiveWidget é ignorado) — a barra
+  // de input ficava atrás do teclado. visualViewport mede o teclado → padding via --kb.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      document.documentElement.style.setProperty("--kb", `${kb}px`);
+      if (kb > 0) endRef.current?.scrollIntoView({ block: "end" });
+    };
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      document.documentElement.style.setProperty("--kb", "0px");
+    };
+  }, []);
+
   async function pickImage(files: FileList | null) {
     const file = files?.[0];
     if (!file || !file.type.startsWith("image/")) return;

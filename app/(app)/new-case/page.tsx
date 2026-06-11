@@ -378,25 +378,40 @@ function NewCaseInner() {
           <SlidersHorizontal size={18} /> Idade, peso e vitais (opcional)
         </button>
 
-        {/* UM sólido por tela: enviar é o primário; analisar é etapa intermediária (outline) */}
-        {!analysis && (
-          <button
-            className="btn btn-ghost"
-            style={{ border: "1.5px solid var(--border-strong)", minHeight: 50 }}
-            disabled={analyzing || (!photo && !summary.trim())}
-            onClick={() => analyze(false)}
-          >
-            {analyzing ? <><Loader2 size={20} className="spin" /> Analisando…</> : <><Sparkles size={20} /> Analisar com IA</>}
-          </button>
-        )}
-
         {analysis && <AnalysisResult a={analysis} />}
         {analysis && <MensagemBlock value={aiMessage} onChange={setAiMessage} />}
 
-        {/* vermelho fica reservado à variante URGENTE; o fluxo normal envia em navy */}
-        <button className="btn btn-primary" disabled={sending || (!photo && !summary.trim())} onClick={submit}>
-          <Send size={20} /> {sending ? "Enviando…" : "Enviar ao plantonista"}
-        </button>
+        {/* FOOTER STICKY: ações sempre na thumb-zone (em 360px o CTA caía abaixo da dobra) */}
+        <div
+          style={{
+            position: "sticky",
+            bottom: 0,
+            background: "var(--surface)",
+            margin: "0 -16px -16px",
+            padding: "10px 16px calc(10px + env(safe-area-inset-bottom))",
+            borderTop: "1px solid var(--hairline)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            zIndex: 5,
+          }}
+        >
+          {/* UM sólido por tela: enviar é o primário; analisar é etapa intermediária (outline) */}
+          {!analysis && (
+            <button
+              className="btn btn-ghost"
+              style={{ border: "1.5px solid var(--border-strong)", minHeight: 50 }}
+              disabled={analyzing || (!photo && !summary.trim())}
+              onClick={() => analyze(false)}
+            >
+              {analyzing ? <><Loader2 size={20} className="spin" /> Analisando…</> : <><Sparkles size={20} /> Analisar com IA</>}
+            </button>
+          )}
+          {/* vermelho fica reservado à variante URGENTE; o fluxo normal envia em navy */}
+          <button className="btn btn-primary" disabled={sending || (!photo && !summary.trim())} onClick={submit}>
+            <Send size={20} /> {sending ? "Enviando…" : "Enviar ao plantonista"}
+          </button>
+        </div>
       </div>
     </>
   );
