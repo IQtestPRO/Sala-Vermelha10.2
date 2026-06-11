@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CalendarClock, CalendarDays, List, ClipboardList, Plus, Trash2, Share2, Check, CheckCheck, X, Download, Image as ImageIcon } from "lucide-react";
 import TopBar, { LogoutButton } from "@/components/TopBar";
 import VoiceButton from "@/components/VoiceButton";
+import NumberTicker from "@/components/NumberTicker";
 import { apiGet, apiPost } from "@/lib/client";
 import { resizeToJpegBase64 } from "@/lib/image";
 import { toast } from "sonner";
@@ -333,15 +334,15 @@ function Plantoes() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {/* Resumo financeiro */}
+      {/* Resumo financeiro — números ROLAM até o valor (ticker de instrumento) */}
       <div style={{ display: "flex", gap: 10 }}>
         <div className="card" style={{ flex: 1, padding: "12px 14px" }}>
-          <div className="faint" style={{ fontSize: 11.5, fontWeight: 700 }}>Recebido</div>
-          <div className="data" style={{ fontSize: 18, fontWeight: 800, color: "var(--green)" }}>{brl(recebido)}</div>
+          <div className="label" style={{ marginBottom: 2 }}>Recebido</div>
+          <NumberTicker value={recebido} format={brl} className="data" style={{ fontSize: 18, fontWeight: 800, color: "var(--green)" }} />
         </div>
         <div className="card" style={{ flex: 1, padding: "12px 14px" }}>
-          <div className="faint" style={{ fontSize: 11.5, fontWeight: 700 }}>A receber</div>
-          <div className="data" style={{ fontSize: 18, fontWeight: 800, color: "var(--amber)" }}>{brl(aReceber)}</div>
+          <div className="label" style={{ marginBottom: 2 }}>A receber</div>
+          <NumberTicker value={aReceber} format={brl} className="data" style={{ fontSize: 18, fontWeight: 800, color: "var(--amber)" }} />
         </div>
       </div>
 
