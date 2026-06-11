@@ -320,9 +320,10 @@ export default function PcrPage() {
     ensureAudio();
     upd((p) => ({
       ritmos: [...p.ritmos, { ciclo: p.ciclos, ritmo: r, t: Date.now() }],
-      eventos: ev(p, { tipo: "ritmo", label: `Ritmo: ${r}` }),
+      eventos: ev(p, { tipo: "ritmo", label: p.ritmos.length === 0 ? `Ritmo inicial: ${r}` : `Ritmo: ${r}` }),
       cicloStart: Date.now(),
-      ciclos: p.ciclos + 1,
+      // Ritmo INICIAL ainda é o 1º ciclo (não avança); só as checagens de 2 min avançam.
+      ciclos: p.ritmos.length === 0 ? p.ciclos : p.ciclos + 1,
     }));
   }
   function registrarChoque() {
