@@ -28,7 +28,7 @@ const PILARES = [
 
 export default function StatPreview() {
   return (
-    <section className="stat-preview">
+    <section className="stat-preview" id="conteudo">
       <div className="stat-preview-wrap">
         <div>
           <div className="eyebrow">O que tem dentro</div>

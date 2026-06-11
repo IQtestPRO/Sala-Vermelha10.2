@@ -121,23 +121,24 @@ export default function RegisterPage() {
               )}
 
               <div>
+                <label className="auth-label">Email</label>
+                <div style={{ position: "relative", marginTop: 8 }}>
+                  <Mail size={18} className="auth-ic" />
+                  <input className="auth-field" type="email" inputMode="email" placeholder="voce@exemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+                </div>
+              </div>
+
+              <div>
                 <label className="auth-label">Telefone (WhatsApp)</label>
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <Phone size={18} className="auth-ic" />
                   <input className="auth-field" type="tel" inputMode="tel" placeholder="(11) 99999-9999" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" required />
                 </div>
+                <p style={{ fontSize: 11.5, color: "var(--text-faint)", margin: "6px 0 0" }}>Usado para avisos do plantão — nunca para marketing.</p>
               </div>
 
               <div>
-                <label className="auth-label">Email</label>
-                <div style={{ position: "relative", marginTop: 8 }}>
-                  <Mail size={18} className="auth-ic" />
-                  <input className="auth-field" type="email" inputMode="email" placeholder="voce@exemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-                </div>
-              </div>
-
-              <div>
-                <label className="auth-label">Senha (mín. 6)</label>
+                <label className="auth-label">Senha (mín. 8)</label>
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <Lock size={18} className="auth-ic" />
                   <input
@@ -146,7 +147,7 @@ export default function RegisterPage() {
                     style={{ paddingRight: 46 }}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    minLength={6}
+                    minLength={8}
                     autoComplete="new-password"
                     required
                   />
@@ -161,6 +162,12 @@ export default function RegisterPage() {
                   Conteúdo de apoio educacional e à decisão clínica. Toda conduta deve ser confirmada por médico responsável.
                 </p>
               )}
+
+              <p style={{ fontSize: 12, color: "var(--text-faint)", lineHeight: 1.55, margin: 0 }}>
+                Ao criar conta, você concorda com os{" "}
+                <Link href="/termos" className="auth-link" style={{ fontWeight: 700 }}>Termos de Uso</Link> e a{" "}
+                <Link href="/privacidade" className="auth-link" style={{ fontWeight: 700 }}>Política de Privacidade</Link>.
+              </p>
 
               <button className="auth-btn" disabled={loading} type="submit" style={{ marginTop: 6 }}>
                 {loading ? "Enviando…" : "Criar conta"}

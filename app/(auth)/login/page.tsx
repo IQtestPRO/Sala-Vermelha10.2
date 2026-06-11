@@ -100,8 +100,11 @@ export default function LoginPage() {
               </Link>
             </p>
 
-            <p className="auth-foot">
-              Para médicos e estudantes de medicina. Conteúdo fundamentado em diretrizes — AHA · ESC · SBC · ACLS.
+            <p className="auth-foot" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <span>Para médicos e estudantes de medicina.</span>
+              <a href="#conteudo" style={{ color: "var(--text-faint)", fontWeight: 700, textDecoration: "none" }}>
+                O que tem dentro ↓
+              </a>
             </p>
           </div>
 

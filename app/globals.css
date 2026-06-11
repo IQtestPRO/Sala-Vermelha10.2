@@ -600,7 +600,9 @@ select.auth-field { padding-left: 14px; appearance: none; }
 .auth-toggle { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 50px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-dim); font-weight: 700; font-size: 14px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
 .auth-toggle.on { background: var(--navy); color: #fff; border-color: var(--navy); }
 
-.auth-illus { position: relative; min-height: 430px; border-radius: 24px; overflow: hidden; background: #04060c; display: flex; flex-direction: column; justify-content: flex-end; padding: 24px; }
+.auth-illus { position: relative; min-height: 430px; border-radius: 24px; overflow: hidden; background: #101e3a; display: flex; flex-direction: column; justify-content: flex-end; padding: 28px; }
+/* No mobile o painel repetiria os pilares da seção abaixo e dobraria a página — só desktop. */
+@media (max-width: 919px) { .auth-illus { display: none; } }
 .auth-tag { background: rgba(4,8,15,0.55); color: #dbe6f5; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 8px; backdrop-filter: blur(6px); }
 .auth-quote { background: rgba(4,8,15,0.5); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px; max-width: 400px; }
 
