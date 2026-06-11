@@ -48,3 +48,51 @@ Cores em **OKLCH**, sem `#000`/`#fff` puro.
 - `StatLogo`: wordmark "STAT" condensado + `polyline` de ECG vermelha cruzando. Variantes
   `tone` (onNavy=branco / onLight=navy) e `size`. Usado em login, topo e splash.
 - Ícones PWA: marca STAT (fundo navy + ECG vermelho + traço branco). `theme_color` navy.
+
+## REDESIGN "Instrumento clínico" (jun/2026) — 6 pilares aplicados
+
+Direção: entre monitor multiparâmetro e editorial suíço. Clean, denso de intenção, zero decoração.
+
+### 1. A linha vital é o SISTEMA (`components/EcgLine.tsx`)
+SVG reutilizável, stroke `--red-line`, server-safe, `prefers-reduced-motion` respeitado.
+Variantes: `flat` (empty states — flatline), `calm` (divisor, 2 QRS estáticos),
+`run` (loader: base 30% + janela varrendo via `.ecg-run`), `sla` (`density` 0..1 — o
+countdown DEGRADA: ritmo cheio → espaçado → flatline no expirado). `glow` = brilho no dark.
+Usos: empty states (flatline + microcopy seca: "Sem casos na fila. Bom sinal."),
+loader do chat ("Analisando…"), SLA do CaseCard e do caso (`SlaCountdown trace`),
+hero do login (run, sangrando o container).
+
+### 2. Tipografia de instrumento
+- **Code Pro Light (300)**: SÓ títulos de tela/headline (login) e números-herói. Caps-only.
+- **`--font-data` (Geist Mono) + `tabular-nums`**: TODO dado clínico — classe `.data`
+  (vitais, doses, mL/h, SLA, dinheiro, CRM/CPF no input do login).
+- **Microlabels**: `.label` (app-wide) e `.microlabel` — 11px, uppercase, tracking 0.08em,
+  `--text-faint`. Nav com tracking 0.07em.
+
+### 3. Painel, não página
+- `.ficha-row/.ficha-key/.ficha-val`: linhas LABEL → valor (mono), hairline entre linhas.
+- `.well`: poço afundado (`--surface-sunken` + `--shadow-inset`) p/ dados críticos (vitais do novo caso).
+- UM botão sólido por tela (feed: Urgência vermelho é o único; "Novo caso" virou outline).
+- Raio com significado: `--r-data` inputs de dado · `--r-sm/md` controles · `--r-lg/xl` superfícies.
+
+### 4. Navy como material (`.navy-material`)
+Aresta de luz 1px no topo (oklch ~13% alpha) + grão SVG turbulence (opacity 0.026).
+Aplicado em: welcome-banner, screen-hero, vitals-strip, header do laudo da IA.
+
+### 5. Modo Plantão (dark nomeado)
+Toggle anuncia "Modo Plantão ativado." (toast + aria/title). No dark: `.btn-emergency`
+ganha glow de LED (`--red-halo` 24px), `.sla-danger` text-shadow, `.ecg-glow` drop-shadow
+no traçado, badges com texto claro sobre tints escuras.
+
+### 6. Microinterações (150–250ms)
+`.stagger-in` (entrada de lista 24ms/item, uma vez), `navigator.vibrate(50)` em
+INICIAR PCR / assumir caso / botão Urgência, `:active` scale (já existia).
+TUDO desligado em `prefers-reduced-motion`.
+
+### Login editorial (assimétrico)
+Logo → headline Code Pro Light 300 (clamp 31–56px) → EcgLine `run` sangrando full-width →
+microlabels de autoridade (AHA · ESC · SBC · ACLS · Surviving Sepsis) → grid `login-grid`
+(form card à direita no desktop, PRIMEIRO no mobile; pilares com hairline à esquerda).
+Sem painel 50/50; `AuthIllustration` aposentado das páginas auth.
+
+### Screenshots antes/depois: `.shots/redesign/before-*.png` / `after-*.png`
