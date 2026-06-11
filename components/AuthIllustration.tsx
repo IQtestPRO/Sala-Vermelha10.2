@@ -1,5 +1,5 @@
-// Painel ilustrativo do login: imagem cinematografica (UTI navy + ECG vermelho, gerada no Higgsfield)
-// com scrim p/ legibilidade + depoimento de medica.
+// Painel ilustrativo do login: vídeo cinematográfico (UTI navy + ECG vermelho, Higgsfield)
+// com scrim p/ legibilidade. Conteúdo FACTUAL (pilares do produto) — nada de depoimento inventado.
 export default function AuthIllustration() {
   return (
     <div className="auth-illus" style={{ background: "#04060c" }}>
@@ -13,31 +13,40 @@ export default function AuthIllustration() {
       >
         <source src="/stat-hero.mp4" type="video/mp4" />
       </video>
-      {/* scrim de baixo p/ cima (legibilidade do depoimento) */}
+      {/* scrim de baixo p/ cima (legibilidade) */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 1,
-          background: "linear-gradient(to top, rgba(4,6,12,0.93) 0%, rgba(4,6,12,0.55) 42%, rgba(4,6,12,0.12) 100%)",
+          background: "linear-gradient(to top, rgba(4,6,12,0.94) 0%, rgba(4,6,12,0.55) 46%, rgba(4,6,12,0.10) 100%)",
         }}
       />
 
-      {/* conteudo */}
-      <div style={{ position: "relative", zIndex: 4, display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <span className="auth-tag">Sala vermelha</span>
-          <span className="auth-tag">ECG por IA</span>
-          <span className="auth-tag">Resultado em &lt; 2 min</span>
-        </div>
-        <div className="auth-quote">
-          <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: "#f1f6ff", fontWeight: 600 }}>
-            “Mandei a foto do monitor e, em menos de dois minutos, tive a leitura do ECG e a conduta sugerida. Numa
-            sala vermelha, isso é a diferença entre decidir com segurança ou no escuro.”
-          </p>
-          <p style={{ margin: "14px 0 0", fontSize: 13.5, color: "#aebbd2", fontWeight: 700 }}>Dra. Marina Alves</p>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: "#8294b0" }}>Emergencista, Hospital São Lucas</p>
-        </div>
+      {/* conteúdo */}
+      <div style={{ position: "relative", zIndex: 4, display: "flex", flexDirection: "column", gap: 16 }}>
+        <p style={{ margin: 0, fontSize: 26, lineHeight: 1.2, color: "#fff", fontWeight: 800, letterSpacing: "-0.01em" }}>
+          Do it <span style={{ color: "#ff5b64" }}>stat</span>.
+        </p>
+        <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: "#c9d4e6", maxWidth: 380 }}>
+          Da foto do ECG à conduta fundamentada — na velocidade que a sala vermelha exige.
+        </p>
+        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            "Modo PCR interativo (ciclos, adrenalina, metrônomo)",
+            "Escores, gasometria e diluições do seu serviço",
+            "IA que lê o ECG e discute o caso com você",
+            "Agenda de plantões com financeiro e passagem",
+          ].map((t) => (
+            <li key={t} style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: 13.5, lineHeight: 1.45, color: "#e7eefb", fontWeight: 600 }}>
+              <span aria-hidden style={{ flex: "0 0 auto", marginTop: 6, width: 6, height: 6, borderRadius: 999, background: "#ff5b64" }} />
+              {t}
+            </li>
+          ))}
+        </ul>
+        <p style={{ margin: "2px 0 0", fontSize: 12, color: "#8294b0", fontWeight: 600 }}>
+          Fundamentado em diretrizes · AHA · ESC · SBC · ACLS
+        </p>
       </div>
     </div>
   );

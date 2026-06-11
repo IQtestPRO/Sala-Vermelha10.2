@@ -9,6 +9,7 @@ import { apiPost, friendlyError, ApiError } from "@/lib/client";
 import { ESPECIALIDADES } from "@/lib/especialidades";
 import { formatCpf, validateCpf } from "@/lib/cpf";
 import AuthIllustration from "@/components/AuthIllustration";
+import StatLogo from "@/components/StatLogo";
 
 type Tipo = "medico" | "estudante";
 
@@ -56,10 +57,9 @@ export default function RegisterPage() {
         <div className="auth-grid">
           {/* Formulário */}
           <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stat-logo.svg" alt="STAT" style={{ height: 50, width: "auto", display: "block" }} />
-            <h1 className="auth-h1" style={{ fontSize: "clamp(28px, 5vw, 40px)" }}>Criar conta</h1>
-            <p className="auth-sub">Médicos e estudantes. Um único cadastro para acessar a plataforma.</p>
+            <StatLogo size={36} tone="onLight" animated={false} />
+            <h1 className="auth-h1" style={{ fontSize: "clamp(26px, 4.4vw, 34px)" }}>Criar conta</h1>
+            <p className="auth-sub">Médicos e estudantes de medicina — um único cadastro para usar a plataforma.</p>
 
             {/* Toggle tipo (thumb-zone) */}
             <div style={{ display: "flex", gap: 10, marginTop: 20, maxWidth: 480 }}>
@@ -157,7 +157,7 @@ export default function RegisterPage() {
               </div>
 
               {tipo === "estudante" && (
-                <p style={{ fontSize: 12, color: "#9bacc6", lineHeight: 1.5, margin: 0 }}>
+                <p style={{ fontSize: 12, color: "var(--text-faint)", lineHeight: 1.5, margin: 0 }}>
                   Conteúdo de apoio educacional e à decisão clínica. Toda conduta deve ser confirmada por médico responsável.
                 </p>
               )}
@@ -167,7 +167,7 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            <p style={{ marginTop: 20, fontSize: 14, color: "#9bacc6" }}>
+            <p style={{ marginTop: 20, fontSize: 14.5, color: "var(--text-dim)" }}>
               Já tem conta?{" "}
               <Link href="/login" className="auth-link">
                 Entrar

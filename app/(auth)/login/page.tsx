@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Stethoscope, Lock, Eye, EyeOff } from "lucide-react";
 import { apiPost, friendlyError, ApiError, Me } from "@/lib/client";
 import AuthIllustration from "@/components/AuthIllustration";
-import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
+import StatLogo from "@/components/StatLogo";
 import StatPreview from "@/components/StatPreview";
 
 export default function LoginPage() {
@@ -43,23 +43,20 @@ export default function LoginPage() {
         <div className="auth-grid">
           {/* Coluna do formulário */}
           <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/stat-logo.svg" alt="STAT" style={{ height: 58, width: "auto", display: "block", marginBottom: 14 }} />
-            <div className="login-flip">
-              <LayoutTextFlip
-                text=""
-                words={["Leitura de ECG por IA", "Resultado em menos de 2 min", "Conduta com evidência", "Apoio na sala vermelha"]}
-                duration={2600}
-              />
-            </div>
-            <p className="login-sub">Bem-vindo de volta · análise de ECG por IA em menos de 2 minutos</p>
+            <StatLogo size={40} tone="onLight" animated={false} />
+            <h1 className="auth-h1">O copiloto clínico do seu plantão.</h1>
+            <p className="auth-sub">
+              Protocolos de emergência, calculadoras validadas, IA para discutir casos e gestão de plantões — em um só
+              lugar.
+            </p>
 
-            <form onSubmit={submit} style={{ marginTop: 26, display: "flex", flexDirection: "column", gap: 18, maxWidth: 460 }}>
+            <form onSubmit={submit} style={{ marginTop: 28, display: "flex", flexDirection: "column", gap: 18, maxWidth: 440 }}>
               <div>
-                <label className="auth-label">CRM ou CPF</label>
+                <label className="auth-label" htmlFor="login-doc">CRM ou CPF</label>
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <Stethoscope size={18} className="auth-ic" />
                   <input
+                    id="login-doc"
                     className="auth-field"
                     placeholder="CRM/UF 123456 ou CPF"
                     value={crm}
@@ -71,14 +68,15 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="auth-label">Senha</label>
+                <label className="auth-label" htmlFor="login-pw">Senha</label>
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <Lock size={18} className="auth-ic" />
                   <input
+                    id="login-pw"
                     className="auth-field"
                     type={showPw ? "text" : "password"}
                     style={{ paddingRight: 46 }}
-                    placeholder="••••••"
+                    placeholder="Sua senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
@@ -95,11 +93,15 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p style={{ marginTop: 22, fontSize: 14, color: "#9bacc6" }}>
+            <p style={{ marginTop: 22, fontSize: 14.5, color: "var(--text-dim)" }}>
               Não tem conta?{" "}
               <Link href="/register" className="auth-link">
                 Cadastre-se
               </Link>
+            </p>
+
+            <p className="auth-foot">
+              Para médicos e estudantes de medicina. Conteúdo fundamentado em diretrizes — AHA · ESC · SBC · ACLS.
             </p>
           </div>
 
