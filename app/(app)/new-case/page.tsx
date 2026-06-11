@@ -10,6 +10,7 @@ import AiFunnel from "@/components/AiFunnel";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
 import { MultiStepLoader } from "@/components/ui/multi-step-loader";
 import VoiceButton from "@/components/VoiceButton";
+import DitarCaso from "@/components/DitarCaso";
 import { apiPost } from "@/lib/client";
 import { RITMOS, RitmoMonitor, Sexo, Vitais } from "@/lib/types/case";
 
@@ -358,6 +359,20 @@ function NewCaseInner() {
           <Zap size={22} /> URGÊNCIA — leitura imediata
         </button>
 
+        {/* Ditar caso: fala → IA estrutura → médico revisa (sala vermelha não digita) */}
+        <DitarCaso
+          value={summary}
+          onChange={(v) => { setSummary(v); resetAi(); }}
+          onCampos={(c) => {
+            setSummary(c.resumo_clinico);
+            if (c.idade != null) setAge(c.idade);
+            if (c.peso != null) setWeight(c.peso);
+            if (c.sexo) setSexo(c.sexo);
+            if (c.vitais && Object.keys(c.vitais).length) setVitals((p) => ({ ...p, ...c.vitais }));
+            resetAi();
+          }}
+        />
+
         <div>
           <label className="label">Relate o caso</label>
           <div style={{ position: "relative" }}>
@@ -366,7 +381,7 @@ function NewCaseInner() {
               placeholder="Ex.: Homem, 58a, dor precordial em aperto com irradiação para MSE há 40 min, sudorese, PA 150/90. Anexei o ECG. (ou toque no microfone e fale)"
               value={summary}
               onChange={(e) => { setSummary(e.target.value); resetAi(); }}
-              style={{ minHeight: 120, lineHeight: 1.5, paddingRight: 52 }}
+              style={{ minHeight: 120, lineHeight: 1.5, paddingRight: 60 }}
             />
             <VoiceButton value={summary} onChange={setSummary} className="voice-in-area" />
           </div>
