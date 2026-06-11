@@ -83,7 +83,7 @@ export default function FeedPage() {
             )}
 
             <div>
-              <div className="label">Aguardando resposta ({open.length})</div>
+              <div className="label">Aguardando resposta <span className="data" style={{ fontSize: 11 }}>({open.length})</span></div>
               {open.length === 0 ? (
                 <EmptyState title="Sem casos na fila. Bom sinal." subtitle="Você será avisado assim que chegar um novo." />
               ) : (
@@ -107,7 +107,7 @@ export default function FeedPage() {
           <Zap size={24} style={{ flex: "0 0 auto" }} />
           <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.2 }}>
             <span style={{ fontWeight: 800 }}>Urgência</span>
-            <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>Foto do ECG → leitura imediata</span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: "#fff" }}>Foto do ECG → leitura imediata</span>
           </span>
         </Link>
         <Link

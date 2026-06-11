@@ -472,7 +472,10 @@ select.field {
   70% { box-shadow: 0 0 0 14px transparent; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
-.pulse { animation: pulse-ring 1.3s infinite; }
+/* Anel pulsante num ::after — NÃO sobrescreve o box-shadow do elemento
+   (o glow LED do Modo Plantão no .btn-emergency depende disso). */
+.pulse { position: relative; }
+.pulse::after { content: ""; position: absolute; inset: 0; border-radius: inherit; animation: pulse-ring 1.3s infinite; pointer-events: none; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 0.9s linear infinite; }
@@ -587,7 +590,8 @@ select.field {
 .welcome-banner-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.9; z-index: 0; }
 .welcome-banner::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(105deg, var(--navy-deep) 28%, color-mix(in srgb, var(--navy-deep) 20%, transparent) 92%); }
 .welcome-banner-text { position: relative; z-index: 2; }
-.welcome-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--red-line); }
+/* vermelho é SINAL, não decoração — eyebrow neutro claro sobre navy */
+.welcome-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: oklch(0.78 0.03 255); }
 .welcome-title { font-family: var(--font-archivo), var(--font-mulish), system-ui, sans-serif; font-size: 22px; font-weight: 900; letter-spacing: -0.01em; color: #fff; margin-top: 2px; }
 .auth-label { font-size: 13px; font-weight: 700; color: var(--text-dim); }
 .auth-field { width: 100%; height: 52px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 0 14px 0 44px; font-size: 15px; outline: none; transition: border-color .15s, box-shadow .15s; box-shadow: var(--shadow-sm); }
@@ -675,7 +679,7 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pulse, .spin, .fade-in, .sla-beat, .sla-beat-fast { animation: none !important; }
+  .pulse::after, .spin, .fade-in, .sla-beat, .sla-beat-fast { animation: none !important; }
   .ecg-draw, .vitals-ecg-line { animation: none !important; stroke-dashoffset: 0; }
   .splash { animation: none !important; opacity: 0; visibility: hidden; }
 }

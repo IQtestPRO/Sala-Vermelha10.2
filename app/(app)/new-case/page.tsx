@@ -378,8 +378,14 @@ function NewCaseInner() {
           <SlidersHorizontal size={18} /> Idade, peso e vitais (opcional)
         </button>
 
+        {/* UM sólido por tela: enviar é o primário; analisar é etapa intermediária (outline) */}
         {!analysis && (
-          <button className="btn btn-primary" disabled={analyzing || (!photo && !summary.trim())} onClick={() => analyze(false)}>
+          <button
+            className="btn btn-ghost"
+            style={{ border: "1.5px solid var(--border-strong)", minHeight: 50 }}
+            disabled={analyzing || (!photo && !summary.trim())}
+            onClick={() => analyze(false)}
+          >
             {analyzing ? <><Loader2 size={20} className="spin" /> Analisando…</> : <><Sparkles size={20} /> Analisar com IA</>}
           </button>
         )}
@@ -387,7 +393,8 @@ function NewCaseInner() {
         {analysis && <AnalysisResult a={analysis} />}
         {analysis && <MensagemBlock value={aiMessage} onChange={setAiMessage} />}
 
-        <button className="btn btn-emergency" disabled={sending || (!photo && !summary.trim())} onClick={submit}>
+        {/* vermelho fica reservado à variante URGENTE; o fluxo normal envia em navy */}
+        <button className="btn btn-primary" disabled={sending || (!photo && !summary.trim())} onClick={submit}>
           <Send size={20} /> {sending ? "Enviando…" : "Enviar ao plantonista"}
         </button>
       </div>

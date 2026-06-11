@@ -28,7 +28,7 @@ export default function CaseCard({ c, serverNow }: { c: PublicCase; serverNow: n
     >
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 5 }}>
-          <span className="microlabel" style={{ color: "var(--red)", letterSpacing: "0.07em" }}>
+          <span className="microlabel" style={{ letterSpacing: "0.07em" }}>
             {meta.short.toUpperCase()}
           </span>
           {showCountdown ? (
@@ -46,7 +46,7 @@ export default function CaseCard({ c, serverNow }: { c: PublicCase; serverNow: n
               {patient}
             </span>
           )}
-          <span className="faint" style={{ fontSize: 11.5 }}>{timeAgo(c.created_at, serverNow)}</span>
+          <span className="data" style={{ fontSize: 11, color: "var(--text-faint)" }}>{timeAgo(c.created_at, serverNow)}</span>
         </div>
       </div>
       <ChevronRight size={18} className="faint" style={{ flex: "0 0 auto" }} />
