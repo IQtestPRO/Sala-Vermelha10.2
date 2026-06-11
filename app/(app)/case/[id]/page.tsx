@@ -10,6 +10,7 @@ import { usePoll } from "@/lib/usePoll";
 import { apiPost, friendlyError, ApiError } from "@/lib/client";
 import SlaCountdown from "@/components/SlaCountdown";
 import VitalsStrip from "@/components/VitalsStrip";
+import DebriefCard from "@/components/DebriefCard";
 import VitalsGrid from "@/components/VitalsGrid";
 import EcgViewer from "@/components/EcgViewer";
 import AnalysisResult, { Analysis } from "@/components/AnalysisResult";
@@ -132,6 +133,8 @@ export default function CasePage() {
     try {
       await apiPost(`/api/cases/${id}/close`);
       toast.success("Caso encerrado.");
+      // Debrief educativo: dispara a geração em segundo plano (a UI tem rede de segurança lazy).
+      fetch(`/api/cases/${id}/debrief`, { method: "POST" }).catch(() => {});
       refresh();
     } catch {
       toast.error("Falha ao encerrar.");
@@ -206,6 +209,9 @@ export default function CasePage() {
         {data.responses.map((r) => (
           <ResponseCard key={r.id} r={r} />
         ))}
+
+        {/* Debrief educativo (caso encerrado) */}
+        {c.status === "closed" && (isOwner || isClaimer) && <DebriefCard caseId={id} />}
 
         {/* Zona de ação por papel/estado */}
         {isResponder && !isOwner && c.status === "open" && (
