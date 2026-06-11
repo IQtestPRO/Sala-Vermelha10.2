@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 type Seg = "plantoes" | "passagem";
 
-type Shift = { id: string; data: string; inicio: string | null; fim: string | null; local: string | null; valor: number | null; pago: boolean; cor: string | null; nota: string | null };
+type Shift = { id: string; data: string; inicio: string | null; fim: string | null; local: string | null; valor: number | null; pago: boolean; cor: string | null; nota: string | null; confirmado?: boolean };
 type Handoff = { token: string; paciente: string; idade: string | null; leito: string | null; situacao: string | null; status: string; author_name: string | null; updated_at: number };
 type Modelo = { local: string; inicio: string; fim: string; valor: string; cor: string; diaPag: string };
 
@@ -299,6 +299,7 @@ function Plantoes() {
 
   function ShiftRow({ s }: { s: Shift }) {
     const checked = bulkShifts.includes(s.id);
+    const vencido = !s.pago && (s.valor ?? 0) > 0 && s.data < todayISO();
     const corpo = (
       <>
         <div style={{ width: 6, alignSelf: "stretch", borderRadius: 4, background: s.cor || CORES[0] }} />
@@ -307,7 +308,11 @@ function Plantoes() {
           <div className="faint" style={{ fontSize: 10 }}>{ddmm(s.data).slice(3)}</div>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.local || "Plantão"}</div>
+          <div style={{ fontWeight: 700, fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{s.local || "Plantão"}</span>
+            {s.confirmado && <span className="badge badge-answered" style={{ flex: "0 0 auto", fontSize: 9.5 }}>Confirmado</span>}
+            {vencido && <span className="badge badge-expired" style={{ flex: "0 0 auto", fontSize: 9.5 }}>Pgto. vencido</span>}
+          </div>
           <div className="faint" style={{ fontSize: 12 }}>{[s.inicio && s.fim ? `${s.inicio}–${s.fim}` : s.inicio, s.valor != null ? brl(s.valor) : null].filter(Boolean).join(" · ")}</div>
         </div>
       </>

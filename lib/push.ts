@@ -7,6 +7,10 @@ export type PushPayload = {
   body: string;
   caseId?: string;
   url?: string;
+  /* Ações da notificação (ex.: "Confirmar presença" do lembrete de plantão). */
+  actions?: { action: string; title: string }[];
+  shiftId?: string;
+  tag?: string;
 };
 
 type SubRow = { id: string; endpoint: string; p256dh: string; auth: string };

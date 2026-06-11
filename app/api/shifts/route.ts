@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ensureTables, getDb, ShiftRow } from "@/lib/db";
 import { requireUser, errorResponse } from "@/lib/auth";
 import { newId } from "@/lib/ids";
+import { sweepShiftAlerts } from "@/lib/shiftAlerts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,12 +27,16 @@ export async function GET(req: NextRequest) {
     const user = await requireUser(req);
     await ensureTables();
     const db = getDb();
+
+    // Varredura preguiçosa dos lembretes/alerta financeiro (idempotente, gate 15 min).
+    await sweepShiftAlerts(db, user.id);
+
     const month = new URL(req.url).searchParams.get("month");
     const r =
       month && /^\d{4}-\d{2}$/.test(month)
         ? await db.execute({ sql: "SELECT * FROM shifts WHERE user_id = ? AND data LIKE ? ORDER BY data ASC, inicio ASC", args: [user.id, month + "%"] })
         : await db.execute({ sql: "SELECT * FROM shifts WHERE user_id = ? ORDER BY data ASC LIMIT 400", args: [user.id] });
-    const shifts = (r.rows as unknown as ShiftRow[]).map((x) => ({
+    const shifts = (r.rows as unknown as (ShiftRow & { confirmado?: number })[]).map((x) => ({
       id: x.id,
       data: x.data,
       inicio: x.inicio,
@@ -41,6 +46,7 @@ export async function GET(req: NextRequest) {
       pago: !!x.pago,
       cor: x.cor,
       nota: x.nota,
+      confirmado: !!x.confirmado,
     }));
     return NextResponse.json({ shifts });
   } catch (err) {

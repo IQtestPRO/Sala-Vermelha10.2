@@ -90,18 +90,31 @@ self.addEventListener("push", (event) => {
       body: data.body || "",
       icon: "/icons/icon-192.png",
       badge: "/icons/badge-72.png",
-      tag: data.caseId ? `case-${data.caseId}` : "emerg10",
+      tag: data.tag || (data.caseId ? `case-${data.caseId}` : "emerg10"),
       renotify: true,
       requireInteraction: true,
       vibrate: [200, 100, 200, 100, 200],
-      data: { url: data.url || (data.caseId ? `/case/${data.caseId}` : "/queue") },
+      actions: Array.isArray(data.actions) ? data.actions.slice(0, 2) : undefined,
+      data: { url: data.url || (data.caseId ? `/case/${data.caseId}` : "/queue"), shiftId: data.shiftId },
     })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || "/queue";
+  const nd = event.notification.data || {};
+  // Ação "Confirmar presença" do lembrete de plantão — confirma direto da notificação.
+  if (event.action === "confirmar" && nd.shiftId) {
+    event.waitUntil(
+      fetch("/api/shifts/confirm", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: nd.shiftId }),
+      }).catch(() => {})
+    );
+    return;
+  }
+  const target = nd.url || "/queue";
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((wins) => {
       for (const w of wins) {

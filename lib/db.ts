@@ -221,6 +221,20 @@ export async function ensureTables() {
     )
   `);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_shifts_user_data ON shifts(user_id, data)`);
+  // Confirmação de presença (ação do push da véspera) — aditivo.
+  await addColumnIfMissing(db, "shifts", "confirmado", "INTEGER NOT NULL DEFAULT 0");
+
+  // ---- SHIFT ALERTS (idempotência dos lembretes de plantão — 1 por (shift, tipo)) ----
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS shift_alerts (
+      id       TEXT PRIMARY KEY,
+      shift_id TEXT NOT NULL,
+      user_id  TEXT NOT NULL,
+      type     TEXT NOT NULL,
+      sent_at  INTEGER NOT NULL
+    )
+  `);
+  await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_shift_alerts_unique ON shift_alerts(shift_id, type)`);
 
   // ---- PCR REPORTS (relatório do Modo PCR/ACLS, por usuário) ----
   await db.execute(`
