@@ -46,7 +46,7 @@ export default function VitalsStrip({
   const beat = danger ? "sla-beat-fast" : warn ? "sla-beat" : "";
 
   return (
-    <div className="vitals-strip">
+    <div className="vitals-strip navy-material">
       <svg className="vitals-ecg" viewBox="0 0 360 40" preserveAspectRatio="none" aria-hidden="true">
         <path
           className="vitals-ecg-line"

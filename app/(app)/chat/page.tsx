@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Send, ImagePlus, Loader2, X, Stethoscope, History, SquarePen, Trash2 } from "lucide-react";
 import EcgIcon from "@/components/icons/EcgIcon";
+import EcgLine from "@/components/EcgLine";
 import { toast } from "sonner";
 import { resizeToJpegBase64 } from "@/lib/image";
 import VoiceButton from "@/components/VoiceButton";
@@ -206,8 +207,9 @@ export default function ChatPage() {
             {m.text ? (
               <RichText text={m.text} />
             ) : busy && i === messages.length - 1 ? (
-              <span className="muted" style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-                <Loader2 size={15} className="spin" /> Analisando…
+              <span style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 130 }}>
+                <EcgLine variant="run" height={18} stroke={1.8} opacity={0.9} glow style={{ width: 130 }} />
+                <span className="muted" style={{ fontSize: 12.5 }}>Analisando…</span>
               </span>
             ) : null}
           </div>

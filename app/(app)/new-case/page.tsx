@@ -39,18 +39,19 @@ function NumField({
         {label}
       </label>
       <div style={{ position: "relative" }}>
+        {/* dado clínico em MONO tabular (dado é dado, prosa é prosa) */}
         <input
-          className="field"
+          className="field data"
           inputMode="decimal"
           value={value ?? ""}
           onChange={(e) => {
             const n = e.target.value === "" ? undefined : Number(e.target.value.replace(",", "."));
             onChange(Number.isNaN(n as number) ? undefined : n);
           }}
-          style={{ minHeight: 46, paddingRight: suffix ? 38 : 15 }}
+          style={{ minHeight: 46, paddingRight: suffix ? 38 : 15, borderRadius: "var(--r-data)" }}
         />
         {suffix && (
-          <span className="faint" style={{ position: "absolute", right: 12, top: 13, fontSize: 13 }}>
+          <span className="microlabel" style={{ position: "absolute", right: 11, top: 16, fontSize: 10 }}>
             {suffix}
           </span>
         )}
@@ -266,45 +267,48 @@ function NewCaseInner() {
 
           <hr className="divider" />
 
+          {/* Dados críticos num POÇO (well) — vitais afundados como num monitor */}
           <div className="label">Sinais vitais</div>
-          <div>
-            <label className="label" style={{ marginBottom: 4 }}>
-              Pressão arterial
-            </label>
-            <div className="scroll-x" style={{ marginBottom: 8 }}>
-              {[
-                [120, 80],
-                [90, 60],
-                [80, 40],
-                [160, 100],
-              ].map(([s, d]) => (
-                <button
-                  key={`${s}/${d}`}
-                  className={`chip ${vitals.paSys === s && vitals.paDia === d ? "chip-on" : ""}`}
-                  onClick={() => setV({ paSys: s, paDia: d })}
-                  style={{ flex: "0 0 auto" }}
-                >
-                  {s}/{d}
-                </button>
-              ))}
+          <div className="well" style={{ padding: "14px 14px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <label className="label" style={{ marginBottom: 4 }}>
+                Pressão arterial
+              </label>
+              <div className="scroll-x" style={{ marginBottom: 8 }}>
+                {[
+                  [120, 80],
+                  [90, 60],
+                  [80, 40],
+                  [160, 100],
+                ].map(([s, d]) => (
+                  <button
+                    key={`${s}/${d}`}
+                    className={`chip data ${vitals.paSys === s && vitals.paDia === d ? "chip-on" : ""}`}
+                    onClick={() => setV({ paSys: s, paDia: d })}
+                    style={{ flex: "0 0 auto", fontSize: 13 }}
+                  >
+                    {s}/{d}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <NumField label="Sistólica" value={vitals.paSys} onChange={(v) => setV({ paSys: v })} suffix="mmHg" />
+                <NumField label="Diastólica" value={vitals.paDia} onChange={(v) => setV({ paDia: v })} suffix="mmHg" />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <NumField label="FC" value={vitals.fc} onChange={(v) => setV({ fc: v })} suffix="bpm" />
+              <NumField label="FR" value={vitals.fr} onChange={(v) => setV({ fr: v })} suffix="irpm" />
             </div>
             <div style={{ display: "flex", gap: 10 }}>
-              <NumField label="Sistólica" value={vitals.paSys} onChange={(v) => setV({ paSys: v })} suffix="mmHg" />
-              <NumField label="Diastólica" value={vitals.paDia} onChange={(v) => setV({ paDia: v })} suffix="mmHg" />
+              <NumField label="SpO₂" value={vitals.satO2} onChange={(v) => setV({ satO2: v })} suffix="%" />
+              <NumField label="Tax" value={vitals.tax} onChange={(v) => setV({ tax: v })} suffix="°C" />
             </div>
-          </div>
-
-          <div style={{ display: "flex", gap: 10 }}>
-            <NumField label="FC" value={vitals.fc} onChange={(v) => setV({ fc: v })} suffix="bpm" />
-            <NumField label="FR" value={vitals.fr} onChange={(v) => setV({ fr: v })} suffix="irpm" />
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <NumField label="SpO₂" value={vitals.satO2} onChange={(v) => setV({ satO2: v })} suffix="%" />
-            <NumField label="Tax" value={vitals.tax} onChange={(v) => setV({ tax: v })} suffix="°C" />
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <NumField label="Glicemia (HGT)" value={vitals.glicemia} onChange={(v) => setV({ glicemia: v })} suffix="mg/dL" />
-            <NumField label="Glasgow" value={vitals.glasgow} onChange={(v) => setV({ glasgow: v })} />
+            <div style={{ display: "flex", gap: 10 }}>
+              <NumField label="Glicemia (HGT)" value={vitals.glicemia} onChange={(v) => setV({ glicemia: v })} suffix="mg/dL" />
+              <NumField label="Glasgow" value={vitals.glasgow} onChange={(v) => setV({ glasgow: v })} />
+            </div>
           </div>
 
           <div>

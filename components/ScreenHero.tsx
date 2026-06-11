@@ -19,7 +19,7 @@ export default function ScreenHero({
   bg?: string;
 }) {
   return (
-    <header className="screen-hero">
+    <header className="screen-hero navy-material">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={bg} alt="" className="screen-hero-bg" />
       <div className="screen-hero-top">

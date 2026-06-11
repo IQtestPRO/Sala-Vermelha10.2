@@ -306,6 +306,7 @@ export default function PcrPage() {
 
   function iniciar() {
     ensureAudio();
+    try { navigator.vibrate?.(50); } catch { /* noop */ }
     const t = Date.now();
     const s: PcrState = {
       startedAt: t, cicloStart: t, adrenalinaStart: null, adrenalinaIntervalSec: 240,

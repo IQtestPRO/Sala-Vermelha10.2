@@ -114,6 +114,7 @@ export default function CasePage() {
 
   async function claim() {
     setBusy(true);
+    try { navigator.vibrate?.(50); } catch { /* noop */ }
     try {
       await apiPost(`/api/cases/${id}/claim`);
       toast.success("Caso assumido. Avalie e responda.");
@@ -161,7 +162,7 @@ export default function CasePage() {
         onBack={() => router.back()}
         right={
           c.status === "open" ? (
-            <SlaCountdown expiresAt={c.sla_expires_at} serverNow={data.serverNow} />
+            <SlaCountdown expiresAt={c.sla_expires_at} serverNow={data.serverNow} trace />
           ) : (
             <span className={statusBadgeClass(c.status)}>{statusLabel(c.status)}</span>
           )

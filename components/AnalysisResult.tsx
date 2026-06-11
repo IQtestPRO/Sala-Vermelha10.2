@@ -45,13 +45,15 @@ function Bloco({ icon, titulo, itens, accent }: { icon: React.ReactNode; titulo:
 
 export default function AnalysisResult({ a }: { a: Analysis }) {
   const grav = GRAV[a.gravidade] || GRAV.indeterminado;
+  const critico = a.gravidade === "critico";
   return (
-    <div className="card" style={{ padding: 0, overflow: "hidden", borderColor: "var(--navy)" }}>
-      <div style={{ background: "var(--navy)", color: "#fff", padding: "12px 16px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 900, letterSpacing: "0.04em", fontSize: 13 }}>
-          <Eye size={18} /> LEITURA DA IA
+    <div className="card" style={{ padding: 0, overflow: "hidden", borderColor: critico ? "var(--red)" : "var(--navy)" }}>
+      {/* Cabeçalho de laudo: navy-material; CRÍTICO assume o vermelho (urgência real) */}
+      <div className="navy-material" style={{ background: critico ? "var(--red)" : "var(--navy)", color: "#fff", padding: "12px 16px", display: "flex", alignItems: "center", gap: 8, justifyContent: "space-between" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 800, letterSpacing: "0.08em", fontSize: 12 }}>
+          <Eye size={17} /> LEITURA DA IA
         </span>
-        <span className={`badge ${grav.cls}`}>{grav.label}</span>
+        <span className={`badge ${grav.cls}`} style={critico ? { background: "oklch(0.98 0.01 255 / 0.18)", color: "#fff" } : undefined}>{grav.label}</span>
       </div>
       <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 12 }}>
         {a.condutaImediata && (

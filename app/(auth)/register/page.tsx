@@ -8,7 +8,6 @@ import { User, Phone, Stethoscope, Lock, Eye, EyeOff, Mail, IdCard, GraduationCa
 import { apiPost, friendlyError, ApiError } from "@/lib/client";
 import { ESPECIALIDADES } from "@/lib/especialidades";
 import { formatCpf, validateCpf } from "@/lib/cpf";
-import AuthIllustration from "@/components/AuthIllustration";
 import StatLogo from "@/components/StatLogo";
 
 type Tipo = "medico" | "estudante";
@@ -53,12 +52,12 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-wrap">
-        <div className="auth-grid">
+      <div className="auth-wrap" style={{ maxWidth: 620 }}>
+        <div>
           {/* Formulário */}
           <div>
-            <StatLogo size={36} tone="onLight" animated={false} />
-            <h1 className="auth-h1" style={{ fontSize: "clamp(26px, 4.4vw, 34px)" }}>Criar conta</h1>
+            <StatLogo size={32} tone="onLight" animated={false} />
+            <h1 className="auth-h1" style={{ fontSize: "clamp(26px, 4.6vw, 36px)" }}>Criar conta</h1>
             <p className="auth-sub">Médicos e estudantes de medicina — um único cadastro para usar a plataforma.</p>
 
             {/* Toggle tipo (thumb-zone) */}
@@ -181,9 +180,6 @@ export default function RegisterPage() {
               </Link>
             </p>
           </div>
-
-          {/* Ilustração */}
-          <AuthIllustration />
         </div>
       </div>
     </div>

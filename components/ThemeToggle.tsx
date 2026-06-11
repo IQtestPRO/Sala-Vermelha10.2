@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { toast } from "sonner";
 
-// Alterna claro/escuro. O tema inicial é aplicado por um script inline no layout
-// (evita flash). Default = claro; a escolha do usuário fica em localStorage.
+// Claro ↔ MODO PLANTÃO (dark): nomeado — é o modo de usar às 3h da manhã.
+// O tema inicial é aplicado por um script inline no layout (evita flash).
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false);
 
@@ -19,13 +20,15 @@ export default function ThemeToggle() {
       localStorage.setItem("stat_theme", next);
     } catch {}
     setDark(!dark);
+    toast(next === "dark" ? "Modo Plantão ativado." : "Modo claro ativado.", { duration: 1600 });
   }
 
   return (
     <button
       onClick={toggle}
       className="chip"
-      aria-label={dark ? "Mudar para tema claro" : "Mudar para tema escuro"}
+      title={dark ? "Sair do Modo Plantão" : "Modo Plantão"}
+      aria-label={dark ? "Sair do Modo Plantão (tema claro)" : "Ativar Modo Plantão (tema escuro)"}
       style={{ minHeight: 38, width: 38, padding: 0, justifyContent: "center" }}
     >
       {dark ? <Sun size={17} /> : <Moon size={17} />}
