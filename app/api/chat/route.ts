@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { requireUser, errorResponse } from "@/lib/auth";
+import { ensureTables, getDb } from "@/lib/db";
+import { buscarCasosSemelhantes, blocoMemoria } from "@/lib/memoriaClinica";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,6 +48,21 @@ export async function POST(req: NextRequest) {
     const msgs: InMsg[] = Array.isArray(body.messages) ? body.messages.slice(-24) : [];
     if (!msgs.length) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
 
+    // MEMÓRIA CLÍNICA: busca casos antigos do médico semelhantes ao que ele está discutindo.
+    let memoria = "";
+    let memoriaN = 0;
+    try {
+      const ultimaUser = [...msgs].reverse().find((m) => m.role === "user" && (m.text || "").trim().length >= 20);
+      if (ultimaUser?.text) {
+        await ensureTables();
+        const semelhantes = await buscarCasosSemelhantes(getDb(), user.id, ultimaUser.text);
+        memoriaN = semelhantes.length;
+        memoria = blocoMemoria(semelhantes);
+      }
+    } catch {
+      /* best-effort — chat nunca quebra por causa da memória */
+    }
+
     const anthropicMsgs: Anthropic.MessageParam[] = msgs
       .map((m) => {
         const content: Anthropic.ContentBlockParam[] = [];
@@ -70,7 +87,7 @@ export async function POST(req: NextRequest) {
       model: MODEL,
       max_tokens: 3000,
       output_config: { effort: "low" },
-      system,
+      system: system + memoria,
       messages: anthropicMsgs,
     };
     // Busca na web (pesquisa artigos/diretrizes ao vivo). Se a conta não tiver, faz fallback sem a ferramenta.
@@ -113,7 +130,12 @@ export async function POST(req: NextRequest) {
     });
 
     return new Response(rs, {
-      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store", "x-accel-buffering": "no" },
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "cache-control": "no-store",
+        "x-accel-buffering": "no",
+        "x-stat-memoria": String(memoriaN), // nº de casos antigos usados como contexto (verificável)
+      },
     });
   } catch (err) {
     if (err instanceof Anthropic.APIError) {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { requireUser, errorResponse } from "@/lib/auth";
 import { resolveSpecialist } from "@/lib/specialists";
+import { ensureTables, getDb } from "@/lib/db";
+import { buscarCasosSemelhantes, blocoMemoria } from "@/lib/memoriaClinica";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -141,6 +143,20 @@ export async function POST(req: NextRequest) {
     // Texto OU foto: precisa de pelo menos um.
     if (!base64 && !ctx.resumo) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
 
+    // MEMÓRIA CLÍNICA: casos antigos do médico semelhantes a este (best-effort).
+    let memoria = "";
+    let memoriaN = 0;
+    if (ctx.resumo && ctx.resumo.length >= 20) {
+      try {
+        await ensureTables();
+        const semelhantes = await buscarCasosSemelhantes(getDb(), user.id, ctx.resumo);
+        memoriaN = semelhantes.length;
+        memoria = blocoMemoria(semelhantes);
+      } catch {
+        /* análise nunca quebra por causa da memória */
+      }
+    }
+
     const userContent: Anthropic.ContentBlockParam[] = [];
     if (base64) userContent.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } });
     userContent.push({
@@ -166,7 +182,8 @@ export async function POST(req: NextRequest) {
             .filter(Boolean)
             .join(" · ");
           return m ? `\n\nADAPTE AO MÉDICO — calibre a profundidade/terminologia pela especialidade dele e fundamente em artigos/diretrizes DA ÁREA; respeite como ele trabalha: ${m}` : "";
-        })(),
+        })() +
+        memoria,
       messages: [{ role: "user", content: userContent }],
     } as Anthropic.MessageCreateParamsNonStreaming);
 
@@ -179,7 +196,7 @@ export async function POST(req: NextRequest) {
     } catch {
       return NextResponse.json({ error: "parse_error" }, { status: 502 });
     }
-    return NextResponse.json({ analysis, model: MODEL });
+    return NextResponse.json({ analysis, model: MODEL, memoria: memoriaN });
   } catch (err) {
     if (err instanceof Anthropic.APIError) {
       console.error("[api/analyze] anthropic", err.status, err.message);
